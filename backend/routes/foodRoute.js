@@ -9,7 +9,7 @@ const foodRouter = express.Router()
 
 foodRouter.post('/add',upload.fields([{name:'image1', maxCount: 1}, {name:'image2', maxCount: 1}, {name:'image3', maxCount: 1}, {name:'image4', maxCount: 1}]) , addFood)
 foodRouter.get('/list', listFood)
-foodRouter.post('/remove', singleFood)
-foodRouter.post('/single', adminAuth,removeFood)
+foodRouter.post('/single', singleFood)
+foodRouter.post('/remove', adminAuth,removeFood)
 
 export default foodRouter

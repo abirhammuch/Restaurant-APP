@@ -32,7 +32,18 @@ export const AppContextProvider = (props) => {
   
   
 
+      useEffect(() =>{
+        const admintoken = localStorage.getItem('admintoken')
+        const usertoken = localStorage.getItem('usertoken')
+        if (admintoken) {
+          setAdmintoken(admintoken)
+          setIsAdmin(true)
+        }
+        if (usertoken) {
+          setUsertoken(usertoken)
+        }
 
+      },[])
  
  
      useEffect(() => {
