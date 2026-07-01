@@ -9,11 +9,13 @@ const foodSchema = new mongoose.Schema({
   images:{type:Array, required:true},
   category:{type:String, required:true},
   ingredients:{type:Array,required:true},
-  allergens:{type:Array, required:true},
-  dietaryTags:{type:Array, required:true},
+
   preparationTime:{type:Number, required:true},
   averageRating:{type:Number,},
   totalReviews:{type:Number, },
+  isFast:{type:Boolean, default:false, required:true},
+  popular:{type:Boolean, default:false, required:true},
+ status:{type:String, default:"available", enum:["available","unavailable"]},
   
 
 },

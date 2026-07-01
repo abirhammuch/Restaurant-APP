@@ -16,7 +16,7 @@ import About from './pages/About'
 import Contact from './pages/Contact'
 import CartPage from './pages/CartPage'
 import Checkout from './pages/Checkout'
-import Order from './pages/Order'
+import OrderDetail from './pages/OrderDetail'
 import Login from './pages/Login'
 import { AppContext } from './context/AppContext'
 import AdminLogin from './pages/adminpage/AdminLogin'
@@ -26,6 +26,8 @@ import Products from './pages/adminpage/Products'
 import Qrcodes from './pages/adminpage/qrcodes'
 import Settings from './pages/adminpage/settings'
 import Dashboard from './pages/adminpage/Dashboard'
+import Category from './pages/adminpage/Category'
+import Order from './pages/Order'
 
 
 
@@ -54,6 +56,7 @@ const App = () => {
           <Route path='/cart' element= {<CartPage />} />
           <Route path='/checkout' element= {<Checkout />} />
           <Route path='/orders' element= {<Order />} />
+          <Route path='/orders/:orderId' element= {<OrderDetail />} />
           <Route path='/menu' element= {<MenuPage />} />
           <Route path='/menu/:category' element= {<CategoryPage />} />
           <Route path='/menu/search' element= {<SearchFood />} />
@@ -63,6 +66,7 @@ const App = () => {
           <Route path='/admin' element= { isAdmin ? <AdminLayout /> : <AdminLogin />} >
             
             <Route path='/admin/products' element= { <Products />} />
+            <Route path='/admin/categories' element= { <Category />} />
             <Route path='/admin/totalorders' element= { <Orders />} />
             <Route path='/admin/qrcodes' element= { <Qrcodes />} />
             <Route path='/admin/dashboard' element = { <Dashboard />} />

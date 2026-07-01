@@ -13,6 +13,9 @@ const Navbar = () => {
     setUsertoken,
     setCartItems,
     usertoken,
+    addToCart,
+    getCartCount,
+    cartCount
   } = useContext(AppContext);
 
   const search = () => {
@@ -48,7 +51,8 @@ const Navbar = () => {
           src={assets.search_icon}
           alt=""
         />
-        <div className="relative ">
+
+        {usertoken &&  <div className="relative ">
           <img
             onClick={() => navigate("/cart")}
             className="w-8 cursor-pointer"
@@ -56,9 +60,10 @@ const Navbar = () => {
             alt=""
           />
           <div className="bg-amber-600 px-2 rounded-2xl absolute bottom-4 text-white left-5">
-            4
+            {cartCount}
           </div>
-        </div>
+        </div> }
+       
 
         <div className="group relative">
           <img

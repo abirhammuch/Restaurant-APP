@@ -8,9 +8,115 @@ import { FaLightbulb } from "react-icons/fa";
 
 import { FaUser } from "react-icons/fa6";
 import { AppContext } from "../context/AppContext";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 const Checkout = () => {
-  const { orders, currency, navigate } = useContext(AppContext);
+  const { orders, currency, navigate, cart, cartCount, delivery_fee, tax,setLoading, backendUrl, clearCart } =
+    useContext(AppContext);
+  const [method, setMethod] = useState('cash')
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
+  const [table, setTable] = useState('')
+  const [note, setNote] = useState('')
+
+
+  const getToken = () =>localStorage.getItem('usertoken');
+
+  const onSubmitHandler = async (event) => {
+    event.preventDefault()
+    
+      if (!method.trim()) {
+        toast.error('Please Select payment method')
+        return 
+      }
+
+       if (!name.trim()) {
+        toast.error('Please enter your full name')
+        return 
+      }
+
+       if (!email.trim()) {
+        toast.error('Please enter your email')
+        return 
+      }
+       if (!phone.trim()) {
+        toast.error('Please enter your phone number')
+        return 
+      }
+       if (!table.trim()) {
+        toast.error('Please enter table number ')
+        return 
+      }
+      if (!cart.items || cart.items.length === 0) {
+        toast.error('Your cart is empty')
+        return
+
+        
+      }
+      setLoading(true)
+
+      try {
+
+        // prepare order data
+        const orderData = {
+          items:cart.items.map(item =>({
+            foodId:item.foodId,
+            quantity:item.quantity,
+            
+          })),
+          deliveryAddress:{
+            table: table,
+            phone:phone,
+            name:name,
+            email:email
+          
+          },
+            paymentMethod:method,
+            note: note || '',
+            couponCode: ''
+        }
+
+
+        const response = await axios.post( backendUrl + '/api/order/create', 
+            orderData,
+            {
+              headers: {
+                usertoken : getToken()
+              }
+            }
+        )
+        console.log('order response ', response.data);
+        if (response.data.success) {
+        toast.success(' Order placed successfully!');
+        
+        // ✅ Clear cart
+        await clearCart();
+        
+        // ✅ Navigate to order confirmation or orders page
+        navigate('/orders');
+      } else {
+        toast.error(response.data.message || 'Failed to place order.....');
+      }
+    } catch (error) {
+      console.error('Place order error:', error);
+      toast.error(error.response?.data?.message || 'Failed to place order. Please try again.');
+    }finally{
+      setLoading(false)
+    }
+
+  }
+
+    // ✅ Calculate totals
+  const subtotal = cart.subtotal || 0;
+  const taxAmount = (subtotal * (tax || 8)) / 100;
+  const deliveryFee = (cart.subtotal < 50 ? 0 : delivery_fee) || 0;
+  const total = subtotal + taxAmount + deliveryFee;
+
+
+
+
   return (
     <div>
       <div
@@ -23,7 +129,9 @@ const Checkout = () => {
       <div className="">
         <div>
           {/* customer info */}
-          <form className="lg:grid grid-cols-[2fr_1fr] px-5 mt-5 mx-9 gap-9 ">
+          <form 
+          onSubmit={onSubmitHandler}
+          className="lg:grid grid-cols-[2fr_1fr] px-5 mt-5 mx-9 gap-9 ">
             <div className="">
               <p className="text-2xl font-bold">Checkout</p>
               <p className="text-gray-600">
@@ -40,6 +148,7 @@ const Checkout = () => {
                     <p className="font-medium">Full Name</p>
                     <div className="relative">
                       <input
+                        onChange={(e) =>setName(e.target.value)} value={name}
                         type="text"
                         placeholder="Enter your name"
                         className="border border-gray-300 rounded-md py-2 px-9 focus:outline-none focus:ring-2 focus:ring-amber-600 "
@@ -53,6 +162,7 @@ const Checkout = () => {
                     <p className="font-medium">Phone Number</p>
                     <div className="relative">
                       <input
+                        onChange={(e) =>setPhone(e.target.value)} value={phone}
                         type="phone"
                         placeholder="09 11 22 33 44"
                         className="border border-gray-300 rounded-md py-2 px-9 focus:outline-none focus:ring-2 focus:ring-amber-600 "
@@ -67,6 +177,7 @@ const Checkout = () => {
                   <p className="font-medium">Email Address</p>
                   <div className="relative">
                     <input
+                      onChange={(e) =>setEmail(e.target.value)} value={email}
                       type="email"
                       placeholder="example@gmaul.com"
                       className="border border-gray-300 rounded-md py-2 px-9 focus:outline-none focus:ring-2 focus:ring-amber-600  "
@@ -83,6 +194,7 @@ const Checkout = () => {
                     <div>
                       <p className="mb-2 mt-2">Table Number</p>
                       <input
+                        onChange={(e) =>setTable(e.target.value)} value={table}
                         type="text"
                         placeholder="# e.g 12"
                         className="px-2 py-1"
@@ -96,13 +208,21 @@ const Checkout = () => {
                     <div>
                       <p className="mb-2 mt-2">Payment Method</p>
                       <div className="sm:flex justify-center items-center gap-9">
-                        <div className=" border px-5 flex justify-center items-center gap-3 py-1 rounded-md border-amber-600 mb-4 sm:mb-0">
-                          <FaCreditCard className="text-amber-600 " />
-                          <p className="text-amber-600">Card</p>
+                        <div 
+                          onClick={() =>setMethod('telebirr')}  value= {method}
+                        className= {`border px-5 flex justify-center items-center gap-3 py-1 rounded-md  mb-4 sm:mb-0 cursor-pointer
+                         ${method === 'telebirr' ? 'border-amber-600':'' } `}>
+                          
+                          
+                          <p className= {`${method ===  'telebirr' ? 'text-amber-600':'' }`}>Telebirr</p>
                         </div>
-                        <div className=" border px-5 flex justify-center items-center gap-3 py-1 rounded-md ">
-                          <div className="border px-1 py-1 rounded-2xl"></div>
-                          <p>Cash</p>
+                        <div
+                        onClick={() =>setMethod('cash')}  value= {method}
+                        className={`border px-5 flex justify-center items-center gap-3 py-1 rounded-md  mb-4 sm:mb-0 cursor-pointer
+                         ${method === 'cash' ? 'border-amber-600':'' } `}>
+                        
+                          
+                          <p className= {`${method ===  'cash' ? 'text-amber-600':'' }`}>Cash</p>
                         </div>
                       </div>
                     </div>
@@ -114,6 +234,7 @@ const Checkout = () => {
                 <p className="mb-2 mt-2 text-sm">Order Notes (Optional)</p>
                 <div>
                   <textarea
+                    onChange={(e) =>setNote(e.target.value)} value={note}
                     type="textarea"
                     placeholder="e.g. No onions, extra napkins or allergen info"
                     className=" w-full px-3 py-3 "
@@ -129,7 +250,11 @@ const Checkout = () => {
                 <div className="flex  items-center justify-between mb-9">
                   <p className="text-2xl font-bold">Order summery</p>
                   <p className=" border px-3 py-1 rounded-md border-gray-300 ">
-                    3 Items
+                    <span className="text-orange-600 font-bold">
+                      {" "}
+                      {cartCount}
+                    </span>{" "}
+                    Items
                   </p>
                 </div>
 
@@ -166,7 +291,7 @@ const Checkout = () => {
                     <p className="text-md">Subtotal</p>
                     <p>
                       {currency}
-                      {9000.999}
+                      {cart.subtotal || 0}
                     </p>
                   </div>
 
@@ -174,7 +299,7 @@ const Checkout = () => {
                     <p className="text-md">Tax(8%)</p>
                     <p>
                       {currency}
-                      {40.999}
+                      {(((cart.subtotal || 0) * tax) / 100).toFixed(2)}
                     </p>
                   </div>
 
@@ -182,7 +307,7 @@ const Checkout = () => {
                     <p className="text-md">Service Fee</p>
                     <p>
                       {currency}
-                      {20.999}
+                      {cart.subtotal < 50 ? 0 : delivery_fee}
                     </p>
                   </div>
                   <hr className="text-gray-400" />
@@ -191,7 +316,11 @@ const Checkout = () => {
                     <p className="font-bold text-lg">Total</p>
                     <p className="font-bold text-lg text-amber-700">
                       {currency}
-                      {2918000.99}
+                      {(
+                        (cart.subtotal || 0) +
+                        (cart.subtotal < 50 ? 0 : delivery_fee) +
+                        ((cart.subtotal || 0) * tax) / 100
+                      ).toFixed(2)}
                     </p>
                   </div>
 

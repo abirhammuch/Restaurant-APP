@@ -15,6 +15,8 @@ const CategoryPage = () => {
     );
     setFilteredCategory(filtered);
   }, [foods]);
+  console.log(filterdCategory);
+  
 
   return (
     <div>

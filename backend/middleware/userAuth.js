@@ -1,21 +1,33 @@
+// middleware/userAuth.js
+import jwt from 'jsonwebtoken';
+
+const userAuth = async (req, res, next) => {
+
+  const { usertoken } = req.headers;
 
 
-import jwt from 'jsonwebtoken'
 
-const userAuth = async (req , res , next ) => {
-  const { usertoken } = req.headers
   if (!usertoken) {
-    return res.json({success:false, message:'No Authorized Login Again'})
+    return res.status(401).json({
+      success: false,
+      message: 'No Authorized Login Again...'
+    });
   }
- try {
-   const token_decode = jwt.verify(usertoken, process.env.JWT_SECRET)
-  req.body.userId = token_decode.id
-  next()
- } catch (error) {
-  console.log(error);
-  res.json({success:false, message:error.message})
-  
- }
-}
 
-export default userAuth
+  try {
+    const token_decode = jwt.verify(usertoken, process.env.JWT_SECRET);
+   
+    
+    
+    req.userId = token_decode.id;
+    next();
+  } catch (error) {
+    console.log('Auth error:', error);
+    res.status(401).json({
+      success: false,
+      message: error.message || 'Invalid token'
+    });
+  }
+};
+
+export default userAuth;

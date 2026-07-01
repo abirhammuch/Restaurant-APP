@@ -8,13 +8,16 @@ import Less from "./Less";
 
 const Popular = () => {
   const { foods, popularFood,setPopularFood  } = useContext(AppContext);
-
+  
   const [more, setMore] = useState(false)
   const [slicedPopularFood,setSlicedPopularFood] = useState([])
 
   useEffect(() => {
   setSlicedPopularFood(popularFood.slice(0,4))
   }, [more,popularFood])
+
+  
+  
   
 
  

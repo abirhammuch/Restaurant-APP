@@ -32,7 +32,7 @@ const AdminLayout = () => {
           <div className="">
             <div className= {`flex ${menuOpen ? "justify-between " : "justify-center "}items-center`} >
               {
-                menuOpen && <img src={assets.logo} />
+                menuOpen && <img src={assets.logo} onClick={() =>navigate('/')}/>
               }
             
                
@@ -66,6 +66,21 @@ const AdminLayout = () => {
                   <MdRestaurantMenu />
                     {
                       menuOpen &&  <p className="text-lg">Products</p>
+                    }
+                  
+                </NavLink>
+              </div>
+
+
+
+              <div className=" admin  cursor-pointer ">
+                <NavLink
+                  to="/admin/categories"
+                  className="flex gap-3 items-center px-3 py-2 rounded-2xl hover:bg-amber-500 hover:text-white"
+                >
+                  <MdRestaurantMenu />
+                    {
+                      menuOpen &&  <p className="text-lg">Categories</p>
                     }
                   
                 </NavLink>
