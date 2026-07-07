@@ -9,6 +9,7 @@ import { FaArrowLeft } from "react-icons/fa";
 import More from "../components/More";
 import CustomerComent from "../components/CustomerComent";
 import Less from "../components/Less";
+import MyPurchases from "./MyPurchases";
 
 const FoodDetail = () => {
   const {
@@ -83,6 +84,7 @@ const FoodDetail = () => {
           ))}
           {showComment && (
             <div>
+              <MyPurchases />
               <CustomerComent
                 customername={"Alex"}
                 comment={"It is very delicious food"}

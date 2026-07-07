@@ -6,7 +6,7 @@ import { FaClock } from "react-icons/fa";
 
 const FooterLink = () => {
   return (
-    <div className="grid grid-cols-[1fr_1fr]   md:grid-cols-[1fr_1fr_1fr_1fr] px-1  gap-20 mt-9 border-t bg-gray-100 border-gray-300 pt-9">
+    <div className="grid grid-cols-[1fr_1fr]   md:grid-cols-[1fr_1fr_1fr_1fr] px-1 md:gap-20 mt-9 border-t bg-gray-100 border-gray-300 pt-9">
       {/* left  */}
       <div>
         <div className="flex justify-center">

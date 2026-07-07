@@ -10,6 +10,7 @@ import connectCloudinary from './config/cloudinary.js';
 import categoryRouter from './routes/categoryRoute.js';
 import cartRouter from './routes/cartRoute.js';
 import orderRouter from './routes/orderRoute.js';
+import ratingRouter from './routes/ratingRouter.js';
 
 
 
@@ -34,6 +35,7 @@ app.use('/api/food', foodRouter)
 app.use('/api/category', categoryRouter)
 app.use('/api/cart', cartRouter)
 app.use('/api/order',orderRouter)
+app.use('/api/rating', ratingRouter)
 app.use('/', (req, res) => res.send('API is working') )   //first
 
 

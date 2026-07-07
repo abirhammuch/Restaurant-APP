@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { FaCheck } from "react-icons/fa";
+import { FaCheck, FaStar, FaRegStar, FaEdit } from "react-icons/fa";
 import { FaPhone } from "react-icons/fa";
 import { AppContext } from "../context/AppContext";
 import axios from "axios";
@@ -9,7 +9,16 @@ import { toast } from "react-toastify";
 const OrderDetail = () => {
   const [orderDetail, setOrderDetail] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [tick, setTick] = useState(false);
+  const [showRating, setShowRating] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [hover, setHover] = useState(0);
+  const [comment, setComment] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [ratedItems, setRatedItems] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [updateRatingId, setUpdateRatingId] = useState(null);
+  const [existingRatingData, setExistingRatingData] = useState(null);
   const { orderId } = useParams();
   const { currency, backendUrl } = useContext(AppContext);
 
@@ -29,10 +38,9 @@ const OrderDetail = () => {
       if (response.data.success) {
         setOrderDetail(response.data.order);
         
-        //  Update tick based on order status
         const status = response.data.order?.orderStatus;
-        if (status === 'confirmed' || status === 'preparing' || status === 'ready') {
-          setTick(true);
+        if (status === 'delivered') {
+          await checkRatedItems(response.data.order);
         }
       } else {
         toast.error(response.data.message || 'Failed to fetch order');
@@ -45,16 +53,171 @@ const OrderDetail = () => {
     }
   };
 
+  // ✅ Check which items have been rated
+  const checkRatedItems = async (order) => {
+    try {
+      const rated = [];
+      
+      for (const item of order.items) {
+        try {
+          const response = await axios.get(
+            `${backendUrl}/api/rating/check?orderId=${order._id}&foodId=${item.foodId}`,
+            {
+              headers: { usertoken: getToken() }
+            }
+          );
+          
+          if (response.data.success && response.data.isRated) {
+            rated.push(item.foodId.toString());
+          }
+        } catch (err) {
+          console.log(`Error checking rating for item ${item.foodId}:`, err);
+        }
+      }
+      
+      setRatedItems(rated);
+    } catch (error) {
+      console.log('Check rated items error:', error);
+    }
+  };
+
+  // ✅ Handle rate button click
+  const handleRateClick = async (item) => {
+    setSelectedItem(item);
+    setIsUpdating(false);
+    setUpdateRatingId(null);
+    setExistingRatingData(null);
+    setRating(0);
+    setComment('');
+    
+    // Check if already rated
+    const isRated = ratedItems.includes(item.foodId.toString());
+    
+    if (isRated) {
+      try {
+        // ✅ Fetch the existing rating
+        const response = await axios.get(
+          `${backendUrl}/api/rating/check?orderId=${orderId}&foodId=${item.foodId}`,
+          {
+            headers: { usertoken: getToken() }
+          }
+        );
+        
+        console.log('Existing rating response:', response.data);
+        
+        if (response.data.success && response.data.isRated && response.data.rating) {
+          const ratingData = response.data.rating;
+          setRating(ratingData.rating || 0);
+          setComment(ratingData.comment || '');
+          setIsUpdating(true);
+          setUpdateRatingId(ratingData._id);
+          setExistingRatingData(ratingData);
+          console.log('Loaded rating for update:', ratingData);
+        }
+      } catch (error) {
+        console.log('Fetch rating error:', error);
+        toast.error('Could not load existing rating');
+      }
+    }
+    
+    setShowRating(true);
+  };
+
+  // ✅ Submit or Update Rating
+  const handleSubmitRating = async (foodId, orderId) => {
+    if (rating === 0) {
+      toast.error('Please select a rating');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      let response;
+      
+      if (isUpdating && updateRatingId) {
+        // ✅ Update existing rating
+        console.log('Updating rating:', updateRatingId, { rating, comment });
+        
+        response = await axios.put(
+          `${backendUrl}/api/rating/${updateRatingId}`,
+          {
+            rating,
+            comment
+          },
+          {
+            headers: {
+              usertoken: getToken()
+            }
+          }
+        );
+        
+        console.log('Update response:', response.data);
+      } else {
+        // ✅ Add new rating
+        console.log('Adding new rating:', { foodId, orderId, rating, comment });
+        
+        response = await axios.post(
+          `${backendUrl}/api/rating/add`,
+          {
+            foodId,
+            orderId,
+            rating,
+            comment
+          },
+          {
+            headers: {
+              usertoken: getToken()
+            }
+          }
+        );
+        
+        console.log('Add response:', response.data);
+      }
+     
+      if (response.data.success) {
+        toast.success(isUpdating ? 'Rating updated successfully!' : 'Thank you for your rating!');
+        
+        // Reset form
+        setRating(0);
+        setComment('');
+        setShowRating(false);
+        setSelectedItem(null);
+        setIsUpdating(false);
+        setUpdateRatingId(null);
+        setExistingRatingData(null);
+        
+        // Refresh order detail
+        await userOrderDetail(orderId);
+      } else {
+        toast.error(response.data.message || 'Failed to submit rating');
+      }
+    } catch (error) {
+      console.error('Rating error:', error);
+      toast.error(error.response?.data?.message || 'Failed to submit rating');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // ✅ Cancel rating
+  const cancelRating = () => {
+    setShowRating(false);
+    setSelectedItem(null);
+    setRating(0);
+    setComment('');
+    setIsUpdating(false);
+    setUpdateRatingId(null);
+    setExistingRatingData(null);
+  };
+
   useEffect(() => {
     if (orderId) {
       userOrderDetail(orderId);
     }
   }, [orderId]);
 
-  // ✅ Get order status
   const orderStatus = orderDetail?.orderStatus || 'pending';
 
-  // ✅ Get formatted time
   const getFormattedTime = (date) => {
     if (!date) return 'N/A';
     return new Date(date).toLocaleTimeString('en-US', {
@@ -63,24 +226,20 @@ const OrderDetail = () => {
     });
   };
 
-  // ✅ Get status step
   const getStatusStep = () => {
-    const statuses = ['pending', 'confirmed', 'preparing', 'ready', 'delivering', 'F'];
+    const statuses = ['pending', 'confirmed', 'preparing', 'ready', 'delivering', 'delivered'];
     const currentIndex = statuses.indexOf(orderStatus);
-    return currentIndex;
+    return currentIndex === -1 ? 0 : currentIndex;
   };
 
-  // ✅ Check if step is completed
   const isStepCompleted = (stepIndex) => {
     return getStatusStep() >= stepIndex;
   };
 
-  // ✅ Check if step is active
   const isStepActive = (stepIndex) => {
     return getStatusStep() === stepIndex;
   };
 
-  // ✅ Loading state
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -92,7 +251,6 @@ const OrderDetail = () => {
     );
   }
 
-  // ✅ Order not found
   if (!orderDetail) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -104,7 +262,6 @@ const OrderDetail = () => {
     );
   }
 
-  // ✅ Order status steps
   const steps = [
     { label: 'Order Received', description: 'We have successfully received your order and sent it to the kitchen team.' },
     { label: 'Order Confirmed', description: 'Our chefs have acknowledged your order and are gathering the finest ingredients.' },
@@ -114,7 +271,6 @@ const OrderDetail = () => {
     { label: 'Delivered', description: 'Your order has been delivered. Enjoy your meal!' }
   ];
 
-  // ✅ Status colors
   const getStatusColor = (stepIndex) => {
     if (isStepCompleted(stepIndex)) {
       return 'bg-amber-600 text-white';
@@ -122,6 +278,28 @@ const OrderDetail = () => {
       return 'bg-amber-400 text-white animate-pulse';
     }
     return 'bg-gray-200 text-gray-400';
+  };
+
+  const isDelivered = orderStatus === 'delivered';
+
+  // ✅ Render stars
+  const renderStars = (value) => {
+    return [1, 2, 3, 4, 5].map((star) => (
+      <button
+        key={star}
+        type="button"
+        className="text-2xl focus:outline-none transition-transform hover:scale-110"
+        onClick={() => setRating(star)}
+        onMouseEnter={() => setHover(star)}
+        onMouseLeave={() => setHover(0)}
+      >
+        {star <= (hover || value) ? (
+          <FaStar className="text-yellow-400" />
+        ) : (
+          <FaRegStar className="text-gray-300" />
+        )}
+      </button>
+    ));
   };
 
   return (
@@ -147,13 +325,12 @@ const OrderDetail = () => {
           </div>
         </div>
 
-        {/* Progress */}
         <div className="flex justify-around mt-6">
           <div>
             <p className="font-bold">
               Currently:{" "}
               <span className="text-amber-600 capitalize">
-                {orderStatus === 'delivered' ? 'Delivered 🎉' : orderStatus}
+                {isDelivered ? 'Delivered 🎉' : orderStatus}
               </span>
             </p>
           </div>
@@ -202,6 +379,50 @@ const OrderDetail = () => {
               </div>
             );
           })}
+
+          {/* ✅ Rate Now Section - Shows when delivered */}
+          {isDelivered && (
+            <div className="mt-8">
+              <div className="flex items-center gap-4 mb-4">
+                <h3 className="font-bold text-lg text-amber-800">🍽️ Rate Your Order</h3>
+              </div>
+              
+              {orderDetail.items?.map((item, index) => {
+                const isRated = ratedItems.includes(item.foodId.toString());
+                
+                return (
+                  <div key={index} className="mb-4 p-4 bg-white rounded-lg border border-gray-200 shadow-sm flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                      <img 
+                        src={item.image} 
+                        alt={item.name}
+                        className="w-12 h-12 object-cover rounded-lg"
+                        onError={(e) => e.target.src = 'https://via.placeholder.com/64?text=No+Image'}
+                      />
+                      <div>
+                        <p className="font-bold">{item.name}</p>
+                        <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                        {isRated && (
+                          <span className="text-xs text-green-600 font-medium">✅ Rated</span>
+                        )}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleRateClick(item)}
+                      className={`px-4 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                        isRated 
+                          ? 'bg-blue-500 text-white hover:bg-blue-600' 
+                          : 'bg-amber-600 text-white hover:bg-amber-700'
+                      }`}
+                    >
+                      {isRated ? <FaEdit /> : <FaStar />}
+                      {isRated ? 'Update Rating' : 'Rate Now'}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         {/* Right Column - Order Summary & Help */}
@@ -266,8 +487,91 @@ const OrderDetail = () => {
               <p><span className="font-semibold">Special Instructions:</span> {orderDetail.note}</p>
             )}
           </div>
+
+          {/* ✅ Rating Status */}
+          {isDelivered && (
+            <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
+              <p className="text-sm text-green-700">
+                🎉 Order delivered! Rate your items above.
+              </p>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* ✅ Rating Modal */}
+      {showRating && selectedItem && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold">
+                {isUpdating ? 'Update Rating' : 'Rate Your Item'}
+              </h3>
+              <button
+                onClick={cancelRating}
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Item Info */}
+            <div className="flex items-center gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
+              <img 
+                src={selectedItem.image} 
+                alt={selectedItem.name}
+                className="w-14 h-14 object-cover rounded-lg"
+                onError={(e) => e.target.src = 'https://via.placeholder.com/56?text=No+Image'}
+              />
+              <div>
+                <p className="font-bold">{selectedItem.name}</p>
+                <p className="text-sm text-gray-500">Qty: {selectedItem.quantity}</p>
+                {isUpdating && (
+                  <p className="text-xs text-blue-600 font-medium">Editing your rating</p>
+                )}
+              </div>
+            </div>
+
+            {/* Rating */}
+            <div className="flex justify-center gap-1 mb-2">
+              {renderStars(rating)}
+            </div>
+            <p className="text-center text-sm text-gray-500 mb-4">
+              {rating > 0 ? `${rating} star${rating > 1 ? 's' : ''}` : 'Tap to rate'}
+            </p>
+
+            {/* Comment */}
+            <textarea
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder="Share your experience..."
+              className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm mb-4"
+              rows="3"
+            />
+
+            {/* Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={cancelRating}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => handleSubmitRating(selectedItem.foodId, orderDetail._id)}
+                disabled={submitting || rating === 0}
+                className={`flex-1 px-4 py-2 rounded-lg transition-colors disabled:opacity-50 ${
+                  isUpdating 
+                    ? 'bg-blue-500 text-white hover:bg-blue-600' 
+                    : 'bg-amber-600 text-white hover:bg-amber-700'
+                }`}
+              >
+                {submitting ? 'Saving...' : isUpdating ? 'Update Rating' : 'Submit Rating'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

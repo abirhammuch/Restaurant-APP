@@ -23,7 +23,7 @@ export const AppContextProvider = (props) => {
   const [orders, setOrders] = useState([]);
   const [userLogin, setUserLogin] = useState(false); // ✅ Changed to false
   const [isAdmin, setIsAdmin] = useState(false); // ✅ Changed to false
-  const [totalOrders, setTotalOrders] = useState(dummyOrders);
+  const [totalOrders, setTotalOrders] = useState([]);
   const [usertoken, setUsertoken] = useState("");
   const [admintoken, setAdmintoken] = useState("");
   const [allCategory, setAllCategory] = useState([]);
