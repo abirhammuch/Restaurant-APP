@@ -1,10 +1,9 @@
-
-
-import React, { useContext } from 'react'
+// App.jsx
+import React, { useContext, useState, useEffect } from 'react'
 import Home from './pages/Home'
 import Navbar from './components/Navbar'
-import { Route, Routes, useLocation } from 'react-router-dom'
-import { ToastContainer, toast} from 'react-toastify'
+import { Route, Routes, useLocation, Navigate } from 'react-router-dom'
+import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import MenuPage from './pages/MenuPage'
 import CategoryPage from './pages/CategoryPage'
@@ -28,68 +27,73 @@ import Settings from './pages/adminpage/settings'
 import Dashboard from './pages/adminpage/Dashboard'
 import Category from './pages/adminpage/Category'
 import Order from './pages/Order'
-
-
-
+import AdminRatings from './pages/adminpage/AdminRatings'
 
 const App = () => {
- const  isAdminPath = useLocation().pathname.includes('admin');
+  const location = useLocation();
+  const isAdminPath = location.pathname.includes('admin');
+  const { userLogin, isAdmin, loading } = useContext(AppContext);
 
-  const {userLogin, isAdmin} = useContext(AppContext)
+  // ✅ Show loading spinner while checking admin status
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div >
+    <div>
       <ToastContainer />
 
-      {
-        isAdminPath ? null :  <Navbar />
-      }
-     
+      {/* Show Navbar only on non-admin routes */}
+      {!isAdminPath && <Navbar />}
 
-      <div>
-        <Routes >
-          <Route path='/' element= {<Home />} />
-          <Route path='/about' element= {<About />} />
-          <Route path='/login' element= {<Login />} />
-          <Route path='/admin/login' element= {<AdminLogin />} />
-          <Route path='/admin/dashboard' element= {<AdminLayout />} />
-          <Route path='/contact' element= {<Contact />} />
-          <Route path='/cart' element= {<CartPage />} />
-          <Route path='/checkout' element= {<Checkout />} />
-          <Route path='/orders' element= {<Order />} />
-          <Route path='/orders/:orderId' element= {<OrderDetail />} />
-          <Route path='/menu' element= {<MenuPage />} />
-          <Route path='/menu/:category' element= {<CategoryPage />} />
-          <Route path='/menu/search' element= {<SearchFood />} />
-          <Route path ='/menu/:category/:id' element ={<FoodDetail />} />
+      <Routes>
+        {/* Public Routes */}
+        <Route path='/' element={<Home />} />
+        <Route path='/about' element={<About />} />
+        <Route path='/login' element={<Login />} />
+        <Route path='/contact' element={<Contact />} />
+        <Route path='/cart' element={<CartPage />} />
+        <Route path='/checkout' element={<Checkout />} />
+        <Route path='/orders' element={<Order />} />
+        <Route path='/orders/:orderId' element={<OrderDetail />} />
+        <Route path='/menu' element={<MenuPage />} />
+        <Route path='/menu/:category' element={<CategoryPage />} />
+        <Route path='/menu/search' element={<SearchFood />} />
+        <Route path='/menu/:category/:id' element={<FoodDetail />} />
 
+        {/* Admin Login - Separate Route */}
+        <Route path='/admin/login' element={<AdminLogin />} />
 
-          <Route path='/admin' element= { isAdmin ? <AdminLayout /> : <AdminLogin />} >
-            
-            <Route path='/admin/products' element= { <Products />} />
-            <Route path='/admin/categories' element= { <Category />} />
-            <Route path='/admin/totalorders' element= { <Orders />} />
-            <Route path='/admin/qrcodes' element= { <Qrcodes />} />
-            <Route path='/admin/dashboard' element = { <Dashboard />} />
-            <Route path='/admin/settings' element= { <Settings />} />
-           
-           
-            
+        {/* ✅ Admin Routes - Protected with Navigate */}
+        <Route 
+          path='/admin' 
+          element={isAdmin ? <AdminLayout /> : <Navigate to="/admin/login" replace />}
+        >
+          <Route index element={<Dashboard />} />
+          <Route path='dashboard' element={<Dashboard />} />
+          <Route path='products' element={<Products />} />
+          <Route path='categories' element={<Category />} />
+          <Route path='totalorders' element={<Orders />} />
+          <Route path='qrcodes' element={<Qrcodes />} />
+          <Route path='settings' element={<Settings />} />
+          <Route path='ratings' element={<AdminRatings />} />
+        </Route>
+      </Routes>
 
-          </Route>
-        </Routes>
-          
-      </div>
-
-      { 
-        isAdminPath ? '' :
-        <div>
+      {/* Show Footer only on non-admin routes */}
+      {!isAdminPath && (
+        <>
           <FooterLink />
           <Policy />
-
-          </div>
-      }
-      
-        
+        </>
+      )}
     </div>
   )
 }

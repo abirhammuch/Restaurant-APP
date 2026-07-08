@@ -21,16 +21,18 @@ export const AppContextProvider = (props) => {
   const [popularFood, setPopularFood] = useState([]);
   const [foodDetail, setFoodDetail] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [userLogin, setUserLogin] = useState(false); // ✅ Changed to false
-  const [isAdmin, setIsAdmin] = useState(false); // ✅ Changed to false
+  const [userLogin, setUserLogin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [totalOrders, setTotalOrders] = useState([]);
   const [usertoken, setUsertoken] = useState("");
   const [admintoken, setAdmintoken] = useState("");
   const [allCategory, setAllCategory] = useState([]);
-
-  // user order
-  const [userOrder, setUserOrder] = useState([])
+  const [userOrder, setUserOrder] = useState([]);
+  const [orderStatus, setOrderStatus] = useState("");
+  const [dataLoading, setDataLoading] = useState(false);
   
+  // ✅ App loading state - for checking auth
+  const [appLoading, setAppLoading] = useState(true);
 
   // Cart state
   const [cart, setCart] = useState({
@@ -40,7 +42,8 @@ export const AppContextProvider = (props) => {
     count: 0,
   });
   const [cartCount, setCartCount] = useState(0);
-  const [loading, setLoading] = useState(false);
+  // ✅ Cart loading state
+  const [cartLoading, setCartLoading] = useState(false);
 
   // ✅ Get token from localStorage helper
   const getToken = () => {
@@ -55,6 +58,8 @@ export const AppContextProvider = (props) => {
       const response = await axios.get(backendUrl + "/api/food/list");
       if (response.data.success) {
         setFoods(response.data.foods);
+        console.log("✅ Foods loaded:", response.data.foods.length);
+        return response.data.foods;
       } else {
         toast.error(response.data.message);
       }
@@ -70,12 +75,27 @@ export const AppContextProvider = (props) => {
       const response = await axios.get(backendUrl + "/api/category/list");
       if (response.data.success) {
         setAllCategory(response.data.categories);
+        console.log("✅ Categories loaded:", response.data.categories.length);
+        return response.data.categories;
       } else {
         toast.error(response.data.message);
       }
     } catch (error) {
       console.log(error);
       toast.error(error.message);
+    }
+  };
+
+  // ✅ Load all data
+  const loadAllData = async () => {
+    setDataLoading(true);
+    try {
+      await Promise.all([getFoodList(), getCategoryList()]);
+      console.log("✅ All data loaded successfully");
+    } catch (error) {
+      console.error("❌ Error loading data:", error);
+    } finally {
+      setDataLoading(false);
     }
   };
 
@@ -96,18 +116,18 @@ export const AppContextProvider = (props) => {
   // ✅ Load cart function
   const loadCart = async () => {
     try {
-      setLoading(true);
+      setCartLoading(true);
       await getUserCart();
     } catch (error) {
       console.log(error);
     } finally {
-      setLoading(false);
+      setCartLoading(false);
     }
   };
 
-  // ✅ Get User Cart - ALWAYS get fresh token
+  // ✅ Get User Cart
   const getUserCart = async () => {
-    const token = getToken(); // ✅ Get fresh token
+    const token = getToken();
     
     if (!token) {
       console.log("No token found for getUserCart");
@@ -115,17 +135,14 @@ export const AppContextProvider = (props) => {
     }
 
     try {
-   
       const response = await axios.get(backendUrl + "/api/cart/get", {
         headers: {
-          usertoken: token //  Use fresh token
+          usertoken: token
         },
       });
 
-
       if (response.data.success) {
         setCart(response.data.cart);
-
         setCartCount(response.data.cart?.count || 0);
       } else {
         toast.error(response.data.message);
@@ -136,12 +153,9 @@ export const AppContextProvider = (props) => {
     }
   };
 
-  console.log(cart);
-  
-
-  // ✅ Add to Cart - ALWAYS get fresh token
+  // ✅ Add to Cart
   const addToCart = async (foodId, quantity = 1) => {
-    const token = getToken(); //  Get fresh token
+    const token = getToken();
     
     if (!token) {
       toast.error("Please login to add items to cart");
@@ -154,19 +168,16 @@ export const AppContextProvider = (props) => {
         { foodId, quantity },
         {
           headers: {
-            usertoken: token //  Use fresh token
+            usertoken: token
           },
         },
       );
-        console.log(response);
         
       if (response.data.success) {
         setCart(response.data.cart);
         setCartCount(response.data.cart?.count || 0);
         toast.success(response.data.message);
         return { success: true };
-        console.log(response.data.cart);
-        
       } else {
         toast.error(response.data.message);
         return { success: false };
@@ -178,9 +189,9 @@ export const AppContextProvider = (props) => {
     }
   };
 
-  // ✅ Update Cart - ALWAYS get fresh token
+  // ✅ Update Cart
   const updateCartItem = async (foodId, quantity) => {
-    const token = getToken(); // ✅Get fresh token
+    const token = getToken();
     
     if (!token) {
       toast.error("Please login to update cart");
@@ -193,7 +204,7 @@ export const AppContextProvider = (props) => {
         { foodId, quantity },
         {
           headers: {
-            usertoken: token // ✅ Use fresh token
+            usertoken: token
           },
         },
       );
@@ -214,12 +225,9 @@ export const AppContextProvider = (props) => {
     }
   };
 
-  // ✅ Remove from Cart - ALWAYS get fresh token
+  // ✅ Remove from Cart
   const removeFromCart = async (foodId) => {
-    const token = getToken(); // ✅ Get fresh token
-    
-    console.log('yyy');
-    
+    const token = getToken();
     
     if (!token) {
       toast.error("Please login to remove items");
@@ -232,10 +240,9 @@ export const AppContextProvider = (props) => {
         url: backendUrl + "/api/cart/remove",
         data: { foodId },
         headers: {
-          usertoken: token // ✅ Use fresh token
+          usertoken: token
         },
       });
-      console.log(response);
       
       if (response.data.success) {
         setCart(response.data.cart);
@@ -253,9 +260,9 @@ export const AppContextProvider = (props) => {
     }
   };
 
-  // ✅ Clear Cart - ALWAYS get fresh token
+  // ✅ Clear Cart
   const clearCart = async () => {
-    const token = getToken(); // ✅ Get fresh token
+    const token = getToken();
     
     if (!token) {
       toast.error("Please login to clear cart");
@@ -267,7 +274,7 @@ export const AppContextProvider = (props) => {
         method: 'delete',
         url: backendUrl + "/api/cart/clear",
         headers: {
-          usertoken: token // ✅ Use fresh token
+          usertoken: token
         },
       });
 
@@ -287,9 +294,9 @@ export const AppContextProvider = (props) => {
     }
   };
 
-  // ✅ Get Cart Count - ALWAYS get fresh token
+  // ✅ Get Cart Count
   const getCartCount = async () => {
-    const token = getToken(); // ✅ Get fresh token
+    const token = getToken();
     
     if (!token) {
       return { success: false, count: 0 };
@@ -298,13 +305,47 @@ export const AppContextProvider = (props) => {
     try {
       const response = await axios.get(backendUrl + "/api/cart/count", {
         headers: {
-          usertoken: token // ✅ Use fresh token
+          usertoken: token
         },
       });
       return response.data;
     } catch (error) {
       console.log(error);
       return { success: false, count: 0 };
+    }
+  };
+
+  // ✅ Get User Orders
+  const getUserOrder = async () => {
+    try {
+      const response = await axios.get(backendUrl + '/api/order/my-orders', {
+        headers: { usertoken: getToken() }
+      });
+      if (response.data.success) {
+        setUserOrder(response.data.orders);
+        console.log('✅ User orders loaded:', response.data.orders.length);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // ✅ Get Order Detail
+  const userOrderDetail = async (orderId) => {
+    try {
+      const response = await axios.get(backendUrl + `/api/order/${orderId}`, {
+        headers: {
+          usertoken: getToken(),
+        },
+      });
+    
+      if (response.data.success) {
+        setOrderStatus(response.data.order.orderStatus);
+        return response.data.order;
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
     }
   };
 
@@ -325,16 +366,19 @@ export const AppContextProvider = (props) => {
       setUsertoken(userToken);
       setUserLogin(true);
     }
+    
+    // ✅ Set appLoading to false after checking tokens
+    setAppLoading(false);
   }, []);
 
-  // ✅ Get categories on mount
+  // ✅ Load all data on mount
   useEffect(() => {
-    getCategoryList();
+    loadAllData();
   }, []);
 
-  // ✅ Get food list on mount
+  // ✅ Get user orders on mount
   useEffect(() => {
-    getFoodList();
+    getUserOrder();
   }, []);
 
   // ✅ Update popular foods when foods change
@@ -345,46 +389,6 @@ export const AppContextProvider = (props) => {
     }
   }, [foods]);
 
-  // order
-
-  const getUserOrder = async () => {
-    try {
-      const response = await axios.get(backendUrl + '/api/order/my-orders', {
-        headers:{usertoken : getToken()}
-      })
-      console.log('yess i' ,response.data.orders);
-      if (response.data.success) {
-        setUserOrder(response.data.orders)
-      }
-      
-    } catch (error) {
-      console.log(error);
-      
-    }
-  }
-
-   const userOrderDetail = async (orderId) => {
-    try {
-      const response = await axios.get(backendUrl + `/api/order/${orderId}`, {
-        headers: {
-          usertoken: getToken(),
-        },
-      });
-    
-if (response.data.success) {
-  setOrderStatus(response.data.order.orderStatus)
-}
-    } catch (error) {
-      console.log(error);
-      toast.error(error.message)
-      
-    }
-  };
-
-  
-useEffect (() => {
-  getUserOrder()
-}, [])
   const value = {
     currency,
     delivery_fee,
@@ -428,14 +432,22 @@ useEffect (() => {
     removeFromCart,
     cart,
     cartCount,
-    loading,
-    setLoading,
+    appLoading, // ✅ Renamed from loading
+    setAppLoading,
+    cartLoading, // ✅ New cart loading state
+    setCartLoading,
     setCart,
     setCartCount,
-    getToken, // ✅ Expose getToken if needed
-    userOrder, setUserOrder,
-    userOrderDetail
-    
+    getToken,
+    getFoodList,
+    getCategoryList,
+    userOrder,
+    setUserOrder,
+    userOrderDetail,
+    orderStatus,
+    setOrderStatus,
+    dataLoading,
+    loadAllData
   };
 
   return (

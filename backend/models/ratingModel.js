@@ -9,7 +9,7 @@ const ratingSchema = new mongoose.Schema({
   },
   foodId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'menufood',
+    ref: 'food',
     required: true
   },
   orderId: {
@@ -112,7 +112,7 @@ ratingSchema.statics.getAverageRating = async function(foodId) {
 ratingSchema.statics.updateFoodRating = async function(foodId) {
   try {
     const stats = await this.getAverageRating(foodId);
-    const Food = mongoose.model('menufood');
+    const Food = mongoose.model('food');
     await Food.findByIdAndUpdate(foodId, {
       averageRating: stats.averageRating,
       totalReviews: stats.totalReviews

@@ -1,34 +1,47 @@
+// components/CustomerComent.jsx
+import React from 'react';
+import { FaStar, FaRegStar } from 'react-icons/fa';
 
+const CustomerComent = ({ customername, rating, comment, date, adminResponse }) => {
+  const renderStars = (rating) => {
+    const stars = [];
+    for (let i = 0; i < 5; i++) {
+      if (i < rating) {
+        stars.push(<FaStar key={i} className="text-yellow-400 text-sm" />);
+      } else {
+        stars.push(<FaRegStar key={i} className="text-gray-300 text-sm" />);
+      }
+    }
+    return stars;
+  };
 
-import React from 'react'
-import { assets } from '../assets/assets/assets'
-
-const CustomerComent = ({customername, text, rate, comment}) => {
   return (
-    <div>
-      <div >
-       <div className='flex gap-2 mb-8'>
-         <img className='w-10' src={assets.profile_icon} alt='' />
-        <div>
-          <p className=''>{customername}</p>
-          <p className='text-sm text-gray-600'>{text}</p>
-
+    <div className="border-b border-gray-200 py-4">
+      <div className="flex items-center gap-2">
+        <p className="font-bold text-sm">{customername || 'Anonymous'}</p>
+        <div className="flex gap-0.5">
+          {renderStars(rating || 0)}
         </div>
-       </div>
-        <div>
-              {/* star */}
-                   <div className='flex items-center gap-0.5'>
-                      {Array(5).fill('').map((_, i)=>(
-                          <img key={i} className='md:w-3.5 w-3' src={i < rate ?  assets.star_icon : assets.star_dull_icon} alt=''  />
-                      ))}
-                      
-                  </div>
-
-                  <p className='text-sm py-4'>{comment}</p>
-        </div>
+        <span className="text-xs text-gray-400 ml-2">
+          {date && new Date(date).toLocaleDateString()}
+        </span>
       </div>
+      
+      {comment && (
+        <p className="text-sm text-gray-700 mt-1">{comment}</p>
+      )}
+      
+      {/* ✅ Admin Response - Visible to everyone */}
+      {adminResponse && (
+        <div className="mt-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
+          <p className="text-xs font-bold text-blue-600 flex items-center gap-1">
+            <span>👤</span> Admin Response:
+          </p>
+          <p className="text-sm text-gray-700 mt-1">{adminResponse}</p>
+        </div>
+      )}
     </div>
-  )
-}
+  );
+};
 
-export default CustomerComent
+export default CustomerComent;

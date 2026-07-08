@@ -1,5 +1,5 @@
 // controllers/ratingController.js
-import mongoose from 'mongoose'; // ✅ Add this import
+import mongoose from 'mongoose';
 import ratingModel from '../models/ratingModel.js';
 import orderModel from '../models/orderModel.js';
 import foodModel from '../models/foodModel.js';
@@ -18,7 +18,6 @@ const addRating = async (req, res) => {
     console.log('Rating:', rating);
     console.log('Comment:', comment);
 
-    // Validate required fields
     if (!foodId) {
       return res.status(400).json({
         success: false,
@@ -40,7 +39,6 @@ const addRating = async (req, res) => {
       });
     }
 
-    // Check if user exists
     const user = await userModel.findById(userId);
     if (!user) {
       return res.status(404).json({
@@ -49,7 +47,6 @@ const addRating = async (req, res) => {
       });
     }
 
-    // Check if food exists
     const food = await foodModel.findById(foodId);
     if (!food) {
       return res.status(404).json({
@@ -58,7 +55,6 @@ const addRating = async (req, res) => {
       });
     }
 
-    // Check if order exists and belongs to user
     const order = await orderModel.findOne({ _id: orderId, userId });
     if (!order) {
       return res.status(404).json({
@@ -67,7 +63,6 @@ const addRating = async (req, res) => {
       });
     }
 
-    // Check if order is delivered
     if (order.orderStatus !== 'delivered') {
       return res.status(400).json({
         success: false,
@@ -75,7 +70,6 @@ const addRating = async (req, res) => {
       });
     }
 
-    // Check if food is in the order
     const foodInOrder = order.items.some(item => 
       item.foodId.toString() === foodId
     );
@@ -86,7 +80,6 @@ const addRating = async (req, res) => {
       });
     }
 
-    // Check if user already rated this food in this order
     const existingRating = await ratingModel.findOne({
       orderId,
       foodId,
@@ -100,7 +93,6 @@ const addRating = async (req, res) => {
       });
     }
 
-    // Create rating
     const newRating = new ratingModel({
       userId,
       foodId,
@@ -114,7 +106,6 @@ const addRating = async (req, res) => {
 
     await newRating.save();
 
-    // ✅ Update food average rating
     await ratingModel.updateFoodRating(foodId);
 
     res.json({
@@ -140,7 +131,6 @@ const getFoodRatings = async (req, res) => {
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    // ✅ Fix: Use try-catch for aggregation with ObjectId
     let distribution = [];
     try {
       const objectId = new mongoose.Types.ObjectId(foodId);
@@ -197,22 +187,19 @@ const getFoodRatings = async (req, res) => {
   }
 };
 
-// ✅ Get User's Purchased Items (For Rating)
+// ✅ Get User's Purchased Items
 const getPurchasedItems = async (req, res) => {
   try {
     const userId = req.userId;
 
-    // Get all delivered orders
     const orders = await orderModel.find({
       userId,
       orderStatus: 'delivered'
     }).sort({ createdAt: -1 });
 
-    // Get all ratings by this user
     const ratings = await ratingModel.find({ userId });
     const ratedFoodIds = ratings.map(r => r.foodId.toString());
 
-    // Get all items from delivered orders that haven't been rated
     const purchasedItems = [];
     orders.forEach(order => {
       order.items.forEach(item => {
@@ -244,7 +231,7 @@ const getPurchasedItems = async (req, res) => {
   }
 };
 
-// ✅ Check if User Can Rate - FIXED to return full rating data
+// ✅ Check if User Can Rate
 const checkCanRate = async (req, res) => {
   try {
     const userId = req.userId;
@@ -264,7 +251,6 @@ const checkCanRate = async (req, res) => {
       });
     }
 
-    // Check if order exists and belongs to user
     const order = await orderModel.findOne({ _id: orderId, userId });
     if (!order) {
       return res.json({
@@ -275,7 +261,6 @@ const checkCanRate = async (req, res) => {
       });
     }
 
-    // Check if order is delivered
     if (order.orderStatus !== 'delivered') {
       return res.json({
         success: true,
@@ -285,24 +270,9 @@ const checkCanRate = async (req, res) => {
       });
     }
 
-    // Check if food is in order
-    const foodInOrder = order.items.some(item => 
-      item.foodId.toString() === foodId
-    );
-    if (!foodInOrder) {
-      return res.json({
-        success: true,
-        canRate: false,
-        message: 'Item not in order',
-        ratedFoodIds: []
-      });
-    }
-
-    // ✅ Get all ratings for this order and user
     const ratings = await ratingModel.find({ orderId, userId });
     const ratedFoodIds = ratings.map(r => r.foodId.toString());
 
-    // ✅ Find the rating for the specific food
     const existingRating = ratings.find(r => r.foodId.toString() === foodId);
     const isRated = !!existingRating;
 
@@ -311,7 +281,7 @@ const checkCanRate = async (req, res) => {
       canRate: !isRated,
       isRated: isRated,
       ratedFoodIds: ratedFoodIds,
-      rating: existingRating || null, // ✅ Return full rating data
+      rating: existingRating || null,
       message: isRated ? 'Already rated' : 'You can rate this item'
     });
 
@@ -378,7 +348,6 @@ const updateRating = async (req, res) => {
 
     await existingRating.save();
 
-    // Update food average rating
     await ratingModel.updateFoodRating(existingRating.foodId);
 
     res.json({
@@ -396,7 +365,7 @@ const updateRating = async (req, res) => {
   }
 };
 
-// ✅ Delete Rating
+// ✅ Delete Rating (User)
 const deleteRating = async (req, res) => {
   try {
     const userId = req.userId;
@@ -413,7 +382,6 @@ const deleteRating = async (req, res) => {
     const foodId = rating.foodId;
     await ratingModel.findByIdAndDelete(ratingId);
 
-    // Update food average rating
     await ratingModel.updateFoodRating(foodId);
 
     res.json({
@@ -430,21 +398,28 @@ const deleteRating = async (req, res) => {
   }
 };
 
+// ✅ ✅ ✅ ADMIN FUNCTIONS
+
 // ✅ Admin: Get All Ratings
 const getAllRatings = async (req, res) => {
   try {
-    const { page = 1, limit = 20 } = req.query;
+    const { page = 1, limit = 20, status } = req.query;
 
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    const ratings = await ratingModel.find({})
-      .populate('userId', 'name email')
-      .populate('foodId', 'name')
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(parseInt(limit));
+    const query = {};
+    if (status === 'hidden') query.isHidden = true;
+    if (status === 'visible') query.isHidden = false;
 
-    const total = await ratingModel.countDocuments();
+    const [ratings, total] = await Promise.all([
+      ratingModel.find(query)
+        .populate('userId', 'name email')
+        .populate('foodId', 'name images')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(parseInt(limit)),
+      ratingModel.countDocuments(query)
+    ]);
 
     res.json({
       success: true,
@@ -537,6 +512,39 @@ const addAdminResponse = async (req, res) => {
   }
 };
 
+// ✅ Admin: Delete Rating (Admin Version)
+const deleteRatingAsAdmin = async (req, res) => {
+  try {
+    const { ratingId } = req.params;
+
+    const rating = await ratingModel.findById(ratingId);
+    if (!rating) {
+      return res.status(404).json({
+        success: false,
+        message: 'Rating not found'
+      });
+    }
+
+    const foodId = rating.foodId;
+    await ratingModel.findByIdAndDelete(ratingId);
+
+    await ratingModel.updateFoodRating(foodId);
+
+    res.json({
+      success: true,
+      message: 'Rating deleted successfully by admin'
+    });
+
+  } catch (error) {
+    console.error('Admin delete rating error:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// ✅ ✅ ✅ ALL EXPORTS
 export {
   addRating,
   getFoodRatings,
@@ -547,5 +555,6 @@ export {
   deleteRating,
   getAllRatings,
   toggleHideRating,
-  addAdminResponse
+  addAdminResponse,
+  deleteRatingAsAdmin
 };
