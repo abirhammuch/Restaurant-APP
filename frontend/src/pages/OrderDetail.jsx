@@ -103,11 +103,13 @@ const OrderDetail = () => {
           }
         );
         
-        console.log('Existing rating response:', response.data);
+        console.log('Existing rating response:', response.data.rating.rating);
         
         if (response.data.success && response.data.isRated && response.data.rating) {
           const ratingData = response.data.rating;
-          setRating(ratingData.rating || 0);
+          console.log('eeee');
+          
+          setRating(response.data.rating.rating || 0);
           setComment(ratingData.comment || '');
           setIsUpdating(true);
           setUpdateRatingId(ratingData._id);
@@ -122,6 +124,8 @@ const OrderDetail = () => {
     
     setShowRating(true);
   };
+  console.log(rating);
+  
 
   // ✅ Submit or Update Rating
   const handleSubmitRating = async (foodId, orderId) => {
@@ -382,7 +386,7 @@ const OrderDetail = () => {
 
           {/* ✅ Rate Now Section - Shows when delivered */}
           {isDelivered && (
-            <div className="mt-8">
+            <div className="mt-8 w-full">
               <div className="flex items-center gap-4 mb-4">
                 <h3 className="font-bold text-lg text-amber-800">🍽️ Rate Your Order</h3>
               </div>
@@ -501,7 +505,7 @@ const OrderDetail = () => {
 
       {/* ✅ Rating Modal */}
       {showRating && selectedItem && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50 p-4 left-0">
           <div className="bg-white rounded-2xl p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-bold">
@@ -509,7 +513,7 @@ const OrderDetail = () => {
               </h3>
               <button
                 onClick={cancelRating}
-                className="text-gray-500 hover:text-gray-700 text-2xl"
+                className="text-gray-500 hover:text-gray-700 text-2xl cursor-pointer"
               >
                 ✕
               </button>
@@ -553,14 +557,14 @@ const OrderDetail = () => {
             <div className="flex gap-3">
               <button
                 onClick={cancelRating}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleSubmitRating(selectedItem.foodId, orderDetail._id)}
                 disabled={submitting || rating === 0}
-                className={`flex-1 px-4 py-2 rounded-lg transition-colors disabled:opacity-50 ${
+                className={`flex-1 px-4 py-2 rounded-lg transition-colors disabled:opacity-50 cursor-pointer ${
                   isUpdating 
                     ? 'bg-blue-500 text-white hover:bg-blue-600' 
                     : 'bg-amber-600 text-white hover:bg-amber-700'
