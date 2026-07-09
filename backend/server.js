@@ -1,40 +1,95 @@
-import express from "express"; //first
-import cors from "cors"; //first
-import dotenv from "dotenv/config"; //first
-import connectDB from "./config/mongodb.js";
-import userRouter from "./routes/userRoute.js";
-import foodRouter from "./routes/foodRoute.js";
-import connectCloudinary from "./config/cloudinary.js";
-import categoryRouter from "./routes/categoryRoute.js";
-import cartRouter from "./routes/cartRoute.js";
-import orderRouter from "./routes/orderRoute.js";
-import ratingRouter from "./routes/ratingRouter.js";
+// backend/server.js
+import express from 'express'
+import cors from 'cors'
+import dotenv from 'dotenv'
+import connectDB from './config/mongodb.js' 
+import userRouter from './routes/userRoute.js';
+import foodRouter from './routes/foodRoute.js';
+import connectCloudinary from './config/cloudinary.js';
+import categoryRouter from './routes/categoryRoute.js';
+import cartRouter from './routes/cartRoute.js';
+import orderRouter from './routes/orderRoute.js';
+import ratingRouter from './routes/ratingRouter.js';
 
-const app = express(); //first
-const port = process.env.PORT || 4000; //first
-connectDB();
-connectCloudinary();
+// Load environment variables FIRST
+dotenv.config();
 
-//middleware
-app.use(express.json()); //first
-app.use(
-  cors({
-    origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "usertoken"],
-  }),
-); //first
-app.options("*", cors());
+const app = express()
 
-//end point
-app.use("/api/user", userRouter);
-app.use("/api/food", foodRouter);
-app.use("/api/category", categoryRouter);
-app.use("/api/cart", cartRouter);
-app.use("/api/order", orderRouter);
-app.use("/api/rating", ratingRouter);
-app.use("/", (req, res) => res.send("API is working")); //first
+// CORS
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'https://restaurant-app-marshal-nine.vercel.app',
+    'https://restaurant-app-gold-sigma.vercel.app'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'usertoken', 'admintoken']
+}))
 
-app.listen(port, () =>
-  console.log(`Server started on http://localhost:${port}`),
-); //first
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+
+// ✅ Health Check (MUST be before other routes)
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    success: true, 
+    message: 'Server is running',
+    environment: process.env.NODE_ENV || 'development'
+  })
+})
+
+// ✅ API Routes
+app.use('/api/user', userRouter)
+app.use('/api/food', foodRouter)
+app.use('/api/category', categoryRouter)
+app.use('/api/cart', cartRouter)
+app.use('/api/order', orderRouter)
+app.use('/api/rating', ratingRouter)
+
+// ✅ Root Route
+app.get('/', (req, res) => {
+  res.json({ 
+    success: true, 
+    message: 'API is working',
+    endpoints: {
+      user: '/api/user',
+      food: '/api/food',
+      category: '/api/category',
+      cart: '/api/cart',
+      order: '/api/order',
+      rating: '/api/rating',
+      health: '/api/health'
+    }
+  })
+})
+
+// ✅ 404 Handler - FIXED (no wildcard '*')
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: 'Route not found'
+  })
+})
+
+// ✅ Error Handler
+app.use((err, req, res, next) => {
+  console.error('❌ Error:', err.message);
+  res.status(500).json({
+    success: false,
+    message: err.message || 'Internal server error'
+  })
+})
+
+// ✅ Export for Vercel
+export default app
+
+// ✅ Only start server locally
+if (process.env.NODE_ENV !== 'production') {
+  const port = process.env.PORT || 4000
+  app.listen(port, () => {
+    console.log(`🚀 Server started on http://localhost:${port}`)
+  })
+}
