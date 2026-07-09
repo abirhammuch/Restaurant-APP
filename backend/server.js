@@ -83,6 +83,25 @@ app.use((err, req, res, next) => {
   })
 })
 
+// backend/server.js - Add this route at the top
+app.get('/api/db-status', (req, res) => {
+  const state = mongoose.connection.readyState;
+  const states = {
+    0: 'disconnected',
+    1: 'connected',
+    2: 'connecting',
+    3: 'disconnecting'
+  };
+  
+  res.json({
+    success: true,
+    status: states[state] || 'unknown',
+    state: state,
+    database: mongoose.connection.name || 'Not connected',
+    host: mongoose.connection.host || 'Not connected'
+  });
+});
+
 // ✅ Export for Vercel
 export default app
 
