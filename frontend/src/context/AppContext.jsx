@@ -7,7 +7,8 @@ import { toast } from "react-toastify";
 export const AppContext = createContext();
 
 export const AppContextProvider = (props) => {
-  const backendUrl = import.meta.env.VITE_BACKEND_URL;
+  const backendUrl =
+    import.meta.env.VITE_BACKEND_URL?.replace(/\/+$/, "") || "";
   const currency = "$";
   const delivery_fee = 10;
   const tax = 8;
@@ -30,7 +31,7 @@ export const AppContextProvider = (props) => {
   const [userOrder, setUserOrder] = useState([]);
   const [orderStatus, setOrderStatus] = useState("");
   const [dataLoading, setDataLoading] = useState(false);
-  
+
   // ✅ App loading state - for checking auth
   const [appLoading, setAppLoading] = useState(true);
 
@@ -48,7 +49,10 @@ export const AppContextProvider = (props) => {
   // ✅ Get token from localStorage helper
   const getToken = () => {
     const token = localStorage.getItem("usertoken");
-    console.log("Getting token from localStorage:", token ? "Token exists" : "No token");
+    console.log(
+      "Getting token from localStorage:",
+      token ? "Token exists" : "No token",
+    );
     return token;
   };
 
@@ -128,7 +132,7 @@ export const AppContextProvider = (props) => {
   // ✅ Get User Cart
   const getUserCart = async () => {
     const token = getToken();
-    
+
     if (!token) {
       console.log("No token found for getUserCart");
       return;
@@ -137,7 +141,7 @@ export const AppContextProvider = (props) => {
     try {
       const response = await axios.get(backendUrl + "/api/cart/get", {
         headers: {
-          usertoken: token
+          usertoken: token,
         },
       });
 
@@ -156,7 +160,7 @@ export const AppContextProvider = (props) => {
   // ✅ Add to Cart
   const addToCart = async (foodId, quantity = 1) => {
     const token = getToken();
-    
+
     if (!token) {
       toast.error("Please login to add items to cart");
       return { success: false };
@@ -168,11 +172,11 @@ export const AppContextProvider = (props) => {
         { foodId, quantity },
         {
           headers: {
-            usertoken: token
+            usertoken: token,
           },
         },
       );
-        
+
       if (response.data.success) {
         setCart(response.data.cart);
         setCartCount(response.data.cart?.count || 0);
@@ -192,7 +196,7 @@ export const AppContextProvider = (props) => {
   // ✅ Update Cart
   const updateCartItem = async (foodId, quantity) => {
     const token = getToken();
-    
+
     if (!token) {
       toast.error("Please login to update cart");
       return { success: false };
@@ -204,7 +208,7 @@ export const AppContextProvider = (props) => {
         { foodId, quantity },
         {
           headers: {
-            usertoken: token
+            usertoken: token,
           },
         },
       );
@@ -228,7 +232,7 @@ export const AppContextProvider = (props) => {
   // ✅ Remove from Cart
   const removeFromCart = async (foodId) => {
     const token = getToken();
-    
+
     if (!token) {
       toast.error("Please login to remove items");
       return { success: false };
@@ -236,14 +240,14 @@ export const AppContextProvider = (props) => {
 
     try {
       const response = await axios({
-        method: 'delete',
+        method: "delete",
         url: backendUrl + "/api/cart/remove",
         data: { foodId },
         headers: {
-          usertoken: token
+          usertoken: token,
         },
       });
-      
+
       if (response.data.success) {
         setCart(response.data.cart);
         setCartCount(response.data.cart?.count || 0);
@@ -263,7 +267,7 @@ export const AppContextProvider = (props) => {
   // ✅ Clear Cart
   const clearCart = async () => {
     const token = getToken();
-    
+
     if (!token) {
       toast.error("Please login to clear cart");
       return { success: false };
@@ -271,10 +275,10 @@ export const AppContextProvider = (props) => {
 
     try {
       const response = await axios({
-        method: 'delete',
+        method: "delete",
         url: backendUrl + "/api/cart/clear",
         headers: {
-          usertoken: token
+          usertoken: token,
         },
       });
 
@@ -297,7 +301,7 @@ export const AppContextProvider = (props) => {
   // ✅ Get Cart Count
   const getCartCount = async () => {
     const token = getToken();
-    
+
     if (!token) {
       return { success: false, count: 0 };
     }
@@ -305,7 +309,7 @@ export const AppContextProvider = (props) => {
     try {
       const response = await axios.get(backendUrl + "/api/cart/count", {
         headers: {
-          usertoken: token
+          usertoken: token,
         },
       });
       return response.data;
@@ -318,12 +322,12 @@ export const AppContextProvider = (props) => {
   // ✅ Get User Orders
   const getUserOrder = async () => {
     try {
-      const response = await axios.get(backendUrl + '/api/order/my-orders', {
-        headers: { usertoken: getToken() }
+      const response = await axios.get(backendUrl + "/api/order/my-orders", {
+        headers: { usertoken: getToken() },
       });
       if (response.data.success) {
         setUserOrder(response.data.orders);
-        console.log('✅ User orders loaded:', response.data.orders.length);
+        console.log("✅ User orders loaded:", response.data.orders.length);
       }
     } catch (error) {
       console.log(error);
@@ -338,7 +342,7 @@ export const AppContextProvider = (props) => {
           usertoken: getToken(),
         },
       });
-    
+
       if (response.data.success) {
         setOrderStatus(response.data.order.orderStatus);
         return response.data.order;
@@ -353,11 +357,11 @@ export const AppContextProvider = (props) => {
   useEffect(() => {
     const adminToken = localStorage.getItem("admintoken");
     const userToken = localStorage.getItem("usertoken");
-    
+
     console.log("=== APP INIT ===");
     console.log("Admin Token:", adminToken ? "Exists" : "Not found");
     console.log("User Token:", userToken ? "Exists" : "Not found");
-    
+
     if (adminToken) {
       setAdmintoken(adminToken);
       setIsAdmin(true);
@@ -366,7 +370,7 @@ export const AppContextProvider = (props) => {
       setUsertoken(userToken);
       setUserLogin(true);
     }
-    
+
     // ✅ Set appLoading to false after checking tokens
     setAppLoading(false);
   }, []);
@@ -447,12 +451,10 @@ export const AppContextProvider = (props) => {
     orderStatus,
     setOrderStatus,
     dataLoading,
-    loadAllData
+    loadAllData,
   };
 
   return (
-    <AppContext.Provider value={value}>
-      {props.children}
-    </AppContext.Provider>
+    <AppContext.Provider value={value}>{props.children}</AppContext.Provider>
   );
 };
