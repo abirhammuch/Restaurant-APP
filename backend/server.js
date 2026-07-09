@@ -16,10 +16,6 @@ import mongoose from "mongoose";
 // Load environment variables FIRST
 dotenv.config();
 
-// Initialize external services
-connectDB();
-connectCloudinary();
-
 const app = express();
 
 // CORS
@@ -123,8 +119,20 @@ export default app;
 
 // ✅ Only start server locally
 if (process.env.NODE_ENV !== "production") {
-  const port = process.env.PORT || 4000;
-  app.listen(port, () => {
-    console.log(`🚀 Server started on http://localhost:${port}`);
-  });
+  const startServer = async () => {
+    try {
+      await connectDB();
+      await connectCloudinary();
+
+      const port = process.env.PORT || 4000;
+      app.listen(port, () => {
+        console.log(`🚀 Server started on http://localhost:${port}`);
+      });
+    } catch (error) {
+      console.error("❌ Failed to start server:", error.message);
+      process.exit(1);
+    }
+  };
+
+  startServer();
 }
