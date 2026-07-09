@@ -16,6 +16,13 @@ import mongoose from "mongoose";
 // Load environment variables FIRST
 dotenv.config();
 
+// Ensure DB connection in all environments (including Vercel serverless)
+try {
+  await connectDB();
+} catch (err) {
+  console.error("❌ Initial DB connection failed:", err.message || err);
+}
+
 const app = express();
 
 // CORS
@@ -121,7 +128,9 @@ export default app;
 if (process.env.NODE_ENV !== "production") {
   const startServer = async () => {
     try {
-      await connectDB();
+      if (mongoose.connection.readyState !== 1) {
+        await connectDB();
+      }
       await connectCloudinary();
 
       const port = process.env.PORT || 4000;

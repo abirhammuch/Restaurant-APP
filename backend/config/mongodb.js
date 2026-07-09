@@ -7,6 +7,12 @@ const connectDB = async () => {
       throw new Error("MONGODB_URI is not defined");
     }
 
+    // Reuse existing connection in serverless / hot-reload environments
+    if (mongoose.connection.readyState === 1) {
+      console.log("✅ MongoDB already connected (reused connection)");
+      return mongoose.connection;
+    }
+
     console.log("🔗 Connecting to MongoDB Atlas...");
     console.log(
       "📡 URI:",
