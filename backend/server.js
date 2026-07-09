@@ -11,6 +11,9 @@ import cartRouter from './routes/cartRoute.js';
 import orderRouter from './routes/orderRoute.js';
 import ratingRouter from './routes/ratingRouter.js';
 
+
+import mongoose from 'mongoose';
+
 // Load environment variables FIRST
 dotenv.config();
 
@@ -65,6 +68,25 @@ app.get('/', (req, res) => {
     }
   })
 })
+
+app.get('/api/db-status', (req, res) => {
+  const state = mongoose.connection.readyState;
+  const states = {
+    0: 'disconnected',
+    1: 'connected',
+    2: 'connecting',
+    3: 'disconnecting'
+  };
+  
+  res.json({
+    success: true,
+    status: states[state] || 'unknown',
+    state: state,
+    database: mongoose.connection.name || 'Not connected',
+    host: mongoose.connection.host || 'Not connected',
+    message: state === 1 ? '✅ Database is connected!' : '❌ Database is NOT connected'
+  });
+});
 
 // ✅ 404 Handler - FIXED (no wildcard '*')
 app.use((req, res) => {
