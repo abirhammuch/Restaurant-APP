@@ -12,14 +12,13 @@ const Cart = () => {
     tax,
     cartCount,
     cart,
-    orders,
     currency,
     navigate,
     popularFood,
     foods,
     removeFromCart,
     updateCartItem,
-    delivery_fee
+    delivery_fee,
   } = useContext(AppContext);
 
   const [more, setMore] = useState(false);
@@ -29,14 +28,17 @@ const Cart = () => {
     setSlicedFood(popularFood.slice(0, 4));
   }, [foods, more, popularFood]);
 
-  //  Handle quantity update
+  const subtotal = cart.subtotal || 0;
+  const delivery = subtotal < 50 ? 0 : delivery_fee;
+  const serviceTax = Number(((subtotal * tax) / 100).toFixed(2));
+  const totalAmount = Number((subtotal + delivery + serviceTax).toFixed(2));
+
   const handleQuantityUpdate = async (foodId, currentQuantity, change) => {
     const newQuantity = currentQuantity + change;
     if (newQuantity < 1) return;
     await updateCartItem(foodId, newQuantity);
   };
 
-  //  Handle remove item
   const handleRemoveItem = async (foodId) => {
     if (window.confirm("Are you sure you want to remove this item?")) {
       await removeFromCart(foodId);
@@ -44,194 +46,231 @@ const Cart = () => {
   };
 
   return (
-    <div>
-      <div className="mx-10 md:mx-20 mt-9 md:grid md:grid-cols-[3fr_1fr] gap-9">
-        <div>
-          <div className="flex justify-between items-center border-b border-gray-500">
-            <p className="pb-9 text-2xl font-bold">Review Order</p>
-            <p className="mb-9 bg-gray-200 px-6 py-3 rounded-2xl font-bold">
-              <span className="text-orange-600">{cartCount}</span> items
-            </p>
-          </div>
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(251,191,36,0.16),_transparent_28%),linear-gradient(135deg,_#fffaf2_0%,_#ffffff_100%)] px-3 py-4 sm:px-6 lg:px-10 xl:px-20">
+      <div className="mx-auto max-w-7xl space-y-6 lg:grid lg:grid-cols-[1.25fr_0.75fr] lg:gap-8 lg:items-start">
+        <div className="space-y-6">
+          <div className="rounded-[28px] border border-orange-100 bg-white/90 p-4 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.2)] backdrop-blur sm:p-6">
+            <div className="flex flex-col gap-3 border-b border-gray-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-2xl font-bold text-gray-900">Review Order</p>
+                <p className="mt-1 text-sm text-gray-600">
+                  Your tasty picks are ready for checkout.
+                </p>
+              </div>
+              <p className="inline-flex w-fit items-center rounded-full bg-orange-100 px-4 py-2 text-sm font-semibold text-orange-700">
+                <span className="mr-1 text-base">{cartCount}</span> items
+              </p>
+            </div>
 
-          {cart.items && cart.items.length > 0 ? (
-            cart.items.map((order, index) => (
-              <div
-                key={index}
-                className="mt-9 border px-9 py-4 rounded-2xl border-gray-300 shadow-2xl"
-              >
-                <div className="flex justify-between">
-                  <div className="flex gap-5 items-center">
-                    <div>
-                      <img src={order.image} className="w-20 rounded-md" alt={order.name} />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-3">
-                        <p className="text-lg font-bold">{order.name}</p>
-                        <p className="text-orange-600 font-bold">x{order.quantity}</p>
+            {cart.items && cart.items.length > 0 ? (
+              <div className="mt-5 space-y-4">
+                {cart.items.map((order, index) => (
+                  <div
+                    key={index}
+                    className="rounded-[24px] border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md sm:p-5"
+                  >
+                    <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:gap-6">
+                      <div className="flex flex-1 gap-4">
+                        <img
+                          src={order.image}
+                          className="h-20 w-20 rounded-2xl object-cover sm:h-24 sm:w-24"
+                          alt={order.name}
+                        />
+                        <div className="flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="text-lg font-bold text-gray-900">
+                              {order.name}
+                            </p>
+                            <p className="rounded-full bg-orange-100 px-2.5 py-1 text-sm font-semibold text-orange-700">
+                              x{order.quantity}
+                            </p>
+                          </div>
+                          <p className="mt-2 text-sm text-gray-600">
+                            ${order.price} each
+                          </p>
+
+                          <div className="mt-3 flex items-center gap-3 rounded-2xl bg-gray-100 px-3 py-2 w-fit">
+                            <button
+                              className="rounded-xl px-3 py-1 text-lg font-semibold text-gray-700 transition hover:bg-gray-200 disabled:cursor-not-allowed disabled:opacity-50"
+                              onClick={() =>
+                                handleQuantityUpdate(
+                                  order.foodId,
+                                  order.quantity,
+                                  -1,
+                                )
+                              }
+                              disabled={order.quantity <= 1}
+                            >
+                              -
+                            </button>
+                            <p className="min-w-[20px] text-center text-lg font-semibold text-gray-900">
+                              {order.quantity}
+                            </p>
+                            <button
+                              className="rounded-xl px-3 py-1 text-lg font-semibold text-gray-700 transition hover:bg-gray-200"
+                              onClick={() =>
+                                handleQuantityUpdate(
+                                  order.foodId,
+                                  order.quantity,
+                                  1,
+                                )
+                              }
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
                       </div>
-                      <p className="text-sm mt-2 mb-2 text-gray-700">
-                        ${order.price} each
-                      </p>
 
-                      {/* Quantity Controls */}
-                      <div className="flex items-center gap-5 bg-gray-100 px-3 py-2 rounded-2xl">
-                        <button
-                          className="text-lg cursor-pointer hover:bg-gray-300 px-3 rounded-2xl transition-colors disabled:opacity-50"
-                          onClick={() => handleQuantityUpdate(order.foodId, order.quantity, -1)}
-                          disabled={order.quantity <= 1}
-                        >
-                          -
-                        </button>
-                        <p className="text-lg font-semibold min-w-[20px] text-center">
-                          {order.quantity}
+                      <div className="flex items-center justify-between gap-4 sm:flex-col sm:items-end sm:justify-start">
+                        <p className="text-lg font-bold text-amber-600">
+                          {currency}
+                          {order.totalPrice || order.price * order.quantity}
                         </p>
                         <button
-                          className="text-lg cursor-pointer hover:bg-gray-300 px-3 rounded-2xl transition-colors"
-                          onClick={() => handleQuantityUpdate(order.foodId, order.quantity, 1)}
+                          onClick={() => handleRemoveItem(order.foodId)}
+                          className="flex items-center gap-2 rounded-full border border-red-200 px-3 py-2 text-sm font-semibold text-red-500 transition hover:bg-red-50"
                         >
-                          +
+                          <img
+                            src={assets.remove_icon}
+                            alt="remove"
+                            className="h-4 w-4"
+                          />
+                          <span>Remove</span>
                         </button>
                       </div>
                     </div>
                   </div>
+                ))}
+              </div>
+            ) : (
+              <div className="mt-6 rounded-[24px] border border-dashed border-gray-300 bg-gray-50 py-10 text-center">
+                <p className="text-lg font-semibold text-gray-700">
+                  Your cart is empty
+                </p>
+                <p className="mt-2 text-sm text-gray-500">
+                  Add a few favorites and come back here.
+                </p>
+                <button
+                  onClick={() => navigate("/menu")}
+                  className="mt-5 rounded-full bg-orange-500 px-6 py-2.5 font-semibold text-white transition hover:bg-orange-600"
+                >
+                  Start Shopping
+                </button>
+              </div>
+            )}
 
-                  <div className="flex flex-col gap-8 items-center">
-                    <p className="text-amber-500 font-bold">
-                      {currency}
-                      {order.totalPrice || order.price * order.quantity}
+            <div className="mt-6 rounded-[24px] border border-dashed border-orange-200 bg-orange-50/80 p-4 sm:p-6">
+              <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex items-start gap-3">
+                  <img
+                    src={assets.coin_icon}
+                    className="mt-1 h-6 w-6"
+                    alt="coin"
+                  />
+                  <div>
+                    <p className="text-lg font-bold text-gray-900">
+                      Have a promo code?
                     </p>
-                    <div
-                      onClick={() => handleRemoveItem(order.foodId)}
-                      className="flex gap-4 cursor-pointer hover:text-red-500 transition-colors"
-                    >
-                      <img src={assets.remove_icon} alt="remove" />
-                      <p>Remove</p>
-                    </div>
+                    <p className="text-sm text-gray-600">
+                      Apply it now to get amazing discounts on your meal.
+                    </p>
                   </div>
                 </div>
-              </div>
-            ))
-          ) : (
-            <div className="text-center py-10">
-              <p className="text-gray-500 text-lg">Your cart is empty</p>
-              <button
-                onClick={() => navigate("/menu")}
-                className="mt-4 bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600"
-              >
-                Start Shopping
-              </button>
-            </div>
-          )}
 
-          {/* Promo Code */}
-          <div className="border border-dashed lg:flex py-6 mt-6 rounded-2xl items-center justify-between px-9 pr-18">
-            <div className="flex items-center mb-4">
-              <div className="flex">
-                <img src={assets.coin_icon} className="mr-4" alt="coin" />
-              </div>
-              <div>
-                <p className="text-lg font-bold">Have a promo code?</p>
-                <p className="text-gray-700 text-sm">
-                  Apply it now to get amazing discounts on your meal.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-6 items-center">
-              <div>
-                <input
-                  type="text"
-                  placeholder="Promo Code"
-                  className="px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                />
-              </div>
-              <div>
-                <p className="bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-md cursor-pointer">
-                  Apply
-                </p>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <input
+                    type="text"
+                    placeholder="Promo Code"
+                    className="w-full rounded-xl border border-orange-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400 sm:w-48"
+                  />
+                  <button className="rounded-xl bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-700">
+                    Apply
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Order Summary */}
-        <div className="shadow p-9 rounded-2xl max-h-[600px] mt-20">
-          <p className="text-2xl font-bold">Order Summary</p>
-          <div>
-            <div className="flex justify-between mt-4">
-              <p className="text-sm">Subtotal</p>
-              <p className="font-bold text-sm">
+        <aside className="lg:sticky lg:top-6">
+          <div className="rounded-[28px] border border-gray-100 bg-white p-5 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.18)] sm:p-6">
+            <p className="text-2xl font-bold text-gray-900">Order Summary</p>
+            <div className="mt-5 space-y-3">
+              <div className="flex items-center justify-between text-sm text-gray-600">
+                <p>Subtotal</p>
+                <p className="font-semibold text-gray-900">
+                  {currency}
+                  {subtotal}
+                </p>
+              </div>
+              <div className="flex items-center justify-between text-sm text-gray-600">
+                <p>Delivery Fee</p>
+                <p className="font-semibold text-green-600">
+                  {currency}
+                  {delivery}
+                </p>
+              </div>
+              <div className="flex items-center justify-between text-sm text-gray-600">
+                <p>Service Tax (8%)</p>
+                <p className="font-semibold text-gray-900">
+                  {currency}
+                  {serviceTax.toFixed(2)}
+                </p>
+              </div>
+            </div>
+
+            <hr className="my-5 border-gray-200" />
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xl font-bold text-gray-900">Total Amount</p>
+                <p className="mt-1 text-sm text-gray-500">VAT INCLUDED</p>
+              </div>
+              <p className="text-xl font-bold text-amber-600">
                 {currency}
-                {cart.subtotal || 0}
+                {totalAmount.toFixed(2)}
               </p>
             </div>
-            <div className="flex justify-between mt-4 mb-4">
-              <p className="text-sm">Delivery Fee</p>
-              <p className="text-green-600 font-bold text-sm">
-                {currency}
-                {cart.subtotal < 50 ? 0 : delivery_fee}
-              </p>
+
+            <div className="mt-6 flex items-center gap-3 rounded-2xl bg-gray-100 px-3 py-3 text-sm text-gray-700">
+              <div className="h-2.5 w-2.5 rounded-full bg-green-600"></div>
+              <p>We estimate your food will be ready in 25-35 minutes.</p>
             </div>
-            <div className="flex justify-between mt-4 mb-4">
-              <p className="text-sm">Service Tax (8%)</p>
-              <p className="font-bold text-sm">
-                {currency}
-                {((cart.subtotal || 0) * tax/100).toFixed(2)}
-              </p>
-            </div>
-          </div>
 
-          <hr className="text-gray-400" />
-          <div className="flex justify-between items-center mt-4">
-            <div>
-              <p className="text-2xl font-bold">Total Amount</p>
-              <p className="text-sm text-gray-600">VAT INCLUDED</p>
-            </div>
-            <p className="text-amber-600 font-bold text-2xl">
-              {currency}
-              {((cart.subtotal || 0) + (cart.subtotal < 50 ? 0 : delivery_fee) + ((cart.subtotal || 0) * tax/100)).toFixed(2)}
-            </p>
-          </div>
+            <button
+              onClick={() => navigate("/checkout")}
+              className="mt-6 flex w-full items-center justify-center gap-3 rounded-2xl bg-amber-600 py-3 font-semibold text-white transition hover:bg-amber-700"
+            >
+              <span>Go to Checkout</span>
+              <FaArrowRight />
+            </button>
 
-          <div className="bg-gray-100 px-3 py-2 rounded-lg flex gap-3 items-center mt-7 mb-6">
-            <div className="bg-green-600 w-2 rounded-sm h-2"></div>
-            <p className="text-sm">
-              We estimate your food will be ready in 25-35 minutes
-            </p>
+            <button
+              onClick={() => navigate("/menu")}
+              className="mt-3 flex w-full items-center justify-center gap-3 rounded-2xl border border-gray-200 py-3 font-semibold text-gray-700 transition hover:border-orange-300 hover:text-orange-500"
+            >
+              <FaArrowLeft />
+              <span>Back to Menu</span>
+            </button>
           </div>
-
-          <div
-            onClick={() => navigate("/checkout")}
-            className="flex items-center gap-4 bg-amber-600 justify-center py-2 rounded-2xl text-white mb-4 cursor-pointer hover:bg-amber-700"
-          >
-            <p>Go to Checkout</p>
-            <FaArrowRight />
-          </div>
-
-          <div
-            onClick={() => navigate("/menu")}
-            className="flex gap-4 justify-center items-center mt-3 cursor-pointer hover:text-orange-500 transition-colors"
-          >
-            <FaArrowLeft />
-            <p>Back to Menu</p>
-          </div>
-        </div>
+        </aside>
       </div>
 
-      {/* Recommended Section */}
-      <div className="mt-9 md:mx-20 border-t border-gray-300 shadow-2xl px-2 py-9 rounded-2xl">
-        <div className="flex gap-3 items-center mt-9">
-          <p className="text-md font-bold">Complete Your Meal</p>
-          <p className="text-amber-700 bg-amber-50 px-3 py-1 rounded-2xl text-sm">
+      <div className="mx-auto mt-8 max-w-7xl rounded-[28px] border border-gray-100 bg-white/90 p-4 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.14)] sm:p-6">
+        <div className="flex flex-wrap items-center gap-3">
+          <p className="text-lg font-bold text-gray-900">Complete Your Meal</p>
+          <p className="rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-700">
             Recommended
           </p>
         </div>
-        <div onClick={() => setMore((prev) => !prev)} className="cursor-pointer">
+        <div
+          onClick={() => setMore((prev) => !prev)}
+          className="mt-3 cursor-pointer"
+        >
           {more ? <Less text={"Less"} /> : <More text={"More"} />}
         </div>
         {popularFood && (
-          <div>
+          <div className="mt-4">
             <FoodCard food={more ? popularFood : slicedFood} />
           </div>
         )}

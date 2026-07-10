@@ -20,7 +20,7 @@ const FoodDetail = () => {
     popularFood,
     setPopularFood,
     addToCart,
-    backendUrl
+    backendUrl,
   } = useContext(AppContext);
   const { id, category } = useParams();
 
@@ -33,7 +33,10 @@ const FoodDetail = () => {
   const [currentFood, setCurrentFood] = useState(null);
   const [loading, setLoading] = useState(true);
   const [ratings, setRatings] = useState([]);
-  const [ratingStats, setRatingStats] = useState({ averageRating: 0, totalReviews: 0 });
+  const [ratingStats, setRatingStats] = useState({
+    averageRating: 0,
+    totalReviews: 0,
+  });
   const [userRating, setUserRating] = useState(null);
   const [showRatingModal, setShowRatingModal] = useState(false);
   const [ratingValue, setRatingValue] = useState(0);
@@ -61,56 +64,65 @@ const FoodDetail = () => {
   // ✅ Fetch ratings for this food
   const fetchRatings = async (foodId) => {
     try {
-      const response = await axios.get(`${backendUrl}/api/rating/food/${foodId}`);
+      const response = await axios.get(
+        `${backendUrl}/api/rating/food/${foodId}`,
+      );
       if (response.data.success) {
         setRatings(response.data.ratings || []);
-        setRatingStats(response.data.stats || { averageRating: 0, totalReviews: 0 });
+        setRatingStats(
+          response.data.stats || { averageRating: 0, totalReviews: 0 },
+        );
       }
     } catch (error) {
-      console.error('Error fetching ratings:', error);
+      console.error("Error fetching ratings:", error);
     }
   };
 
   // ✅ Check if user has already rated this food
   const checkUserRating = async (foodId) => {
     try {
-      const ordersResponse = await axios.get(`${backendUrl}/api/order/my-orders`, {
-        headers: { usertoken: getToken() }
-      });
-      
+      const ordersResponse = await axios.get(
+        `${backendUrl}/api/order/my-orders`,
+        {
+          headers: { usertoken: getToken() },
+        },
+      );
+
       if (ordersResponse.data.success) {
         const orders = ordersResponse.data.orders || [];
-        const hasPurchased = orders.some(order => 
-          order.orderStatus === 'delivered' && 
-          order.items.some(item => item.foodId === foodId)
+        const hasPurchased = orders.some(
+          (order) =>
+            order.orderStatus === "delivered" &&
+            order.items.some((item) => item.foodId === foodId),
         );
-        
+
         if (hasPurchased) {
           const ratingResponse = await axios.get(
-            `${backendUrl}/api/rating/check?foodId=${foodId}&orderId=${orders.find(o => 
-              o.orderStatus === 'delivered' && 
-              o.items.some(i => i.foodId === foodId)
-            )?._id}`,
-            { headers: { usertoken: getToken() } }
+            `${backendUrl}/api/rating/check?foodId=${foodId}&orderId=${
+              orders.find(
+                (o) =>
+                  o.orderStatus === "delivered" &&
+                  o.items.some((i) => i.foodId === foodId),
+              )?._id
+            }`,
+            { headers: { usertoken: getToken() } },
           );
-          
+
           if (ratingResponse.data.success && ratingResponse.data.isRated) {
             setUserRating(ratingResponse.data.rating);
           }
         }
       }
     } catch (error) {
-      console.error('Error checking user rating:', error);
+      console.error("Error checking user rating:", error);
     }
   };
 
   // ✅ Update perfect match when more changes
   useEffect(() => {
     if (foods && foods.length > 0 && category) {
-      const filteredFoods = foods.filter(
-        (food) => food.category === category
-      );
-      
+      const filteredFoods = foods.filter((food) => food.category === category);
+
       if (more) {
         setPerfectMatch(filteredFoods);
       } else {
@@ -130,30 +142,34 @@ const FoodDetail = () => {
   // ✅ Handle rating submit
   const handleRatingSubmit = async () => {
     if (ratingValue === 0) {
-      toast.error('Please select a rating');
+      toast.error("Please select a rating");
       return;
     }
 
     setSubmitting(true);
     try {
-      const ordersResponse = await axios.get(`${backendUrl}/api/order/my-orders`, {
-        headers: { usertoken: getToken() }
-      });
+      const ordersResponse = await axios.get(
+        `${backendUrl}/api/order/my-orders`,
+        {
+          headers: { usertoken: getToken() },
+        },
+      );
 
       if (!ordersResponse.data.success) {
-        toast.error('Please login to rate');
+        toast.error("Please login to rate");
         setSubmitting(false);
         return;
       }
 
       const orders = ordersResponse.data.orders || [];
-      const deliveredOrder = orders.find(order => 
-        order.orderStatus === 'delivered' && 
-        order.items.some(item => item.foodId === id)
+      const deliveredOrder = orders.find(
+        (order) =>
+          order.orderStatus === "delivered" &&
+          order.items.some((item) => item.foodId === id),
       );
 
       if (!deliveredOrder) {
-        toast.error('You can only rate items you have purchased and received');
+        toast.error("You can only rate items you have purchased and received");
         setSubmitting(false);
         return;
       }
@@ -164,26 +180,26 @@ const FoodDetail = () => {
           foodId: id,
           orderId: deliveredOrder._id,
           rating: ratingValue,
-          comment: commentText
+          comment: commentText,
         },
         {
-          headers: { usertoken: getToken() }
-        }
+          headers: { usertoken: getToken() },
+        },
       );
 
       if (response.data.success) {
-        toast.success('Thank you for your rating!');
+        toast.success("Thank you for your rating!");
         setShowRatingModal(false);
         setRatingValue(0);
-        setCommentText('');
+        setCommentText("");
         fetchRatings(id);
         checkUserRating(id);
       } else {
         toast.error(response.data.message);
       }
     } catch (error) {
-      console.error('Rating error:', error);
-      toast.error(error.response?.data?.message || 'Failed to submit rating');
+      console.error("Rating error:", error);
+      toast.error(error.response?.data?.message || "Failed to submit rating");
     } finally {
       setSubmitting(false);
     }
@@ -199,10 +215,14 @@ const FoodDetail = () => {
       stars.push(<FaStar key={i} className="text-yellow-400 text-sm" />);
     }
     if (hasHalfStar) {
-      stars.push(<FaStar key="half" className="text-yellow-400 text-sm opacity-50" />);
+      stars.push(
+        <FaStar key="half" className="text-yellow-400 text-sm opacity-50" />,
+      );
     }
     while (stars.length < 5) {
-      stars.push(<FaRegStar key={stars.length} className="text-gray-300 text-sm" />);
+      stars.push(
+        <FaRegStar key={stars.length} className="text-gray-300 text-sm" />,
+      );
     }
     return stars;
   };
@@ -276,7 +296,7 @@ const FoodDetail = () => {
               }}
             />
           </div>
-          
+
           {/* Comments Section */}
           <div className="mt-6">
             <div
@@ -288,7 +308,7 @@ const FoodDetail = () => {
                 ({ratingStats.totalReviews} reviews)
               </span>
               <span className="text-sm text-gray-400">
-                {showComment ? '▲' : '▼'}
+                {showComment ? "▲" : "▼"}
               </span>
             </div>
 
@@ -298,7 +318,7 @@ const FoodDetail = () => {
                   ratings.map((rating) => (
                     <CustomerComent
                       key={rating._id}
-                      customername={rating.userId?.name || 'Anonymous'}
+                      customername={rating.userId?.name || "Anonymous"}
                       rating={rating.rating}
                       comment={rating.comment}
                       date={rating.createdAt}
@@ -306,7 +326,9 @@ const FoodDetail = () => {
                     />
                   ))
                 ) : (
-                  <p className="text-gray-500 text-sm">No reviews yet. Be the first to review!</p>
+                  <p className="text-gray-500 text-sm">
+                    No reviews yet. Be the first to review!
+                  </p>
                 )}
               </div>
             )}
@@ -321,7 +343,7 @@ const FoodDetail = () => {
               {renderStars(ratingStats.averageRating || 0)}
             </div>
             <span className="text-sm font-semibold">
-              {ratingStats.averageRating?.toFixed(1) || '0'}
+              {ratingStats.averageRating?.toFixed(1) || "0"}
             </span>
             <span className="text-sm text-gray-500">
               ({ratingStats.totalReviews || 0} reviews)
@@ -345,7 +367,8 @@ const FoodDetail = () => {
 
           <p className="text-2xl font-bold mt-2">{currentFood.name}</p>
           <p className="text-2xl text-amber-500 font-bold mt-1">
-            {currency}{currentFood.price?.toFixed(2)}
+            {currency}
+            {currentFood.price?.toFixed(2)}
           </p>
 
           <div className="mt-4">
@@ -375,7 +398,9 @@ const FoodDetail = () => {
                 <button
                   type="button"
                   className="font-bold text-lg cursor-pointer select-none hover:text-orange-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  onClick={() => setUpdatequantity((prev) => Math.max(1, prev - 1))}
+                  onClick={() =>
+                    setUpdatequantity((prev) => Math.max(1, prev - 1))
+                  }
                   disabled={updatequantity <= 1}
                 >
                   -
@@ -454,7 +479,10 @@ const FoodDetail = () => {
                 <p className="text-sm text-gray-600">
                   Customers who ordered this also loved these items.
                 </p>
-                <div onClick={() => setMore((prev) => !prev)} className="cursor-pointer mt-3">
+                <div
+                  onClick={() => setMore((prev) => !prev)}
+                  className="mt-3 flex justify-end cursor-pointer"
+                >
                   {more ? <Less text={"Less"} /> : <More text={"More"} />}
                 </div>
                 <div className="mt-4">
@@ -467,7 +495,10 @@ const FoodDetail = () => {
                 <p className="text-sm text-gray-600">
                   Perfect match with your selection.
                 </p>
-                <div onClick={() => setMore((prev) => !prev)} className="cursor-pointer mt-3">
+                <div
+                  onClick={() => setMore((prev) => !prev)}
+                  className="mt-3 flex justify-end cursor-pointer"
+                >
                   {more ? <Less text={"Less"} /> : <More text={"More"} />}
                 </div>
                 <div className="mt-4">
@@ -502,7 +533,10 @@ const FoodDetail = () => {
               />
               <div>
                 <p className="font-bold">{currentFood.name}</p>
-                <p className="text-sm text-gray-500">{currency}{currentFood.price}</p>
+                <p className="text-sm text-gray-500">
+                  {currency}
+                  {currentFood.price}
+                </p>
               </div>
             </div>
 
@@ -511,7 +545,9 @@ const FoodDetail = () => {
               {renderRatingStars()}
             </div>
             <p className="text-center text-sm text-gray-500 mb-4">
-              {ratingValue > 0 ? `${ratingValue} star${ratingValue > 1 ? 's' : ''}` : 'Tap to rate'}
+              {ratingValue > 0
+                ? `${ratingValue} star${ratingValue > 1 ? "s" : ""}`
+                : "Tap to rate"}
             </p>
 
             {/* Comment */}
@@ -536,7 +572,7 @@ const FoodDetail = () => {
                 disabled={submitting || ratingValue === 0}
                 className="flex-1 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50"
               >
-                {submitting ? 'Submitting...' : 'Submit Rating'}
+                {submitting ? "Submitting..." : "Submit Rating"}
               </button>
             </div>
           </div>
