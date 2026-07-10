@@ -8,8 +8,8 @@ import { toast } from "react-toastify";
 const Category = () => {
   const { allCategory, setAllCategory, navigate, backendUrl, admintoken } =
     useContext(AppContext);
-    const [isEditing, setIsEditing] = useState(false)
-    const [editingCategoryId, setEditingCategoryId] = useState('')
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingCategoryId, setEditingCategoryId] = useState("");
 
   const [imagePreview, setImagePreview] = useState(null);
   const [image1, setImage1] = useState(false);
@@ -60,45 +60,37 @@ const Category = () => {
   };
 
   const editCategory = async (category) => {
-    
-    setEditingCategoryId(category._id)
-    setIsEditing(true)
-    
-     setName(category.name || '')
-     setBgColor(category.bgColor || '')
-     setTextColor(category.textColor || '')
-     setOrder(category.order || '')
+    setEditingCategoryId(category._id);
+    setIsEditing(true);
 
-     const existImage = category.images?.[0] 
+    setName(category.name || "");
+    setBgColor(category.bgColor || "");
+    setTextColor(category.textColor || "");
+    setOrder(category.order || "");
 
-     if (existImage) {
-      setImage1(existImage)
-     }
-     
-     
-     
+    const existImage = category.images?.[0];
 
-  }
+    if (existImage) {
+      setImage1(existImage);
+    }
+  };
 
-
-    const handleImage = (image) => {
+  const handleImage = (image) => {
     if (!image) return assets.upload_area;
-    
+
     // If it's a File or Blob object, create object URL
     if (image instanceof File || image instanceof Blob) {
       return URL.createObjectURL(image);
     }
-    
+
     // If it's a string (URL from database), return it directly
-    if (typeof image === 'string') {
+    if (typeof image === "string") {
       return image;
     }
-    
+
     // Fallback
     return assets.upload_area;
   };
-
- 
 
   const onSubmitHandler = async (event) => {
     event.preventDefault();
@@ -119,41 +111,36 @@ const Category = () => {
       let response;
 
       if (isEditing && editingCategoryId) {
-       
-        formData.append("categoryId", editingCategoryId)
+        formData.append("categoryId", editingCategoryId);
         console.log(editingCategoryId);
-        
 
-        response = await axios.put(backendUrl + '/api/category/edit', formData, 
+        response = await axios.put(
+          backendUrl + "/api/category/edit",
+          formData,
           {
-            headers:{
-              admintoken
-            }
-          }
-        )
-
-       
-console.log(response);
-      }
-
-
-      else{
-          response = await axios.post(
-        backendUrl + "/api/category/add",
-        formData,
-        {
-          headers: {
-            admintoken: admintoken,
+            headers: {
+              admintoken,
+            },
           },
-        },
-      );
+        );
 
+        console.log(response);
+      } else {
+        response = await axios.post(
+          backendUrl + "/api/category/add",
+          formData,
+          {
+            headers: {
+              admintoken: admintoken,
+            },
+          },
+        );
       }
-     
+
       console.log(response);
 
       if (response.data.success) {
-        getCategoryList()
+        getCategoryList();
         toast.success(response.data.message);
         setName("");
         setBgColor("");
@@ -161,7 +148,7 @@ console.log(response);
         setOrder("");
         setType("Fast");
         setIsEditing(false);
-        setEditingCategoryId('');
+        setEditingCategoryId("");
         setImage1(false);
         setImage2(false);
         setImage3(false);
@@ -170,7 +157,7 @@ console.log(response);
         toast.error(response.data.message);
       }
     } catch (error) {
-      console.error( error);
+      console.error(error);
       toast.error({ success: false, message: "Error adding category" });
     }
   };
@@ -213,6 +200,7 @@ console.log(response);
                 onChange={(e) => setImage1(e.target.files[0])}
                 type="file"
                 id="image"
+                name="image1"
                 hidden
               />
             </label>

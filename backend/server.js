@@ -16,11 +16,12 @@ import mongoose from "mongoose";
 // Load environment variables FIRST
 dotenv.config();
 
-// Ensure DB connection in all environments (including Vercel serverless)
+// Ensure Cloudinary and DB connection in all environments (including Vercel serverless)
 try {
+  await connectCloudinary();
   await connectDB();
 } catch (err) {
-  console.error("❌ Initial DB connection failed:", err.message || err);
+  console.error("❌ Initial backend setup failed:", err.message || err);
 }
 
 const app = express();

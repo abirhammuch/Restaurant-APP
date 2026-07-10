@@ -700,6 +700,7 @@ const Products = () => {
                     onChange={handleImageChange}
                     type="file"
                     id="image"
+                    name="image1"
                     hidden
                   />
                 </label>
@@ -718,23 +719,23 @@ const Products = () => {
               </div>
 
               <div className="flex justify-between mt-4">
-               <div>
-                 <p>Category</p>
-                <select
-                  className="px-3 py-2 w-40 border rounded"
-                  value={category}
-                  onChange={(e) => setCategory(e.target.value)}
-                  required
-                >
-                  <option value="">Select Category</option>
-                  {allCategory &&
-                    allCategory.map((item, index) => (
-                      <option key={index} value={item.name}>
-                        {item.name}
-                      </option>
-                    ))}
-                </select>
-               </div>
+                <div>
+                  <p>Category</p>
+                  <select
+                    className="px-3 py-2 w-40 border rounded"
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    required
+                  >
+                    <option value="">Select Category</option>
+                    {allCategory &&
+                      allCategory.map((item, index) => (
+                        <option key={index} value={item.name}>
+                          {item.name}
+                        </option>
+                      ))}
+                  </select>
+                </div>
                 <div>
                   <p>Price</p>
                   <input
