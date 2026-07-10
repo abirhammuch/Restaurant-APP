@@ -327,12 +327,17 @@ export const AppContextProvider = (props) => {
         headers: { usertoken: getToken() },
       });
       if (response.data.success) {
-        setUserOrder(response.data.orders);
-        console.log("✅ User orders loaded:", response.data.orders.length);
+        setUserOrder(response.data.orders || []);
+        console.log(
+          "✅ User orders loaded:",
+          (response.data.orders || []).length,
+        );
+        return response.data.orders || [];
       }
     } catch (error) {
       console.log(error);
     }
+    return [];
   };
 
   // ✅ Get Order Detail

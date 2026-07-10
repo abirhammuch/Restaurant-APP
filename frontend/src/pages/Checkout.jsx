@@ -12,110 +12,117 @@ import { toast } from "react-toastify";
 import axios from "axios";
 
 const Checkout = () => {
-  const { orders, currency, navigate, cart, cartCount, delivery_fee, tax,setLoading, backendUrl, clearCart } =
-    useContext(AppContext);
-  const [method, setMethod] = useState('cash')
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
-  const [table, setTable] = useState('')
-  const [note, setNote] = useState('')
+  const {
+    orders,
+    currency,
+    navigate,
+    cart,
+    cartCount,
+    delivery_fee,
+    tax,
+    setLoading,
+    backendUrl,
+    clearCart,
+    getUserOrder,
+  } = useContext(AppContext);
+  const [method, setMethod] = useState("cash");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [table, setTable] = useState("");
+  const [note, setNote] = useState("");
 
-
-  const getToken = () =>localStorage.getItem('usertoken');
+  const getToken = () => localStorage.getItem("usertoken");
 
   const onSubmitHandler = async (event) => {
-    event.preventDefault()
-    
-      if (!method.trim()) {
-        toast.error('Please Select payment method')
-        return 
-      }
+    event.preventDefault();
 
-       if (!name.trim()) {
-        toast.error('Please enter your full name')
-        return 
-      }
-
-       if (!email.trim()) {
-        toast.error('Please enter your email')
-        return 
-      }
-       if (!phone.trim()) {
-        toast.error('Please enter your phone number')
-        return 
-      }
-       if (!table.trim()) {
-        toast.error('Please enter table number ')
-        return 
-      }
-      if (!cart.items || cart.items.length === 0) {
-        toast.error('Your cart is empty')
-        return
-
-        
-      }
-      setLoading(true)
-
-      try {
-
-        // prepare order data
-        const orderData = {
-          items:cart.items.map(item =>({
-            foodId:item.foodId,
-            quantity:item.quantity,
-            
-          })),
-          deliveryAddress:{
-            table: table,
-            phone:phone,
-            name:name,
-            email:email
-          
-          },
-            paymentMethod:method,
-            note: note || '',
-            couponCode: ''
-        }
-
-
-        const response = await axios.post( backendUrl + '/api/order/create', 
-            orderData,
-            {
-              headers: {
-                usertoken : getToken()
-              }
-            }
-        )
-        console.log('order response ', response.data);
-        if (response.data.success) {
-        toast.success(' Order placed successfully!');
-        
-        // ✅ Clear cart
-        await clearCart();
-        
-        // ✅ Navigate to order confirmation or orders page
-        navigate('/orders');
-      } else {
-        toast.error(response.data.message || 'Failed to place order.....');
-      }
-    } catch (error) {
-      console.error('Place order error:', error);
-      toast.error(error.response?.data?.message || 'Failed to place order. Please try again.');
-    }finally{
-      setLoading(false)
+    if (!method.trim()) {
+      toast.error("Please Select payment method");
+      return;
     }
 
-  }
+    if (!name.trim()) {
+      toast.error("Please enter your full name");
+      return;
+    }
 
-    // ✅ Calculate totals
+    if (!email.trim()) {
+      toast.error("Please enter your email");
+      return;
+    }
+    if (!phone.trim()) {
+      toast.error("Please enter your phone number");
+      return;
+    }
+    if (!table.trim()) {
+      toast.error("Please enter table number ");
+      return;
+    }
+    if (!cart.items || cart.items.length === 0) {
+      toast.error("Your cart is empty");
+      return;
+    }
+    setLoading(true);
+
+    try {
+      // prepare order data
+      const orderData = {
+        items: cart.items.map((item) => ({
+          foodId: item.foodId,
+          quantity: item.quantity,
+        })),
+        deliveryAddress: {
+          table: table,
+          phone: phone,
+          name: name,
+          email: email,
+        },
+        paymentMethod: method,
+        note: note || "",
+        couponCode: "",
+      };
+
+      const response = await axios.post(
+        backendUrl + "/api/order/create",
+        orderData,
+        {
+          headers: {
+            usertoken: getToken(),
+          },
+        },
+      );
+      console.log("order response ", response.data);
+      if (response.data.success) {
+        toast.success(" Order placed successfully!");
+
+        // ✅ Refresh the user orders list immediately
+        await getUserOrder();
+
+        // ✅ Clear cart
+        await clearCart();
+
+        // ✅ Navigate to order confirmation or orders page
+        navigate("/orders");
+      } else {
+        toast.error(response.data.message || "Failed to place order.....");
+      }
+    } catch (error) {
+      console.error("Place order error:", error);
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to place order. Please try again.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ Calculate totals
   const subtotal = cart.subtotal || 0;
   const taxAmount = (subtotal * (tax || 8)) / 100;
   const deliveryFee = (cart.subtotal < 50 ? 0 : delivery_fee) || 0;
   const total = subtotal + taxAmount + deliveryFee;
-
-
-
 
   return (
     <div>
@@ -129,9 +136,10 @@ const Checkout = () => {
       <div className="">
         <div>
           {/* customer info */}
-          <form 
-          onSubmit={onSubmitHandler}
-          className="lg:grid grid-cols-[2fr_1fr] px-5 mt-5 mx-9 gap-9 ">
+          <form
+            onSubmit={onSubmitHandler}
+            className="lg:grid grid-cols-[2fr_1fr] px-5 mt-5 mx-9 gap-9 "
+          >
             <div className="">
               <p className="text-2xl font-bold">Checkout</p>
               <p className="text-gray-600">
@@ -148,7 +156,8 @@ const Checkout = () => {
                     <p className="font-medium">Full Name</p>
                     <div className="relative">
                       <input
-                        onChange={(e) =>setName(e.target.value)} value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        value={name}
                         type="text"
                         placeholder="Enter your name"
                         className="border border-gray-300 rounded-md py-2 px-9 focus:outline-none focus:ring-2 focus:ring-amber-600 "
@@ -162,7 +171,8 @@ const Checkout = () => {
                     <p className="font-medium">Phone Number</p>
                     <div className="relative">
                       <input
-                        onChange={(e) =>setPhone(e.target.value)} value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        value={phone}
                         type="phone"
                         placeholder="09 11 22 33 44"
                         className="border border-gray-300 rounded-md py-2 px-9 focus:outline-none focus:ring-2 focus:ring-amber-600 "
@@ -177,7 +187,8 @@ const Checkout = () => {
                   <p className="font-medium">Email Address</p>
                   <div className="relative">
                     <input
-                      onChange={(e) =>setEmail(e.target.value)} value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      value={email}
                       type="email"
                       placeholder="example@gmaul.com"
                       className="border border-gray-300 rounded-md py-2 px-9 focus:outline-none focus:ring-2 focus:ring-amber-600  "
@@ -194,7 +205,8 @@ const Checkout = () => {
                     <div>
                       <p className="mb-2 mt-2">Table Number</p>
                       <input
-                        onChange={(e) =>setTable(e.target.value)} value={table}
+                        onChange={(e) => setTable(e.target.value)}
+                        value={table}
                         type="text"
                         placeholder="# e.g 12"
                         className="px-2 py-1"
@@ -208,21 +220,29 @@ const Checkout = () => {
                     <div>
                       <p className="mb-2 mt-2">Payment Method</p>
                       <div className="sm:flex justify-center items-center gap-9">
-                        <div 
-                          onClick={() =>setMethod('telebirr')}  value= {method}
-                        className= {`border px-5 flex justify-center items-center gap-3 py-1 rounded-md  mb-4 sm:mb-0 cursor-pointer
-                         ${method === 'telebirr' ? 'border-amber-600':'' } `}>
-                          
-                          
-                          <p className= {`${method ===  'telebirr' ? 'text-amber-600':'' }`}>Telebirr</p>
+                        <div
+                          onClick={() => setMethod("telebirr")}
+                          value={method}
+                          className={`border px-5 flex justify-center items-center gap-3 py-1 rounded-md  mb-4 sm:mb-0 cursor-pointer
+                         ${method === "telebirr" ? "border-amber-600" : ""} `}
+                        >
+                          <p
+                            className={`${method === "telebirr" ? "text-amber-600" : ""}`}
+                          >
+                            Telebirr
+                          </p>
                         </div>
                         <div
-                        onClick={() =>setMethod('cash')}  value= {method}
-                        className={`border px-5 flex justify-center items-center gap-3 py-1 rounded-md  mb-4 sm:mb-0 cursor-pointer
-                         ${method === 'cash' ? 'border-amber-600':'' } `}>
-                        
-                          
-                          <p className= {`${method ===  'cash' ? 'text-amber-600':'' }`}>Cash</p>
+                          onClick={() => setMethod("cash")}
+                          value={method}
+                          className={`border px-5 flex justify-center items-center gap-3 py-1 rounded-md  mb-4 sm:mb-0 cursor-pointer
+                         ${method === "cash" ? "border-amber-600" : ""} `}
+                        >
+                          <p
+                            className={`${method === "cash" ? "text-amber-600" : ""}`}
+                          >
+                            Cash
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -234,7 +254,8 @@ const Checkout = () => {
                 <p className="mb-2 mt-2 text-sm">Order Notes (Optional)</p>
                 <div>
                   <textarea
-                    onChange={(e) =>setNote(e.target.value)} value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    value={note}
                     type="textarea"
                     placeholder="e.g. No onions, extra napkins or allergen info"
                     className=" w-full px-3 py-3 "
