@@ -265,7 +265,7 @@ const Cart = () => {
         </div>
         <div
           onClick={() => setMore((prev) => !prev)}
-          className="mt-3 cursor-pointer"
+          className="mt-3 flex justify-end cursor-pointer"
         >
           {more ? <Less text={"Less"} /> : <More text={"More"} />}
         </div>
