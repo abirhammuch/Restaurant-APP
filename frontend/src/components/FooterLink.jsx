@@ -8,8 +8,8 @@ const FooterLink = () => {
   return (
     <footer className="bg-slate-950 text-white">
       <div className="mx-auto max-w-7xl space-y-10 px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-6">
-          <div className="space-y-6">
+        <div className="grid gap-8 sm:gap-10 grid-cols-2 lg:grid-cols-6">
+          <div className="col-span-2 space-y-6 lg:col-span-1">
             <div className="flex justify-center md:justify-start">
               <img
                 src={assets.logo}
@@ -87,7 +87,7 @@ const FooterLink = () => {
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="col-span-2 space-y-6 lg:col-span-1">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-200">
               Newsletter
             </p>
