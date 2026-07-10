@@ -1,13 +1,13 @@
-import { AppContext } from "../context/AppContext";
+﻿import { AppContext } from "../context/AppContext";
 import Less from "./Less";
 import More from "./More";
 import Title from "./Title";
 
-import React, { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useContext, useState } from "react";
 
 const Category = () => {
-  const { allCategory, setFullCategory, navigate } = useContext(AppContext);
+  const { allCategory = [], navigate } = useContext(AppContext);
+  const [more, setMore] = useState(false);
 
   const handleCategoryClick = (categoryName) => {
     const path = `/menu/${categoryName.trim().toLowerCase()}`;
@@ -15,61 +15,51 @@ const Category = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const [more, setMore] = useState(false);
-  const [filterCategory, setFilterCategory] = useState([]);
+  const getCategoryImage = (category) =>
+    category?.image || category?.images?.[0] || "";
+  const visibleCategories = more ? allCategory : allCategory.slice(0, 6);
 
   return (
-    <div className="px-4">
-      <Title text={"Explore Categories"} />
-      <div onClick={() => setMore((prev) => !prev)}>
-        {more ? <Less text={"Less"} /> : <More text={"View More"} />}
+    <div className="px-4 py-8 sm:px-6 lg:px-20">
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <Title text={"Explore Categories"} />
+        {more ? (
+          <Less text={"View Less"} onClick={() => setMore(false)} />
+        ) : (
+          <More text={"View More"} onClick={() => setMore(true)} />
+        )}
       </div>
 
-      {more ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 mt-6 gap-6 ">
-          {allCategory.map((category, index) => (
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+        {visibleCategories.map((category, index) => {
+          const imageSrc = getCategoryImage(category);
+
+          return (
             <div
-              key={index}
-              className="group cursor-pointer py-5 px-3   gap-2 rounded-lg flex flex-col justify-center items-center bg-gray-100 "
+              key={category?._id || category?.name || index}
+              onClick={() => handleCategoryClick(category.name)}
+              className="group cursor-pointer rounded-2xl border border-gray-200 bg-white p-3 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
             >
-              <div
-                onClick={() => handleCategoryClick(category.name)}
-                className="flex flex-col px-3 "
-              >
-                <img
-                  src={category.image}
-                  alt={category.name}
-                  className="group-hover:scale-108 transition max-w-60 rounded-2xl "
-                />
-                <p className="px-12 pt-5">{category.name}</p>
+              <div className="flex h-full flex-col items-center justify-center text-center">
+                <div className="mb-3 flex w-full items-center justify-center overflow-hidden rounded-xl bg-amber-50 p-2">
+                  {imageSrc ? (
+                    <img
+                      src={imageSrc}
+                      alt={category.name}
+                      className="h-28 w-full rounded-lg object-cover transition duration-300 group-hover:scale-105 sm:h-32"
+                    />
+                  ) : (
+                    <div className="flex h-28 w-full items-center justify-center rounded-lg bg-gradient-to-br from-amber-100 to-orange-200 text-lg font-semibold text-amber-700 sm:h-32">
+                      {category.name?.charAt(0)?.toUpperCase() || "C"}
+                    </div>
+                  )}
+                </div>
+                <p className="text-sm font-medium text-gray-700">{category.name}</p>
               </div>
             </div>
-          ))}{" "}
-          :
-        </div>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 mt-6 gap-6 ">
-          {allCategory.slice(0, 6).map((category, index) => (
-            <div
-              key={index}
-              className="group cursor-pointer py-5 px-3   gap-2 rounded-lg flex flex-col justify-center items-center bg-gray-100 "
-            >
-              <div
-                onClick={() => handleCategoryClick(category.name)}
-                className="flex flex-col px-3 "
-              >
-                <img
-                  src={category.images[0]}
-                  alt={category.name}
-                  className="group-hover:scale-108 transition max-w-60 rounded-2xl"
-                />
-                <p className="px-12">{category.name}</p>
-              </div>
-            </div>
-          ))}{" "}
-          :
-        </div>
-      )}
+          );
+        })}
+      </div>
     </div>
   );
 };

@@ -1,19 +1,17 @@
+import React from "react";
+import { FaArrowLeft } from "react-icons/fa6";
 
-import React from 'react'
-import { FaArrowLeft } from 'react-icons/fa6'
-
-const Less = ({text}) => {
+const Less = ({ text, onClick }) => {
   return (
-    <div>
-      <div>
-            <div  className='flex justify-end mr-9 items-center gap-5 text-amber-400 hover:text-amber-600 cursor-pointer'>
-              
-              <FaArrowLeft className='transition group-hover:translate-x-1 ' />
-              <p>{text}</p>
-            </div>
-          </div>
-    </div>
-  )
-}
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold text-amber-600 transition hover:bg-amber-50 hover:text-amber-700"
+    >
+      <FaArrowLeft className="transition-transform duration-200" />
+      <span>{text}</span>
+    </button>
+  );
+};
 
-export default Less
+export default Less;

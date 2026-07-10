@@ -12,8 +12,14 @@ const Navbar = () => {
   const closeMenu = () => setMenuOpen(false);
 
   const handleSearch = () => {
-    setShowSearch((prev) => !prev);
     closeMenu();
+
+    if (window.innerWidth < 768) {
+      navigate("/menu/search");
+      return;
+    }
+
+    setShowSearch((prev) => !prev);
     navigate("/menu");
   };
 
