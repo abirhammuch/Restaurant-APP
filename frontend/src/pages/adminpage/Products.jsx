@@ -430,7 +430,7 @@ const Products = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col gap-3 lg:flex-row lg:justify-between lg:items-center">
         <div>
           <p className="text-[40px] font-bold">Menu Management</p>
           <p className="font-bold">
@@ -438,7 +438,7 @@ const Products = () => {
           </p>
         </div>
 
-        <div className="flex gap-9">
+        <div className="flex flex-wrap gap-3 sm:gap-6 lg:gap-9">
           <div
             onClick={() => setShowFilterModal(!showFilterModal)}
             className="flex gap-2 items-center border px-2 py-1 rounded-md border-gray-500 cursor-pointer hover:bg-gray-100 relative"
@@ -663,8 +663,8 @@ const Products = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-[1fr_2fr] mt-4">
-        <div className="shadow-2xl px-6 rounded-2xl py-9">
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_2fr] gap-6 mt-4">
+        <div className="shadow-2xl px-4 sm:px-6 rounded-2xl py-6 sm:py-9">
           <div className="flex gap-2 items-center justify-between">
             <div className="flex gap-2 items-center">
               <TbBowlSpoon className="text-orange-600" />

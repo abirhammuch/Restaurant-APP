@@ -1,11 +1,16 @@
-
-
 // frontend/src/pages/adminpage/AdminRatings.jsx
-import React, { useContext, useEffect, useState } from 'react';
-import { AppContext } from '../../context/AppContext';
-import { FaTrash, FaEye, FaEyeSlash, FaReply, FaStar, FaRegStar } from 'react-icons/fa';
-import axios from 'axios';
-import { toast } from 'react-toastify';
+import React, { useContext, useEffect, useState } from "react";
+import { AppContext } from "../../context/AppContext";
+import {
+  FaTrash,
+  FaEye,
+  FaEyeSlash,
+  FaReply,
+  FaStar,
+  FaRegStar,
+} from "react-icons/fa";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const AdminRatings = () => {
   const { backendUrl } = useContext(AppContext);
@@ -13,23 +18,23 @@ const AdminRatings = () => {
   const [loading, setLoading] = useState(true);
   const [selectedRating, setSelectedRating] = useState(null);
   const [showReplyModal, setShowReplyModal] = useState(false);
-  const [replyText, setReplyText] = useState('');
-  const [filter, setFilter] = useState('all');
-  const [search, setSearch] = useState('');
+  const [replyText, setReplyText] = useState("");
+  const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState("");
   const [stats, setStats] = useState({
     total: 0,
     average: 0,
-    byRating: {}
+    byRating: {},
   });
 
-  const getToken = () => localStorage.getItem('admintoken');
+  const getToken = () => localStorage.getItem("admintoken");
 
   // ✅ Fetch all ratings
   const fetchRatings = async () => {
     try {
       setLoading(true);
       const response = await axios.get(`${backendUrl}/api/rating/admin/all`, {
-        headers: { admintoken: getToken() }
+        headers: { admintoken: getToken() },
       });
 
       if (response.data.success) {
@@ -37,8 +42,8 @@ const AdminRatings = () => {
         calculateStats(response.data.ratings);
       }
     } catch (error) {
-      console.error('Fetch ratings error:', error);
-      toast.error('Failed to fetch ratings');
+      console.error("Fetch ratings error:", error);
+      toast.error("Failed to fetch ratings");
     } finally {
       setLoading(false);
     }
@@ -48,10 +53,10 @@ const AdminRatings = () => {
   const calculateStats = (data) => {
     const total = data.length;
     const sum = data.reduce((acc, r) => acc + r.rating, 0);
-    const average = total > 0 ? (sum / total) : 0;
-    
+    const average = total > 0 ? sum / total : 0;
+
     const byRating = {};
-    data.forEach(r => {
+    data.forEach((r) => {
       byRating[r.rating] = (byRating[r.rating] || 0) + 1;
     });
 
@@ -64,43 +69,45 @@ const AdminRatings = () => {
       const response = await axios.put(
         `${backendUrl}/api/rating/admin/hide/${ratingId}`,
         { isHidden: !currentStatus },
-        { headers: { admintoken: getToken() } }
+        { headers: { admintoken: getToken() } },
       );
 
       if (response.data.success) {
-        toast.success(`Rating ${currentStatus ? 'hidden' : 'shown'} successfully`);
+        toast.success(
+          `Rating ${currentStatus ? "hidden" : "shown"} successfully`,
+        );
         fetchRatings();
       }
     } catch (error) {
-      console.error('Toggle hide error:', error);
-      toast.error('Failed to update rating');
+      console.error("Toggle hide error:", error);
+      toast.error("Failed to update rating");
     }
   };
 
   // ✅ Delete rating
   const deleteRating = async (ratingId) => {
-    if (!window.confirm('Are you sure you want to delete this rating?')) return;
+    if (!window.confirm("Are you sure you want to delete this rating?")) return;
 
     try {
       const response = await axios.delete(
         `${backendUrl}/api/rating/admin/delete/${ratingId}`,
-        { headers: { admintoken: getToken() } }
+        { headers: { admintoken: getToken() } },
       );
 
       if (response.data.success) {
-        toast.success('Rating deleted successfully');
+        toast.success("Rating deleted successfully");
         fetchRatings();
       }
     } catch (error) {
-      console.error('Delete rating error:', error);
-      toast.error('Failed to delete rating');
+      console.error("Delete rating error:", error);
+      toast.error("Failed to delete rating");
     }
   };
 
   // ✅ Add admin response
   const handleReplySubmit = async () => {
     if (!replyText.trim()) {
-      toast.error('Please enter a reply');
+      toast.error("Please enter a reply");
       return;
     }
 
@@ -108,18 +115,18 @@ const AdminRatings = () => {
       const response = await axios.put(
         `${backendUrl}/api/rating/admin/response/${selectedRating._id}`,
         { adminResponse: replyText },
-        { headers: { admintoken: getToken() } }
+        { headers: { admintoken: getToken() } },
       );
 
       if (response.data.success) {
-        toast.success('Reply added successfully');
+        toast.success("Reply added successfully");
         setShowReplyModal(false);
-        setReplyText('');
+        setReplyText("");
         fetchRatings();
       }
     } catch (error) {
-      console.error('Reply error:', error);
-      toast.error('Failed to add reply');
+      console.error("Reply error:", error);
+      toast.error("Failed to add reply");
     }
   };
 
@@ -128,23 +135,27 @@ const AdminRatings = () => {
     const stars = [];
     for (let i = 0; i < 5; i++) {
       stars.push(
-        i < rating ? 
-          <FaStar key={i} className="text-yellow-400 text-sm" /> : 
+        i < rating ? (
+          <FaStar key={i} className="text-yellow-400 text-sm" />
+        ) : (
           <FaRegStar key={i} className="text-gray-300 text-sm" />
+        ),
       );
     }
     return stars;
   };
 
   // ✅ Filter ratings
-  const filteredRatings = ratings.filter(r => {
-    if (filter === 'hidden' && !r.isHidden) return false;
-    if (filter === 'visible' && r.isHidden) return false;
+  const filteredRatings = ratings.filter((r) => {
+    if (filter === "hidden" && !r.isHidden) return false;
+    if (filter === "visible" && r.isHidden) return false;
     if (search) {
       const searchLower = search.toLowerCase();
-      return r.userId?.name?.toLowerCase().includes(searchLower) ||
-             r.foodId?.name?.toLowerCase().includes(searchLower) ||
-             r.comment?.toLowerCase().includes(searchLower);
+      return (
+        r.userId?.name?.toLowerCase().includes(searchLower) ||
+        r.foodId?.name?.toLowerCase().includes(searchLower) ||
+        r.comment?.toLowerCase().includes(searchLower)
+      );
     }
     return true;
   });
@@ -162,9 +173,9 @@ const AdminRatings = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-0 sm:p-2 lg:p-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col gap-3 md:flex-row md:justify-between md:items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold">Rating Management</h1>
           <p className="text-gray-500">Manage customer ratings and reviews</p>
@@ -178,12 +189,12 @@ const AdminRatings = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4 mb-6">
         <div className="bg-white p-4 rounded-lg shadow">
           <p className="text-sm text-gray-500">Total Reviews</p>
           <p className="text-2xl font-bold">{stats.total}</p>
         </div>
-        {[5, 4, 3, 2, 1].map(star => (
+        {[5, 4, 3, 2, 1].map((star) => (
           <div key={star} className="bg-white p-4 rounded-lg shadow">
             <p className="text-sm text-gray-500">{star} ★ Reviews</p>
             <p className="text-2xl font-bold">{stats.byRating[star] || 0}</p>
@@ -195,20 +206,20 @@ const AdminRatings = () => {
       <div className="flex flex-wrap gap-4 mb-6">
         <div className="flex gap-2">
           <button
-            onClick={() => setFilter('all')}
-            className={`px-4 py-2 rounded-lg ${filter === 'all' ? 'bg-amber-500 text-white' : 'bg-gray-200'}`}
+            onClick={() => setFilter("all")}
+            className={`px-4 py-2 rounded-lg ${filter === "all" ? "bg-amber-500 text-white" : "bg-gray-200"}`}
           >
             All
           </button>
           <button
-            onClick={() => setFilter('visible')}
-            className={`px-4 py-2 rounded-lg ${filter === 'visible' ? 'bg-amber-500 text-white' : 'bg-gray-200'}`}
+            onClick={() => setFilter("visible")}
+            className={`px-4 py-2 rounded-lg ${filter === "visible" ? "bg-amber-500 text-white" : "bg-gray-200"}`}
           >
             Visible
           </button>
           <button
-            onClick={() => setFilter('hidden')}
-            className={`px-4 py-2 rounded-lg ${filter === 'hidden' ? 'bg-amber-500 text-white' : 'bg-gray-200'}`}
+            onClick={() => setFilter("hidden")}
+            className={`px-4 py-2 rounded-lg ${filter === "hidden" ? "bg-amber-500 text-white" : "bg-gray-200"}`}
           >
             Hidden
           </button>
@@ -230,19 +241,36 @@ const AdminRatings = () => {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Food</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rating</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Comment</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  User
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Food
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Rating
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Comment
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Date
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {filteredRatings.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
+                  <td
+                    colSpan="7"
+                    className="px-6 py-4 text-center text-gray-500"
+                  >
                     No ratings found
                   </td>
                 </tr>
@@ -250,12 +278,18 @@ const AdminRatings = () => {
                 filteredRatings.map((rating) => (
                   <tr key={rating._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
-                      <p className="font-medium">{rating.userId?.name || 'Anonymous'}</p>
-                      <p className="text-sm text-gray-500">{rating.userId?.email}</p>
+                      <p className="font-medium">
+                        {rating.userId?.name || "Anonymous"}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {rating.userId?.email}
+                      </p>
                     </td>
                     <td className="px-6 py-4">
                       <p className="font-medium">{rating.foodId?.name}</p>
-                      <p className="text-sm text-gray-500">ID: {rating.foodId?._id?.slice(-6)}</p>
+                      <p className="text-sm text-gray-500">
+                        ID: {rating.foodId?._id?.slice(-6)}
+                      </p>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1">
@@ -264,7 +298,9 @@ const AdminRatings = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <p className="max-w-xs truncate">{rating.comment || 'No comment'}</p>
+                      <p className="max-w-xs truncate">
+                        {rating.comment || "No comment"}
+                      </p>
                       {rating.adminResponse && (
                         <p className="text-sm text-blue-600">
                           📝 Replied: {rating.adminResponse}
@@ -275,25 +311,31 @@ const AdminRatings = () => {
                       {new Date(rating.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded-full text-xs ${
-                        rating.isHidden ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
-                      }`}>
-                        {rating.isHidden ? 'Hidden' : 'Visible'}
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs ${
+                          rating.isHidden
+                            ? "bg-red-100 text-red-800"
+                            : "bg-green-100 text-green-800"
+                        }`}
+                      >
+                        {rating.isHidden ? "Hidden" : "Visible"}
                       </span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex gap-2">
                         <button
-                          onClick={() => toggleHideRating(rating._id, rating.isHidden)}
+                          onClick={() =>
+                            toggleHideRating(rating._id, rating.isHidden)
+                          }
                           className="p-2 text-yellow-600 hover:bg-yellow-100 rounded-lg transition-colors"
-                          title={rating.isHidden ? 'Show' : 'Hide'}
+                          title={rating.isHidden ? "Show" : "Hide"}
                         >
                           {rating.isHidden ? <FaEye /> : <FaEyeSlash />}
                         </button>
                         <button
                           onClick={() => {
                             setSelectedRating(rating);
-                            setReplyText(rating.adminResponse || '');
+                            setReplyText(rating.adminResponse || "");
                             setShowReplyModal(true);
                           }}
                           className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
@@ -339,11 +381,15 @@ const AdminRatings = () => {
                   {renderStars(selectedRating.rating)}
                 </div>
               </div>
-              <p className="text-sm text-gray-600 mt-1">{selectedRating.comment}</p>
+              <p className="text-sm text-gray-600 mt-1">
+                {selectedRating.comment}
+              </p>
             </div>
 
             <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">Admin Response</label>
+              <label className="block text-sm font-medium mb-2">
+                Admin Response
+              </label>
               <textarea
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}

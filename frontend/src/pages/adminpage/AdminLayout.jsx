@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { assets } from "../../assets/assets/assets";
 import { NavLink, Outlet } from "react-router-dom";
 import { FaUser, FaQrcode, FaStar } from "react-icons/fa";
-import { HiMenu} from "react-icons/hi"
-import { IoClose } from 'react-icons/io5'
+import { HiMenu } from "react-icons/hi";
+import { IoClose } from "react-icons/io5";
 import {
   MdDashboard,
   MdRestaurantMenu,
@@ -15,31 +15,48 @@ import { useContext } from "react";
 import { AppContext } from "../../context/AppContext";
 
 const AdminLayout = () => {
-  const {navigate} = useContext(AppContext)
+  const { navigate } = useContext(AppContext);
 
-  const [menuOpen, setMenuOpen] = useState(true)
- 
+  const [menuOpen, setMenuOpen] = useState(true);
 
   const logout = async () => {
-    localStorage.removeItem('admintoken')
-    navigate('/admin/login')
-  }
+    localStorage.removeItem("admintoken");
+    navigate("/admin/login");
+  };
 
   return (
-    <div>
-      <div className={`grid ${menuOpen ? "grid-cols-[300px_1fr]" : "grid-cols-[120px_1fr]"} mt-7`}>
+    <div className="min-h-screen bg-gray-50">
+      <div
+        className={`grid ${menuOpen ? "lg:grid-cols-[280px_1fr]" : "lg:grid-cols-[100px_1fr]"} grid-cols-1 mt-0 lg:mt-7`}
+      >
         {/* Sidebar */}
-        <div className="flex flex-col justify-between min-h-screen px-5 ml-9 shadow-2xl py-9 border-r border-gray-300 bg-gray-100 gap-9">
+        <div className="flex flex-col justify-between min-h-screen px-4 sm:px-5 lg:ml-9 shadow-2xl py-6 lg:py-9 border-b lg:border-b-0 lg:border-r border-gray-300 bg-gray-100 gap-6 lg:gap-9">
           <div>
-            <div className={`flex ${menuOpen ? "justify-between" : "justify-center"} items-center`}>
-              {menuOpen && <img src={assets.logo} onClick={() => navigate('/')} className="cursor-pointer" />}
+            <div
+              className={`flex ${menuOpen ? "justify-between" : "justify-center"} items-center`}
+            >
+              {menuOpen && (
+                <img
+                  src={assets.logo}
+                  onClick={() => navigate("/")}
+                  className="cursor-pointer"
+                />
+              )}
               {menuOpen ? (
-                <HiMenu onClick={() => setMenuOpen((prev) => !prev)} size={30} className="cursor-pointer" />
+                <HiMenu
+                  onClick={() => setMenuOpen((prev) => !prev)}
+                  size={30}
+                  className="cursor-pointer"
+                />
               ) : (
-                <IoClose size={30} onClick={() => setMenuOpen((prev) => !prev)} className="cursor-pointer" />
+                <IoClose
+                  size={30}
+                  onClick={() => setMenuOpen((prev) => !prev)}
+                  className="cursor-pointer"
+                />
               )}
             </div>
-            
+
             <div className="mt-5 flex flex-col gap-6">
               {/* Dashboard */}
               <div className="admin cursor-pointer">
@@ -130,10 +147,13 @@ const AdminLayout = () => {
         {/* Main Content */}
         <div>
           {/* Header */}
-          <div className="flex w-full justify-between px-9 mt-7 border-b border-gray-400 items-center pb-4">
-            <p className="text-2xl text-orange-700">Dashboard</p>
-            <div className="flex gap-5 items-center">
-              <p onClick={logout} className="border px-4 py-1 rounded-2xl border-gray-500 cursor-pointer hover:bg-gray-100 transition-colors">
+          <div className="flex flex-col sm:flex-row w-full justify-between px-4 sm:px-6 lg:px-9 mt-4 sm:mt-7 border-b border-gray-400 items-start sm:items-center pb-4 gap-3">
+            <p className="text-xl sm:text-2xl text-orange-700">Dashboard</p>
+            <div className="flex gap-3 sm:gap-5 items-center">
+              <p
+                onClick={logout}
+                className="border px-3 sm:px-4 py-1 rounded-2xl border-gray-500 cursor-pointer hover:bg-gray-100 transition-colors text-sm sm:text-base"
+              >
                 Logout
               </p>
               <FaUser className="text-orange-500 cursor-pointer" />
@@ -141,7 +161,7 @@ const AdminLayout = () => {
           </div>
 
           {/* Outlet */}
-          <div className="p-9">
+          <div className="p-4 sm:p-6 lg:p-9">
             <Outlet />
           </div>
         </div>

@@ -168,7 +168,7 @@ const Category = () => {
 
   return (
     <div>
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col gap-3 lg:flex-row lg:justify-between lg:items-center">
         <div>
           <p className="text-[40px] font-bold">Category Management</p>
           <p className="font-bold">Add, edite and delete your category.</p>
@@ -180,9 +180,9 @@ const Category = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-[1fr_2fr] mt-9">
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_2fr] gap-6 mt-9">
         {/*    form */}
-        <form onSubmit={onSubmitHandler} className="mx-5">
+        <form onSubmit={onSubmitHandler} className="mx-0 sm:mx-5">
           <p className="font-bold">Add New Category</p>
           <p className="text-sm text-gray-600 mb-6">
             Enter details to the category{" "}
@@ -274,7 +274,7 @@ const Category = () => {
 
         {/*    category list */}
         <div className="shadow-2xl">
-          <div className="flex justify-between pt-4 ml-9">
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-between pt-4 ml-0 sm:ml-9 px-3 sm:px-0">
             <div>
               <p className="text-3xl font-bold">Category List</p>
               <p>Manege Category across the list</p>
@@ -294,7 +294,7 @@ const Category = () => {
           </div>
 
           <div className="shadow-2xl bg-gray-100">
-            <div className="grid grid-cols-[1fr_2fr_1fr_1fr]  ml-6 border-t mt-5 pt-3 border-gray-400 px-6">
+            <div className="hidden lg:grid grid-cols-[1fr_2fr_1fr_1fr] ml-6 border-t mt-5 pt-3 border-gray-400 px-6">
               <p className="text-lg font-semibold">Image</p>
               <p className="text-lg font-semibold">Category Name</p>
               <p className="text-lg font-semibold">Category Type</p>
@@ -305,7 +305,7 @@ const Category = () => {
               allCategory.map((item, index) => (
                 <div
                   key={index}
-                  className="grid grid-cols-[1fr_2fr_1fr_1fr]  ml-6 border-t mt-5 pt-3 border-gray-400"
+                  className="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_2fr_1fr_1fr] ml-0 lg:ml-6 border-t mt-5 pt-3 border-gray-400 px-3 lg:px-0"
                 >
                   <img src={item.images[0]} className="w-16" />
                   <p>{item.name}</p>

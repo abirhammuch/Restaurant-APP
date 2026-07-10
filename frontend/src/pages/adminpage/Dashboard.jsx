@@ -270,7 +270,7 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="p-6">
+    <div className="p-0 sm:p-2 lg:p-6">
       {/* Welcome Section */}
       <div className="mb-6">
         <h1 className="text-3xl font-bold">Dashboard</h1>
@@ -373,7 +373,7 @@ const Dashboard = () => {
       {/* Order Status Breakdown */}
       <div className="bg-white p-6 rounded-lg shadow mb-6">
         <h3 className="text-lg font-bold mb-4">Order Status Breakdown</h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-7 gap-3">
           {statusCards.map((item) => (
             <div
               key={item.label}
@@ -404,8 +404,8 @@ const Dashboard = () => {
       </div>
 
       {/* Recent Orders */}
-      <div className="bg-white p-6 rounded-lg shadow">
-        <div className="flex justify-between items-center mb-4">
+      <div className="bg-white p-4 sm:p-6 rounded-lg shadow">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2">
           <h3 className="text-lg font-bold">Recent Orders</h3>
           <button
             onClick={() => (window.location.href = "/admin/totalorders")}
