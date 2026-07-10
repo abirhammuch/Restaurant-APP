@@ -24,6 +24,11 @@ const AdminLayout = () => {
     navigate("/admin/login");
   };
 
+  const handleNavClick = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    setMenuOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div
@@ -62,6 +67,7 @@ const AdminLayout = () => {
               <div className="admin cursor-pointer">
                 <NavLink
                   to="/admin/dashboard"
+                  onClick={handleNavClick}
                   className="flex gap-3 items-center px-3 py-2 rounded-2xl hover:bg-amber-500 hover:text-white transition-colors"
                 >
                   <MdDashboard />
@@ -73,6 +79,7 @@ const AdminLayout = () => {
               <div className="admin cursor-pointer">
                 <NavLink
                   to="/admin/products"
+                  onClick={handleNavClick}
                   className="flex gap-3 items-center px-3 py-2 rounded-2xl hover:bg-amber-500 hover:text-white transition-colors"
                 >
                   <MdRestaurantMenu />
@@ -84,6 +91,7 @@ const AdminLayout = () => {
               <div className="admin cursor-pointer">
                 <NavLink
                   to="/admin/categories"
+                  onClick={handleNavClick}
                   className="flex gap-3 items-center px-3 py-2 rounded-2xl hover:bg-amber-500 hover:text-white transition-colors"
                 >
                   <MdRestaurantMenu />
@@ -95,6 +103,7 @@ const AdminLayout = () => {
               <div className="admin cursor-pointer">
                 <NavLink
                   to="/admin/totalorders"
+                  onClick={handleNavClick}
                   className="flex gap-3 items-center px-3 py-2 rounded-2xl hover:bg-amber-500 hover:text-white transition-colors"
                 >
                   <MdAddShoppingCart />
@@ -106,6 +115,7 @@ const AdminLayout = () => {
               <div className="admin cursor-pointer">
                 <NavLink
                   to="/admin/ratings"
+                  onClick={handleNavClick}
                   className="flex gap-3 items-center px-3 py-2 rounded-2xl hover:bg-amber-500 hover:text-white transition-colors"
                 >
                   <FaStar className="text-lg" />
@@ -117,6 +127,7 @@ const AdminLayout = () => {
               <div className="admin cursor-pointer">
                 <NavLink
                   to="/admin/qrcodes"
+                  onClick={handleNavClick}
                   className="flex gap-3 items-center px-3 py-2 rounded-2xl hover:bg-amber-500 hover:text-white transition-colors"
                 >
                   <MdQrCode />
@@ -128,6 +139,7 @@ const AdminLayout = () => {
               <div className="admin cursor-pointer">
                 <NavLink
                   to="/admin/settings"
+                  onClick={handleNavClick}
                   className="flex gap-3 items-center px-3 py-2 rounded-2xl hover:bg-amber-500 hover:text-white transition-colors"
                 >
                   <MdSettings />
