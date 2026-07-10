@@ -29,43 +29,61 @@ const Navbar = () => {
     navigate("/login");
   };
 
+  const navItems = [
+    { to: "/", label: "Home" },
+    { to: "/menu", label: "Menu" },
+    { to: "/about", label: "About Us" },
+    { to: "/contact", label: "Contact" },
+  ];
+
   return (
-    <div className="relative border-b border-gray-500">
-      <div className="flex justify-between items-center h-[70px] px-5 md:px-20">
-        <div>
-          <Link to="/">
-            <img className="w-30" src={assets.logo} alt="logo" />
-          </Link>
+    <div className="relative border-b border-gray-500 bg-white">
+      <div className="flex justify-between items-center h-[70px] px-4 sm:px-6 lg:px-20">
+        <Link to="/" className="flex-shrink-0">
+          <img className="w-24 sm:w-30" src={assets.logo} alt="logo" />
+        </Link>
+
+        <div className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-medium">
+          {navItems.map(({ to, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                isActive
+                  ? "text-amber-600"
+                  : "text-gray-700 transition hover:text-amber-600"
+              }
+            >
+              {label}
+            </NavLink>
+          ))}
         </div>
 
-        <div className="hidden sm:flex gap-8">
-          <NavLink to="/">Home</NavLink>
-          <NavLink to="/menu">Menu</NavLink>
-          <NavLink to="/about">About Us</NavLink>
-          <NavLink to="/contact">Contact</NavLink>
-        </div>
+        <div className="flex items-center gap-2 sm:gap-4">
+          <button
+            type="button"
+            onClick={handleSearch}
+            className="hidden sm:flex items-center justify-center rounded-full p-2 transition hover:bg-amber-100"
+            aria-label="Search"
+          >
+            <img className="w-5 sm:w-6" src={assets.search_icon} alt="search" />
+          </button>
 
-        <div className="flex items-center gap-4 sm:gap-8">
-          <img
-            onClick={() => setShowSearch((prev) => !prev)}
-            className="w-6 hidden sm:block cursor-pointer"
-            src={assets.search_icon}
-            alt="search"
-          />
-
-          {usertoken && (
-            <div className="relative">
-              <img
-                onClick={() => handleNavigate("/cart")}
-                className="w-8 cursor-pointer"
-                src={assets.cart_icon}
-                alt="cart"
-              />
-              <div className="bg-amber-600 px-2 rounded-2xl absolute bottom-4 text-white left-5">
-                {cartCount}
-              </div>
-            </div>
-          )}
+          <button
+            type="button"
+            onClick={() => handleNavigate("/cart")}
+            className="relative flex items-center justify-center rounded-full p-2 transition hover:bg-amber-100"
+            aria-label="Cart"
+          >
+            <img
+              className="w-6 sm:w-7"
+              src={assets.nav_cart_icon || assets.cart_icon}
+              alt="cart"
+            />
+            <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-amber-600 px-1 text-[10px] font-semibold text-white">
+              {cartCount || 0}
+            </span>
+          </button>
 
           <div className="group relative hidden sm:block">
             <img
@@ -80,7 +98,7 @@ const Navbar = () => {
             />
 
             {usertoken && (
-              <div className="group-hover:block hidden absolute dropdown-menu right-0 pt-3 w-26 bg-gray-200 rounded-sm z-50">
+              <div className="group-hover:block hidden absolute dropdown-menu right-0 pt-3 w-28 rounded-sm bg-gray-200 z-50">
                 <p
                   onClick={() => handleNavigate("/orders")}
                   className="cursor-pointer px-2 py-1 hover:bg-gray-300"
@@ -97,48 +115,33 @@ const Navbar = () => {
             )}
           </div>
 
-          <img
+          <button
+            type="button"
             onClick={() => setMenuOpen((prev) => !prev)}
-            className="sm:hidden cursor-pointer w-7"
-            src={assets.menu_icon}
-            alt="menu"
-          />
+            className="flex items-center justify-center rounded-full p-2 transition hover:bg-amber-100 md:hidden"
+            aria-label="Toggle menu"
+          >
+            <img className="w-6" src={assets.menu_icon} alt="menu" />
+          </button>
         </div>
       </div>
 
       {menuOpen && (
-        <div className="sm:hidden absolute top-full left-0 right-0 z-50 bg-amber-200 shadow-lg">
-          <NavLink
-            to="/"
-            onClick={closeMenu}
-            className="block px-9 py-4 hover:bg-amber-300"
-          >
-            Home
-          </NavLink>
-          <NavLink
-            to="/menu"
-            onClick={closeMenu}
-            className="block px-9 py-4 hover:bg-amber-300"
-          >
-            Menu
-          </NavLink>
-          <NavLink
-            to="/about"
-            onClick={closeMenu}
-            className="block px-9 py-4 hover:bg-amber-300"
-          >
-            About Us
-          </NavLink>
-          <NavLink
-            to="/contact"
-            onClick={closeMenu}
-            className="block px-9 py-4 hover:bg-amber-300"
-          >
-            Contact
-          </NavLink>
+        <div className="absolute top-full left-0 right-0 z-50 bg-amber-50 shadow-lg md:hidden">
+          {navItems.map(({ to, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              onClick={closeMenu}
+              className="block px-6 py-4 text-gray-800 transition hover:bg-amber-200"
+            >
+              {label}
+            </NavLink>
+          ))}
+
           <button
             onClick={handleSearch}
-            className="w-full text-left px-9 py-4 hover:bg-amber-300"
+            className="w-full text-left px-6 py-4 transition hover:bg-amber-200"
           >
             Search
           </button>
@@ -147,19 +150,19 @@ const Navbar = () => {
             <>
               <button
                 onClick={() => handleNavigate("/cart")}
-                className="w-full text-left px-9 py-4 hover:bg-amber-300"
+                className="w-full text-left px-6 py-4 transition hover:bg-amber-200"
               >
-                Cart ({cartCount})
+                Cart ({cartCount || 0})
               </button>
               <button
                 onClick={() => handleNavigate("/orders")}
-                className="w-full text-left px-9 py-4 hover:bg-amber-300"
+                className="w-full text-left px-6 py-4 transition hover:bg-amber-200"
               >
                 My Orders
               </button>
               <button
                 onClick={logout}
-                className="w-full text-left px-9 py-4 hover:bg-amber-300"
+                className="w-full text-left px-6 py-4 transition hover:bg-amber-200"
               >
                 Logout
               </button>
@@ -167,7 +170,7 @@ const Navbar = () => {
           ) : (
             <button
               onClick={() => handleNavigate("/login")}
-              className="w-full text-left px-9 py-4 hover:bg-amber-300"
+              className="w-full text-left px-6 py-4 transition hover:bg-amber-200"
             >
               Login
             </button>
