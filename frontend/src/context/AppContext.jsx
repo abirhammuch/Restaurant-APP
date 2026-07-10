@@ -439,6 +439,7 @@ export const AppContextProvider = (props) => {
     getUserCart,
     getCartCount,
     clearCart,
+    getUserOrder,
     removeFromCart,
     cart,
     cartCount,
