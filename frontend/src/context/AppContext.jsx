@@ -45,6 +45,7 @@ export const AppContextProvider = (props) => {
   const [cartCount, setCartCount] = useState(0);
   // ✅ Cart loading state
   const [cartLoading, setCartLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // ✅ Get token from localStorage helper
   const getToken = () => {
@@ -440,6 +441,8 @@ export const AppContextProvider = (props) => {
     setAppLoading,
     cartLoading, // ✅ New cart loading state
     setCartLoading,
+    loading,
+    setLoading,
     setCart,
     setCartCount,
     getToken,

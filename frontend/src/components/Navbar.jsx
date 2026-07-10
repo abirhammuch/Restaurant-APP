@@ -15,7 +15,7 @@ const Navbar = () => {
     usertoken,
     addToCart,
     getCartCount,
-    cartCount
+    cartCount,
   } = useContext(AppContext);
 
   const search = () => {
@@ -52,22 +52,27 @@ const Navbar = () => {
           alt=""
         />
 
-        {usertoken &&  <div className="relative ">
-          <img
-            onClick={() => navigate("/cart")}
-            className="w-8 cursor-pointer"
-            src={assets.cart_icon}
-            alt=""
-          />
-          <div className="bg-amber-600 px-2 rounded-2xl absolute bottom-4 text-white left-5">
-            {cartCount}
+        {usertoken && (
+          <div className="relative ">
+            <img
+              onClick={() => navigate("/cart")}
+              className="w-8 cursor-pointer"
+              src={assets.cart_icon}
+              alt=""
+            />
+            <div className="bg-amber-600 px-2 rounded-2xl absolute bottom-4 text-white left-5">
+              {cartCount}
+            </div>
           </div>
-        </div> }
-       
+        )}
 
         <div className="group relative">
           <img
-            onClick={usertoken ? '' : () => navigate("/login")}
+            onClick={() => {
+              if (!usertoken) {
+                navigate("/login");
+              }
+            }}
             className="w-8 hidden sm:block cursor-pointer"
             src={assets.profile_icon}
             alt=""
