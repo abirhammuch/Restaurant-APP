@@ -1,159 +1,170 @@
-import React, { useContext, useEffect, useState } from 'react'
-import { AppContext } from '../context/AppContext'
-import { assets } from '../assets/assets/assets'
-import axios from 'axios'
+import React, { useContext, useEffect, useState } from "react";
+import { AppContext } from "../context/AppContext";
+import { assets } from "../assets/assets/assets";
+import axios from "axios";
 
 const FoodCard = ({ food }) => {
-  const [ratings, setRatings] = useState({})
-  const { currency, navigate, setFoodDetail, addToCart, backendUrl } = useContext(AppContext)
+  const [ratings, setRatings] = useState({});
+  const { currency, navigate, setFoodDetail, addToCart, backendUrl } =
+    useContext(AppContext);
 
   // ✅ Fetch rating for a single food
   const fetchRating = async (foodId) => {
     try {
-      const response = await axios.get(`${backendUrl}/api/rating/food/${foodId}`)
+      const response = await axios.get(
+        `${backendUrl}/api/rating/food/${foodId}`,
+      );
       if (response.data.success) {
-        return response.data.stats?.averageRating || 0
+        return response.data.stats?.averageRating || 0;
       }
-      return 0
+      return 0;
     } catch (error) {
-      console.error('Error fetching rating:', error)
-      return 0
+      console.error("Error fetching rating:", error);
+      return 0;
     }
-  }
+  };
 
   // ✅ Fetch ratings for all foods
   const fetchAllRatings = async () => {
-    if (!food || food.length === 0) return
-    
+    if (!food || food.length === 0) return;
+
     const ratingPromises = food.map(async (item) => {
-      const avgRating = await fetchRating(item._id)
-      return { [item._id]: avgRating }
-    })
-    
-    const results = await Promise.all(ratingPromises)
-    const ratingMap = Object.assign({}, ...results)
-    setRatings(ratingMap)
-  }
+      const avgRating = await fetchRating(item._id);
+      return { [item._id]: avgRating };
+    });
+
+    const results = await Promise.all(ratingPromises);
+    const ratingMap = Object.assign({}, ...results);
+    setRatings(ratingMap);
+  };
 
   // ✅ Fetch ratings when food changes
   useEffect(() => {
-    fetchAllRatings()
-  }, [food])
+    fetchAllRatings();
+  }, [food]);
 
   // ✅ Navigate to food detail - FIXED
   const foodDetail = (item) => {
-    console.log('Navigating to:', item.name, item._id)
-    
+    console.log("Navigating to:", item.name, item._id);
+
     // Set food detail in context
-    setFoodDetail(item)
-    
+    setFoodDetail(item);
+
     // Navigate with proper path
-    const path = `/menu/${item.category}/${item._id}`
-    console.log('Navigating to:', path)
-    
+    const path = `/menu/${item.category}/${item._id}`;
+    console.log("Navigating to:", path);
+
     // Use navigate with the full path
-    navigate(path)
-  }
+    navigate(path);
+  };
 
   // ✅ Handle add to cart with stop propagation
   const handleAddToCart = (itemId, e) => {
-    e.stopPropagation()
-    addToCart(itemId)
-  }
+    e.stopPropagation();
+    addToCart(itemId);
+  };
 
   // ✅ Render stars based on rating
   const renderStars = (rating) => {
-    if (!rating || rating === 0) return <span className="text-gray-400">No ratings</span>
-    
-    const fullStars = Math.floor(rating)
-    const hasHalfStar = rating % 1 >= 0.5
-    const stars = []
-    
+    if (!rating || rating === 0)
+      return <span className="text-gray-400">No ratings</span>;
+
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+    const stars = [];
+
     for (let i = 0; i < fullStars; i++) {
-      stars.push('⭐')
+      stars.push("⭐");
     }
     if (hasHalfStar) {
-      stars.push('⭐')
+      stars.push("⭐");
     }
     while (stars.length < 5) {
-      stars.push('☆')
+      stars.push("☆");
     }
-    return stars.join(' ')
-  }
+    return stars.join(" ");
+  };
 
   return (
-    <div className='px-6 sm:px-2 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-y-6 gap-6 pt-8'>
+    <div className="grid grid-cols-1 gap-5 px-2 py-4 sm:grid-cols-2 sm:px-4 sm:py-6 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
       {food && food.length > 0 ? (
         food.map((item, index) => {
-          const avgRating = ratings[item._id] || item.averageRating || 0
-          
+          const avgRating = ratings[item._id] || item.averageRating || 0;
+
           return (
-            <div 
-              key={index} 
-              className='relative flex flex-col bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden cursor-pointer'
+            <div
+              key={index}
+              className="relative flex flex-col overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-[0_12px_30px_-12px_rgba(15,23,42,0.18)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_-12px_rgba(15,23,42,0.25)] cursor-pointer"
               onClick={() => foodDetail(item)}
             >
               {/* Image */}
-              <div className='relative h-48 overflow-hidden bg-gray-100'>
-                <img 
-                  src={item.images?.[0] || item.image?.[0] || assets.upload_area} 
-                  alt={item.name || 'Food'} 
-                  className='w-full h-full object-cover hover:scale-105 transition-transform duration-300'
+              <div className="relative h-48 overflow-hidden bg-gray-100 sm:h-52">
+                <img
+                  src={
+                    item.images?.[0] || item.image?.[0] || assets.upload_area
+                  }
+                  alt={item.name || "Food"}
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                   onError={(e) => {
-                    e.target.src = assets.upload_area
+                    e.target.src = assets.upload_area;
                   }}
                 />
-                
+
                 {/* Category Badge */}
-                <p className='absolute top-3 left-3 bg-white px-3 py-1 rounded-2xl text-xs font-medium shadow-md'>
-                  {item.category || 'Uncategorized'}
+                <p className="absolute top-3 left-3 bg-white px-3 py-1 rounded-2xl text-xs font-medium shadow-md">
+                  {item.category || "Uncategorized"}
                 </p>
-                
+
                 {/* Rating Badge */}
-                <div className='absolute top-3 right-3 bg-amber-500 px-3 py-1 rounded-2xl text-white text-xs font-medium shadow-md flex items-center gap-1'>
-                  <span>{avgRating > 0 ? avgRating.toFixed(1) : '0'}</span>
+                <div className="absolute top-3 right-3 bg-amber-500 px-3 py-1 rounded-2xl text-white text-xs font-medium shadow-md flex items-center gap-1">
+                  <span>{avgRating > 0 ? avgRating.toFixed(1) : "0"}</span>
                   <span>★</span>
                 </div>
-                
+
                 {/* Popular Badge */}
                 {item.popular && (
-                  <div className='absolute bottom-3 left-3 bg-red-500 text-white px-3 py-1 rounded-2xl text-xs font-medium'>
+                  <div className="absolute bottom-3 left-3 bg-red-500 text-white px-3 py-1 rounded-2xl text-xs font-medium">
                     🔥 Popular
                   </div>
                 )}
               </div>
-              
+
               {/* Content */}
-              <div className='px-4 py-3 flex-1 flex flex-col'>
-                <p className='font-bold text-lg truncate'>{item.name}</p>
-                <p className='text-sm text-gray-600 line-clamp-2 flex-1'>
-                  {item.description || 'No description available'}
-                </p>
-                
-                <div className='flex justify-between items-center pt-3 mt-auto'>
-                  <p className='text-amber-500 font-bold text-lg'>
-                    {currency}{item.price?.toFixed(2) || '0.00'}
+              <div className="flex flex-1 flex-col gap-3 px-4 py-4 sm:px-5 sm:py-5">
+                <div className="space-y-1">
+                  <p className="truncate text-lg font-bold text-slate-800">
+                    {item.name}
                   </p>
-                  
+                  <p className="line-clamp-2 flex-1 text-sm leading-6 text-gray-600">
+                    {item.description || "No description available"}
+                  </p>
+                </div>
+
+                <div className="mt-auto flex items-center justify-between gap-3 pt-2">
+                  <p className="text-lg font-bold text-amber-500">
+                    {currency}
+                    {item.price?.toFixed(2) || "0.00"}
+                  </p>
+
                   {/* Add to Cart Button */}
                   <button
                     onClick={(e) => handleAddToCart(item._id, e)}
-                    className='bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-full font-bold text-sm transition-colors duration-200'
+                    className="rounded-full bg-amber-500 px-4 py-2 text-sm font-bold text-white transition-colors duration-200 hover:bg-amber-600"
                   >
                     + Add
                   </button>
                 </div>
               </div>
             </div>
-          )
+          );
         })
       ) : (
-        <div className='col-span-full text-center py-10 text-gray-500'>
+        <div className="col-span-full text-center py-10 text-gray-500">
           No food items available
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default FoodCard
+export default FoodCard;
