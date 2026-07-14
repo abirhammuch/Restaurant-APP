@@ -1,8 +1,9 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { FaArrowLeft } from "react-icons/fa";
 import { FaPhone } from "react-icons/fa";
 import { FaCreditCard } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
+import { useLocation } from "react-router-dom";
 
 import { FaLightbulb } from "react-icons/fa";
 
@@ -25,12 +26,21 @@ const Checkout = () => {
     clearCart,
     getUserOrder,
   } = useContext(AppContext);
+  const location = useLocation();
   const [method, setMethod] = useState("cash");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [table, setTable] = useState("");
   const [note, setNote] = useState("");
+
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const qrTable = searchParams.get("table");
+    if (qrTable) {
+      setTable(qrTable);
+    }
+  }, [location.search]);
 
   const getToken = () => localStorage.getItem("usertoken");
 
