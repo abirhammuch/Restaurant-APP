@@ -17,7 +17,7 @@ import { AppContext } from "../../context/AppContext";
 const AdminLayout = () => {
   const { navigate } = useContext(AppContext);
 
-  const [menuOpen, setMenuOpen] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const logout = async () => {
     localStorage.removeItem("admintoken");
@@ -40,13 +40,20 @@ const AdminLayout = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {menuOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-30 lg:hidden"
+          onClick={() => setMenuOpen(false)}
+        />
+      )}
+
       <div
         className={`grid ${menuOpen ? "lg:grid-cols-[280px_1fr]" : "lg:grid-cols-[100px_1fr]"} grid-cols-1 mt-0 lg:mt-7`}
       >
         {/* Sidebar */}
         <div
-          className={`flex flex-col justify-between min-h-screen px-4 sm:px-5 lg:ml-9 shadow-2xl py-6 lg:py-9 border-b lg:border-b-0 lg:border-r border-gray-300 bg-gray-100 gap-6 lg:gap-9 ${
-            menuOpen ? "flex" : "hidden lg:flex"
+          className={`fixed inset-y-0 left-0 z-40 flex w-70 max-w-[85vw] flex-col justify-between overflow-y-auto px-4 py-6 shadow-2xl border-r border-gray-300 bg-gray-100 gap-6 transition-transform duration-300 lg:static lg:translate-x-0 lg:min-h-screen lg:ml-9 lg:py-9 lg:border-b-0 ${
+            menuOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
           <div>
@@ -61,15 +68,15 @@ const AdminLayout = () => {
                 />
               )}
               {menuOpen ? (
-                <HiMenu
-                  onClick={() => setMenuOpen((prev) => !prev)}
-                  size={30}
-                  className="cursor-pointer"
-                />
-              ) : (
                 <IoClose
                   size={30}
                   onClick={() => setMenuOpen((prev) => !prev)}
+                  className="cursor-pointer"
+                />
+              ) : (
+                <HiMenu
+                  onClick={() => setMenuOpen((prev) => !prev)}
+                  size={30}
                   className="cursor-pointer"
                 />
               )}
@@ -170,7 +177,7 @@ const AdminLayout = () => {
         </div>
 
         {/* Main Content */}
-        <div>
+        <div className="lg:col-start-2">
           {/* Header */}
           <div className="flex flex-col sm:flex-row w-full justify-between px-4 sm:px-6 lg:px-9 mt-4 sm:mt-7 border-b border-gray-400 items-start sm:items-center pb-4 gap-3">
             <p className="text-xl sm:text-2xl text-orange-700">Dashboard</p>
