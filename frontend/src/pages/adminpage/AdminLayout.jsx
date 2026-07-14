@@ -191,13 +191,13 @@ const AdminLayout = () => {
               <p className="text-xl sm:text-2xl text-orange-700">Dashboard</p>
             </div>
             <div className="flex gap-3 sm:gap-5 items-center ml-auto">
-              <p
+              <button
                 onClick={logout}
-                className="border px-3 sm:px-4 py-1 rounded-2xl border-gray-500 cursor-pointer hover:bg-gray-100 transition-colors text-sm sm:text-base"
+                className="flex items-center gap-2 rounded-2xl border border-gray-500 px-3 py-1 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 sm:px-4 sm:text-base"
               >
-                Logout
-              </p>
-              <FaUser className="text-orange-500 cursor-pointer" />
+                <FaUser className="text-orange-500" />
+                Sign Out
+              </button>
             </div>
           </div>
 
