@@ -26,8 +26,17 @@ const AdminLayout = () => {
 
   const handleNavClick = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-    setMenuOpen(false);
+    if (window.innerWidth < 1024) {
+      setMenuOpen(false);
+    }
   };
+
+  const getNavClass = ({ isActive }) =>
+    `flex gap-3 items-center px-3 py-2 rounded-2xl transition-colors ${
+      isActive
+        ? "bg-amber-500 text-white"
+        : "hover:bg-amber-500 hover:text-white"
+    }`;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -35,7 +44,11 @@ const AdminLayout = () => {
         className={`grid ${menuOpen ? "lg:grid-cols-[280px_1fr]" : "lg:grid-cols-[100px_1fr]"} grid-cols-1 mt-0 lg:mt-7`}
       >
         {/* Sidebar */}
-        <div className="flex flex-col justify-between min-h-screen px-4 sm:px-5 lg:ml-9 shadow-2xl py-6 lg:py-9 border-b lg:border-b-0 lg:border-r border-gray-300 bg-gray-100 gap-6 lg:gap-9">
+        <div
+          className={`flex flex-col justify-between min-h-screen px-4 sm:px-5 lg:ml-9 shadow-2xl py-6 lg:py-9 border-b lg:border-b-0 lg:border-r border-gray-300 bg-gray-100 gap-6 lg:gap-9 ${
+            menuOpen ? "flex" : "hidden lg:flex"
+          }`}
+        >
           <div>
             <div
               className={`flex ${menuOpen ? "justify-between" : "justify-center"} items-center`}
@@ -68,7 +81,7 @@ const AdminLayout = () => {
                 <NavLink
                   to="/admin/dashboard"
                   onClick={handleNavClick}
-                  className="flex gap-3 items-center px-3 py-2 rounded-2xl hover:bg-amber-500 hover:text-white transition-colors"
+                  className={getNavClass}
                 >
                   <MdDashboard />
                   {menuOpen && <p className="text-lg">Dashboard</p>}
@@ -80,7 +93,7 @@ const AdminLayout = () => {
                 <NavLink
                   to="/admin/products"
                   onClick={handleNavClick}
-                  className="flex gap-3 items-center px-3 py-2 rounded-2xl hover:bg-amber-500 hover:text-white transition-colors"
+                  className={getNavClass}
                 >
                   <MdRestaurantMenu />
                   {menuOpen && <p className="text-lg">Products</p>}
@@ -92,7 +105,7 @@ const AdminLayout = () => {
                 <NavLink
                   to="/admin/categories"
                   onClick={handleNavClick}
-                  className="flex gap-3 items-center px-3 py-2 rounded-2xl hover:bg-amber-500 hover:text-white transition-colors"
+                  className={getNavClass}
                 >
                   <MdRestaurantMenu />
                   {menuOpen && <p className="text-lg">Categories</p>}
@@ -104,7 +117,7 @@ const AdminLayout = () => {
                 <NavLink
                   to="/admin/totalorders"
                   onClick={handleNavClick}
-                  className="flex gap-3 items-center px-3 py-2 rounded-2xl hover:bg-amber-500 hover:text-white transition-colors"
+                  className={getNavClass}
                 >
                   <MdAddShoppingCart />
                   {menuOpen && <p className="text-lg">Orders</p>}
@@ -116,7 +129,7 @@ const AdminLayout = () => {
                 <NavLink
                   to="/admin/ratings"
                   onClick={handleNavClick}
-                  className="flex gap-3 items-center px-3 py-2 rounded-2xl hover:bg-amber-500 hover:text-white transition-colors"
+                  className={getNavClass}
                 >
                   <FaStar className="text-lg" />
                   {menuOpen && <p className="text-lg">Ratings</p>}
@@ -128,7 +141,7 @@ const AdminLayout = () => {
                 <NavLink
                   to="/admin/qrcodes"
                   onClick={handleNavClick}
-                  className="flex gap-3 items-center px-3 py-2 rounded-2xl hover:bg-amber-500 hover:text-white transition-colors"
+                  className={getNavClass}
                 >
                   <MdQrCode />
                   {menuOpen && <p className="text-lg">QR Codes</p>}
@@ -140,7 +153,7 @@ const AdminLayout = () => {
                 <NavLink
                   to="/admin/settings"
                   onClick={handleNavClick}
-                  className="flex gap-3 items-center px-3 py-2 rounded-2xl hover:bg-amber-500 hover:text-white transition-colors"
+                  className={getNavClass}
                 >
                   <MdSettings />
                   {menuOpen && <p className="text-lg">Settings</p>}
