@@ -180,8 +180,17 @@ const AdminLayout = () => {
         <div className="lg:col-start-2">
           {/* Header */}
           <div className="flex flex-col sm:flex-row w-full justify-between px-4 sm:px-6 lg:px-9 mt-4 sm:mt-7 border-b border-gray-400 items-start sm:items-center pb-4 gap-3">
-            <p className="text-xl sm:text-2xl text-orange-700">Dashboard</p>
-            <div className="flex gap-3 sm:gap-5 items-center">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setMenuOpen((prev) => !prev)}
+                className="flex items-center justify-center rounded-full p-2 text-orange-600 hover:bg-orange-100 lg:hidden"
+                aria-label="Toggle menu"
+              >
+                {menuOpen ? <IoClose size={24} /> : <HiMenu size={24} />}
+              </button>
+              <p className="text-xl sm:text-2xl text-orange-700">Dashboard</p>
+            </div>
+            <div className="flex gap-3 sm:gap-5 items-center ml-auto">
               <p
                 onClick={logout}
                 className="border px-3 sm:px-4 py-1 rounded-2xl border-gray-500 cursor-pointer hover:bg-gray-100 transition-colors text-sm sm:text-base"
