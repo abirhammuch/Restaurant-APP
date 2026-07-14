@@ -24,6 +24,10 @@ const AdminLayout = () => {
     navigate("/admin/login");
   };
 
+  const toggleMenu = () => {
+    setMenuOpen((prev) => !prev);
+  };
+
   const handleNavClick = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
     if (window.innerWidth < 1024) {
@@ -70,12 +74,12 @@ const AdminLayout = () => {
               {menuOpen ? (
                 <IoClose
                   size={30}
-                  onClick={() => setMenuOpen((prev) => !prev)}
+                  onClick={toggleMenu}
                   className="cursor-pointer"
                 />
               ) : (
                 <HiMenu
-                  onClick={() => setMenuOpen((prev) => !prev)}
+                  onClick={toggleMenu}
                   size={30}
                   className="cursor-pointer"
                 />
@@ -182,7 +186,7 @@ const AdminLayout = () => {
           <div className="flex flex-col sm:flex-row w-full justify-between px-4 sm:px-6 lg:px-9 mt-4 sm:mt-7 border-b border-gray-400 items-start sm:items-center pb-4 gap-3">
             <div className="flex items-center gap-3">
               <button
-                onClick={() => setMenuOpen((prev) => !prev)}
+                onClick={toggleMenu}
                 className="flex items-center justify-center rounded-full p-2 text-orange-600 hover:bg-orange-100 lg:hidden"
                 aria-label="Toggle menu"
               >
