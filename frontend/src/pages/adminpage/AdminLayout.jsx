@@ -24,6 +24,14 @@ const AdminLayout = () => {
     navigate("/admin/login");
   };
 
+  const openMenu = () => {
+    setMenuOpen(true);
+  };
+
+  const closeMenu = () => {
+    setMenuOpen(false);
+  };
+
   const toggleMenu = () => {
     setMenuOpen((prev) => !prev);
   };
@@ -47,7 +55,7 @@ const AdminLayout = () => {
       {menuOpen && (
         <div
           className="fixed inset-0 bg-black/40 z-30 lg:hidden"
-          onClick={() => setMenuOpen(false)}
+          onClick={closeMenu}
         />
       )}
 
@@ -74,12 +82,12 @@ const AdminLayout = () => {
               {menuOpen ? (
                 <IoClose
                   size={30}
-                  onClick={toggleMenu}
+                  onClick={closeMenu}
                   className="cursor-pointer"
                 />
               ) : (
                 <HiMenu
-                  onClick={toggleMenu}
+                  onClick={openMenu}
                   size={30}
                   className="cursor-pointer"
                 />
@@ -186,9 +194,9 @@ const AdminLayout = () => {
           <div className="flex flex-col sm:flex-row w-full justify-between px-4 sm:px-6 lg:px-9 mt-4 sm:mt-7 border-b border-gray-400 items-start sm:items-center pb-4 gap-3">
             <div className="flex items-center gap-3">
               <button
-                onClick={toggleMenu}
+                onClick={menuOpen ? closeMenu : openMenu}
                 className="flex items-center justify-center rounded-full p-2 text-orange-600 hover:bg-orange-100 lg:hidden"
-                aria-label="Toggle menu"
+                aria-label={menuOpen ? "Close menu" : "Open menu"}
               >
                 {menuOpen ? <IoClose size={24} /> : <HiMenu size={24} />}
               </button>
