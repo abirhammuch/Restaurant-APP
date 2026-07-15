@@ -38,9 +38,7 @@ const AdminLayout = () => {
 
   const handleNavClick = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-    if (window.innerWidth < 1024) {
-      setMenuOpen(false);
-    }
+    setMenuOpen(false);
   };
 
   const getNavClass = ({ isActive }) =>
@@ -60,12 +58,14 @@ const AdminLayout = () => {
       )}
 
       <div
-        className={`grid ${menuOpen ? "lg:grid-cols-[280px_1fr]" : "lg:grid-cols-[100px_1fr]"} grid-cols-1 mt-0 lg:mt-7`}
+        className={`grid ${menuOpen ? "lg:grid-cols-[280px_1fr]" : "lg:grid-cols-[88px_1fr]"} grid-cols-1 mt-0 lg:mt-7`}
       >
         {/* Sidebar */}
         <div
-          className={`fixed inset-y-0 left-0 z-40 flex w-70 max-w-[85vw] flex-col justify-between overflow-y-auto px-4 py-6 shadow-2xl border-r border-gray-300 bg-gray-100 gap-6 transition-transform duration-300 lg:static lg:translate-x-0 lg:min-h-screen lg:ml-9 lg:py-9 lg:border-b-0 ${
-            menuOpen ? "translate-x-0" : "-translate-x-full"
+          className={`fixed inset-y-0 left-0 z-40 flex flex-col justify-between overflow-y-auto px-4 py-6 shadow-2xl border-r border-gray-300 bg-gray-100 gap-6 transition-all duration-300 lg:static lg:min-h-screen lg:ml-9 lg:py-9 lg:border-b-0 ${
+            menuOpen
+              ? "w-70 max-w-[85vw] translate-x-0"
+              : "w-[72px] max-w-[85vw] -translate-x-full lg:w-[88px] lg:translate-x-0"
           }`}
         >
           <div>
