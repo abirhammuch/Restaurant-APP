@@ -227,7 +227,7 @@ const Cart = () => {
                 <p className="mt-1 text-sm text-gray-500">VAT INCLUDED</p>
               </div>
               <p className="text-xl font-bold text-amber-600">
-                {formatPrice(totalAmount)}
+                {formatPrice(totalAmountUsd)}
               </p>
             </div>
 
