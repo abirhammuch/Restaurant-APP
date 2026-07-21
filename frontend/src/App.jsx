@@ -33,10 +33,11 @@ import AdminRatings from "./pages/adminpage/AdminRatings";
 const App = () => {
   const location = useLocation();
   const isAdminPath = location.pathname.includes("admin");
-  const { userLogin, isAdmin, appLoading } = useContext(AppContext);
+  const { userLogin, isAdmin, appLoading, dataLoading } =
+    useContext(AppContext);
 
-  // ✅ Show skeleton loading while checking admin status
-  if (appLoading) {
+  // ✅ Show skeleton loading while auth check or initial data load is in progress
+  if (appLoading || dataLoading) {
     return <SkeletonLoader />;
   }
 
