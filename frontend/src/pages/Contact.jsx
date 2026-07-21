@@ -1,6 +1,12 @@
 import React, { useState } from "react";
 
-import { FaPhone, FaMapMarkerAlt, FaClock, FaComments } from "react-icons/fa";
+import {
+  FaPhone,
+  FaEnvelope,
+  FaMapMarkerAlt,
+  FaClock,
+  FaComments,
+} from "react-icons/fa";
 
 const Contact = () => {
   const [messages, setMessages] = useState([

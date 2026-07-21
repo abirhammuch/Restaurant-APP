@@ -8,6 +8,9 @@ const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("orders");
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [dragStart, setDragStart] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
   const {
     setShowSearch,
     navigate,
@@ -45,6 +48,43 @@ const Navbar = () => {
     setUsertoken("");
     closeMenu();
     navigate("/login");
+  };
+
+  const handleIconMouseDown = (event) => {
+    const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+    const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+    setDragStart({
+      x: clientX,
+      y: clientY,
+      offsetX: dragOffset.x,
+      offsetY: dragOffset.y,
+    });
+    setIsDragging(false);
+  };
+
+  const handleIconMove = (event) => {
+    if (!dragStart) return;
+    const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+    const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+    const deltaX = clientX - dragStart.x;
+    const deltaY = clientY - dragStart.y;
+    if (Math.abs(deltaX) > 5 || Math.abs(deltaY) > 5) {
+      setIsDragging(true);
+    }
+    setDragOffset({
+      x: dragStart.offsetX + deltaX,
+      y: dragStart.offsetY + deltaY,
+    });
+  };
+
+  const handleIconRelease = () => {
+    setDragStart(null);
+  };
+
+  const handleIconClick = () => {
+    if (!isDragging) {
+      handleNavigate("/contact");
+    }
   };
 
   const navItems = [
@@ -271,11 +311,22 @@ const Navbar = () => {
 
       <button
         type="button"
-        onClick={() => handleNavigate("/contact")}
-        className="fixed right-5 bottom-6 z-50 flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-xl transition hover:scale-105 hover:bg-amber-50 focus:outline-none"
+        onClick={handleIconClick}
+        onMouseDown={handleIconMouseDown}
+        onMouseMove={handleIconMove}
+        onMouseUp={handleIconRelease}
+        onMouseLeave={handleIconRelease}
+        onTouchStart={handleIconMouseDown}
+        onTouchMove={handleIconMove}
+        onTouchEnd={handleIconRelease}
+        className="fixed right-5 bottom-6 z-50 flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-xl transition-transform duration-200 hover:scale-110 hover:bg-amber-50 focus:outline-none animate-bounce"
         aria-label="Call waiter"
         title="Call waiter"
         draggable="false"
+        style={{
+          transform: `translate(${dragOffset.x}px, ${dragOffset.y}px)`,
+          cursor: isDragging ? "grabbing" : "grab",
+        }}
       >
         <img
           className="h-10 w-10"
