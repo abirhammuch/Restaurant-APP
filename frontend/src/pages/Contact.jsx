@@ -81,39 +81,50 @@ const Contact = () => {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto space-y-3 border border-gray-200 rounded-xl p-4 bg-gray-50 max-h-[60vh]">
+          <div className="flex-1 overflow-y-auto space-y-4 border border-gray-200 rounded-xl p-4 bg-gray-50 max-h-[60vh]">
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={`rounded-2xl p-3 max-w-[90%] ${
-                  message.from === "admin"
-                    ? "bg-white self-start text-gray-800 shadow-sm"
-                    : "bg-amber-100 self-end text-gray-900"
+                className={`flex ${
+                  message.from === "admin" ? "justify-start" : "justify-end"
                 }`}
               >
-                <p className="text-xs font-semibold uppercase tracking-wide mb-1">
-                  {message.from}
-                </p>
-                <p className="text-sm leading-6">{message.text}</p>
+                <div
+                  className={`rounded-2xl p-3 max-w-[90%] ${
+                    message.from === "admin"
+                      ? "bg-white text-gray-800 shadow-sm"
+                      : "bg-amber-100 text-gray-900"
+                  }`}
+                >
+                  <div className="mb-2 flex items-center gap-2">
+                    <span className="text-xs font-semibold uppercase tracking-wide">
+                      {message.from === "admin" ? "Admin" : "Customer"}
+                    </span>
+                    <span className="text-[10px] text-gray-500">
+                      {message.from === "admin" ? "Support" : "You"}
+                    </span>
+                  </div>
+                  <p className="text-sm leading-6">{message.text}</p>
+                </div>
               </div>
             ))}
           </div>
 
           <form onSubmit={handleSendMessage} className="mt-4 space-y-3">
-            <label className="block text-gray-700 mb-2">Your request</label>
+            <label className="block text-gray-700 mb-2">Customer message</label>
             <textarea
               rows="4"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-primary"
-              placeholder="Ask the admin to assign a waiter to your table or order"
+              placeholder="Type your waiter request here"
             />
             <button
               type="submit"
-              disabled={isSending}
+              disabled={isSending || !input.trim()}
               className="w-full bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dull transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSending ? "Sending..." : "Send request"}
+              {isSending ? "Sending..." : "Send"}
             </button>
           </form>
 
