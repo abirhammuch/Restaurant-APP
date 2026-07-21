@@ -368,9 +368,15 @@ export const AppContextProvider = (props) => {
 
   // ✅ Get User Orders
   const getUserOrder = async () => {
+    const token = getToken();
+    if (!token) {
+      console.log("No token found for getUserOrder");
+      return [];
+    }
+
     try {
       const response = await axios.get(backendUrl + "/api/order/my-orders", {
-        headers: { usertoken: getToken() },
+        headers: { usertoken: token },
       });
       if (response.data.success) {
         setUserOrder(response.data.orders || []);
@@ -379,29 +385,57 @@ export const AppContextProvider = (props) => {
           (response.data.orders || []).length,
         );
         return response.data.orders || [];
+      } else {
+        toast.error(response.data.message || "Failed to load orders");
+        return [];
       }
     } catch (error) {
-      console.log(error);
+      console.error("❌ Error fetching user orders:", error);
+      if (error.response?.status === 401) {
+        toast.error("Please login to view your orders");
+        localStorage.removeItem("usertoken");
+        setUsertoken("");
+        setUserLogin(false);
+      } else {
+        toast.error(error.response?.data?.message || "Failed to load orders");
+      }
+      return [];
     }
-    return [];
   };
 
   // ✅ Get Order Detail
   const userOrderDetail = async (orderId) => {
+    const token = getToken();
+    if (!token) {
+      toast.error("Please login to view order details");
+      return null;
+    }
+
     try {
       const response = await axios.get(backendUrl + `/api/order/${orderId}`, {
         headers: {
-          usertoken: getToken(),
+          usertoken: token,
         },
       });
 
       if (response.data.success) {
         setOrderStatus(response.data.order.orderStatus);
         return response.data.order;
+      } else {
+        toast.error(response.data.message || "Failed to load order");
+        return null;
       }
     } catch (error) {
-      console.log(error);
-      toast.error(error.message);
+      console.error("❌ Error fetching order detail:", error);
+      if (error.response?.status === 401) {
+        toast.error("Please login to view order details");
+        localStorage.removeItem("usertoken");
+        setUsertoken("");
+        setUserLogin(false);
+      } else {
+        toast.error(error.response?.data?.message || "Failed to load order");
+      }
+      return null;
     }
   };
 
@@ -432,10 +466,12 @@ export const AppContextProvider = (props) => {
     loadAllData();
   }, []);
 
-  // ✅ Get user orders on mount
+  // ✅ Get user orders when user logs in
   useEffect(() => {
-    getUserOrder();
-  }, []);
+    if (userLogin && usertoken) {
+      getUserOrder();
+    }
+  }, [userLogin, usertoken]);
 
   // ✅ Update popular foods when foods change
   useEffect(() => {
