@@ -91,6 +91,14 @@ export const AppContextProvider = (props) => {
   const [allCategory, setAllCategory] = useState([]);
   const [userOrder, setUserOrder] = useState([]);
   const [orderStatus, setOrderStatus] = useState("");
+  const [chatMessages, setChatMessages] = useState([
+    {
+      id: 1,
+      from: "admin",
+      text: "Hello! This live chat is for assigning a waiter. Send your request and the admin will respond shortly.",
+      createdAt: new Date().toISOString(),
+    },
+  ]);
   const [dataLoading, setDataLoading] = useState(false);
 
   // ✅ App loading state - for checking auth
@@ -107,6 +115,26 @@ export const AppContextProvider = (props) => {
   // ✅ Cart loading state
   const [cartLoading, setCartLoading] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const sendCustomerMessage = (text) => {
+    const message = {
+      id: Date.now(),
+      from: "customer",
+      text,
+      createdAt: new Date().toISOString(),
+    };
+    setChatMessages((prev) => [...prev, message]);
+  };
+
+  const sendAdminMessage = (text) => {
+    const message = {
+      id: Date.now(),
+      from: "admin",
+      text,
+      createdAt: new Date().toISOString(),
+    };
+    setChatMessages((prev) => [...prev, message]);
+  };
 
   // ✅ Get token from localStorage helper
   const getToken = () => {
@@ -563,6 +591,9 @@ export const AppContextProvider = (props) => {
     userOrderDetail,
     orderStatus,
     setOrderStatus,
+    chatMessages,
+    sendCustomerMessage,
+    sendAdminMessage,
     dataLoading,
     loadAllData,
   };

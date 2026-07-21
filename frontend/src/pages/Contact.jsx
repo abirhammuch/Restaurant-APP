@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 
 import {
   FaPhone,
@@ -8,15 +8,10 @@ import {
   FaComments,
   FaPaperPlane,
 } from "react-icons/fa";
+import { AppContext } from "../context/AppContext";
 
 const Contact = () => {
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      from: "admin",
-      text: "Hello! This live chat is for assigning a waiter. Send your request and the admin will respond shortly.",
-    },
-  ]);
+  const { chatMessages, sendCustomerMessage } = useContext(AppContext);
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [status, setStatus] = useState({ type: "", message: "" });
@@ -26,31 +21,19 @@ const Contact = () => {
     const trimmed = input.trim();
     if (!trimmed) return;
 
-    const userMessage = {
-      id: Date.now(),
-      from: "user",
-      text: trimmed,
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    setInput("");
     setIsSending(true);
     setStatus({ type: "", message: "" });
+    sendCustomerMessage(trimmed);
+    setInput("");
 
     setTimeout(() => {
-      const adminReply = {
-        id: Date.now() + 1,
-        from: "admin",
-        text: "Admin received your request. A waiter will be assigned shortly. Please wait for confirmation here.",
-      };
-      setMessages((prev) => [...prev, adminReply]);
       setIsSending(false);
       setStatus({
         type: "success",
         message: "Your request was sent to admin.",
       });
       setTimeout(() => setStatus({ type: "", message: "" }), 5000);
-    }, 800);
+    }, 400);
   };
 
   return (
@@ -84,7 +67,7 @@ const Contact = () => {
           </div>
 
           <div className="flex-1 overflow-y-auto space-y-4 border border-gray-200 rounded-xl p-4 bg-gray-50 max-h-[60vh]">
-            {messages.map((message) => (
+            {chatMessages.map((message) => (
               <div
                 key={message.id}
                 className={`flex ${
