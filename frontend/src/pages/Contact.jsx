@@ -6,6 +6,7 @@ import {
   FaMapMarkerAlt,
   FaClock,
   FaComments,
+  FaPaperPlane,
 } from "react-icons/fa";
 
 const Contact = () => {
@@ -110,22 +111,25 @@ const Contact = () => {
             ))}
           </div>
 
-          <form onSubmit={handleSendMessage} className="mt-4 space-y-3">
+          <form onSubmit={handleSendMessage} className="mt-4">
             <label className="block text-gray-700 mb-2">Customer message</label>
-            <textarea
-              rows="4"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-primary"
-              placeholder="Type your waiter request here"
-            />
-            <button
-              type="submit"
-              disabled={isSending || !input.trim()}
-              className="w-full bg-primary text-white px-6 py-3 rounded-lg hover:bg-primary-dull transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isSending ? "Sending..." : "Send"}
-            </button>
+            <div className="flex gap-3">
+              <textarea
+                rows="4"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                className="flex-1 border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-primary"
+                placeholder="Type your waiter request here"
+              />
+              <button
+                type="submit"
+                disabled={isSending || !input.trim()}
+                className="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-3 text-white hover:bg-primary-dull transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSending ? "Sending..." : "Send"}
+                <FaPaperPlane className="ml-2" />
+              </button>
+            </div>
           </form>
 
           <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-gray-700">
