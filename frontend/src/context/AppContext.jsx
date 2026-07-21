@@ -688,6 +688,7 @@ export const AppContextProvider = (props) => {
     chatThreads,
     selectedChatUserId,
     setSelectedChatUserId,
+    getGuestId,
     getChatThreadByUser,
     getLatestThreads,
     sendCustomerMessage,

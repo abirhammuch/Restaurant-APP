@@ -14,10 +14,7 @@ const AdminChat = () => {
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
 
-  const threads = useMemo(
-    () => getLatestThreads(),
-    [chatThreads, getLatestThreads],
-  );
+  const threads = getLatestThreads();
   const activeThread = selectedChatUserId
     ? getChatThreadByUser(selectedChatUserId)
     : null;
