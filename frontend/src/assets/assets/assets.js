@@ -1,7 +1,7 @@
 import logo from "./logo.svg";
 import search_icon from "./search_icon.svg";
-import mobile_banner from './mobile_banner.png'
- import desktop_banner from './desktop_banner.png'
+import mobile_banner from "./mobile_banner.png";
+import desktop_banner from "./desktop_banner.png";
 
 import remove_icon from "./remove_icon.svg";
 import arrow_right_icon_colored from "./arrow_right_icon_colored.svg";
@@ -16,6 +16,7 @@ import order_icon from "./order_icon.svg";
 import upload_area from "./upload_area.png";
 import profile_icon from "./profile_icon.png";
 import menu_icon from "./menu_icon.svg";
+import message_image from "./message.png";
 import delivery_truck_icon from "./delivery_truck_icon.svg";
 import leaf_icon from "./leaf_icon.svg";
 import coin_icon from "./coin_icon.svg";
@@ -73,9 +74,8 @@ import quinoa_image from "./quinoa_image.png";
 import brown_rice_image from "./brown_rice_image.png";
 import barley_image from "./barley_image.png";
 
-
-import main_dish from './main_dish.png'
-import fast_food from './fast_food.png'
+import main_dish from "./main_dish.png";
+import fast_food from "./fast_food.png";
 
 export const assets = {
   logo,
@@ -93,6 +93,7 @@ export const assets = {
   upload_area,
   profile_icon,
   menu_icon,
+  message_image,
   delivery_truck_icon,
   leaf_icon,
   coin_icon,
@@ -106,7 +107,7 @@ export const assets = {
   add_address_iamge,
   box_icon,
   mobile_banner,
-  desktop_banner
+  desktop_banner,
 };
 
 export const categories = [
@@ -152,13 +153,13 @@ export const categories = [
     image: grain_image,
     bgColor: "#F1E3F9",
   },
-   {
+  {
     text: "Desserts ",
     path: "Desserts",
     image: grain_image,
     bgColor: "#F1E3F9",
   },
-   {
+  {
     text: " Fast Food ",
     path: "FastFood",
     image: fast_food,
@@ -239,7 +240,7 @@ export const food = [
     updatedAt: "2025-03-25T07:18:13.103Z",
     inStock: true,
     popular: true,
-    status:"Delivered"
+    status: "Delivered",
   },
   {
     _id: "gd47g34h",
@@ -258,7 +259,7 @@ export const food = [
     updatedAt: "2025-03-25T07:18:13.103Z",
     inStock: true,
     popular: true,
-    status:"Delivered"
+    status: "Delivered",
   },
   {
     _id: "gd48g45h",
@@ -276,7 +277,7 @@ export const food = [
     updatedAt: "2025-03-25T07:18:13.103Z",
     inStock: true,
     popular: true,
-    status:"Delivered"
+    status: "Delivered",
   },
   {
     _id: "gd49g56h",
@@ -294,7 +295,7 @@ export const food = [
     updatedAt: "2025-03-25T07:18:13.103Z",
     inStock: true,
     popular: true,
-    status:"Delivered"
+    status: "Delivered",
   },
   {
     _id: "gd50g67h",
@@ -312,7 +313,7 @@ export const food = [
     updatedAt: "2025-03-25T07:18:13.103Z",
     inStock: true,
     popular: true,
-    status:"Delivered"
+    status: "Delivered",
   },
 
   // Fruits
@@ -334,7 +335,7 @@ export const food = [
     updatedAt: "2025-03-25T07:18:13.103Z",
     inStock: true,
     popular: true,
-    status:"Delivered"
+    status: "Delivered",
   },
   {
     _id: "ek52j23k",
@@ -352,7 +353,7 @@ export const food = [
     updatedAt: "2025-03-25T07:18:13.103Z",
     inStock: true,
     popular: false,
-    status:"Delivered"
+    status: "Delivered",
   },
   {
     _id: "ek53j34k",
@@ -370,7 +371,7 @@ export const food = [
     updatedAt: "2025-03-25T07:18:13.103Z",
     inStock: true,
     popular: false,
-    status:"Delivered"
+    status: "Delivered",
   },
   {
     _id: "ek54j45k",
@@ -388,7 +389,7 @@ export const food = [
     createdAt: "2025-03-25T07:17:46.018Z",
     updatedAt: "2025-03-25T07:18:13.103Z",
     inStock: true,
-    status:"Delivered"
+    status: "Delivered",
   },
   {
     _id: "ek55j56k",
@@ -405,7 +406,7 @@ export const food = [
     createdAt: "2025-03-25T07:17:46.018Z",
     updatedAt: "2025-03-25T07:18:13.103Z",
     inStock: true,
-    status:"Preparing"
+    status: "Preparing",
   },
 
   // Dairy
@@ -425,7 +426,7 @@ export const food = [
     createdAt: "2025-03-25T07:17:46.018Z",
     updatedAt: "2025-03-25T07:18:13.103Z",
     inStock: true,
-    status:"Delivered"
+    status: "Delivered",
   },
   {
     _id: "ek57j78k",
@@ -442,7 +443,7 @@ export const food = [
     createdAt: "2025-03-25T07:17:46.018Z",
     updatedAt: "2025-03-25T07:18:13.103Z",
     inStock: true,
-    status:"Preparing"
+    status: "Preparing",
   },
   {
     _id: "ek58j89k",
@@ -459,7 +460,7 @@ export const food = [
     createdAt: "2025-03-25T07:17:46.018Z",
     updatedAt: "2025-03-25T07:18:13.103Z",
     inStock: true,
-    status:"Delivered"
+    status: "Delivered",
   },
   {
     _id: "ek59j90k",
@@ -476,7 +477,7 @@ export const food = [
     createdAt: "2025-03-25T07:17:46.018Z",
     updatedAt: "2025-03-25T07:18:13.103Z",
     inStock: true,
-    status:"Preparing"
+    status: "Preparing",
   },
   {
     _id: "ek60j01k",
@@ -885,7 +886,6 @@ export const dummyOrders = [
   },
 ];
 
-
 export const cart = [
   // Vegetables
   {
@@ -940,4 +940,4 @@ export const cart = [
     inStock: true,
     popular: true,
   },
-]
+];

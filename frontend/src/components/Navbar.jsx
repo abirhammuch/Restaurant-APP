@@ -103,31 +103,6 @@ const Navbar = () => {
             </span>
           </button>
 
-          <button
-            type="button"
-            onClick={() => handleNavigate("/contact")}
-            className="flex items-center justify-center rounded-full p-2 transition hover:bg-amber-100 select-none"
-            aria-label="Call waiter"
-            title="Call waiter"
-            draggable="false"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-5 w-5 text-gray-700 pointer-events-none"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="2"
-              draggable="false"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M7 8h10M7 12h6m-6 4h4m2 2l4 2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h8z"
-              />
-            </svg>
-          </button>
-
           <div className="group relative hidden sm:block">
             <img
               onClick={() => {
@@ -293,6 +268,22 @@ const Navbar = () => {
           </button>
         </div>
       </div>
+
+      <button
+        type="button"
+        onClick={() => handleNavigate("/contact")}
+        className="fixed right-5 bottom-6 z-50 flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-xl transition hover:scale-105 hover:bg-amber-50 focus:outline-none"
+        aria-label="Call waiter"
+        title="Call waiter"
+        draggable="false"
+      >
+        <img
+          className="h-10 w-10"
+          src={assets.message_image}
+          alt="Call waiter"
+          draggable="false"
+        />
+      </button>
 
       {menuOpen && (
         <div className="absolute top-full left-0 right-0 z-50 bg-amber-50 shadow-lg md:hidden">
