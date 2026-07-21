@@ -91,14 +91,17 @@ export const AppContextProvider = (props) => {
   const [allCategory, setAllCategory] = useState([]);
   const [userOrder, setUserOrder] = useState([]);
   const [orderStatus, setOrderStatus] = useState("");
-  const [chatMessages, setChatMessages] = useState([
-    {
-      id: 1,
-      from: "admin",
-      text: "Hello! This live chat is for assigning a waiter. Send your request and the admin will respond shortly.",
-      createdAt: new Date().toISOString(),
-    },
-  ]);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [chatThreads, setChatThreads] = useState(() => {
+    try {
+      const stored = localStorage.getItem("chatThreads");
+      return stored ? JSON.parse(stored) : [];
+    } catch (error) {
+      console.error("Failed to load chat threads from storage:", error);
+      return [];
+    }
+  });
+  const [selectedChatUserId, setSelectedChatUserId] = useState(null);
   const [dataLoading, setDataLoading] = useState(false);
 
   // ✅ App loading state - for checking auth
@@ -116,24 +119,105 @@ export const AppContextProvider = (props) => {
   const [cartLoading, setCartLoading] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const saveChatThreads = (threads) => {
+    setChatThreads(threads);
+    try {
+      localStorage.setItem("chatThreads", JSON.stringify(threads));
+    } catch (error) {
+      console.error("Failed to save chat threads:", error);
+    }
+  };
+
+  const getGuestId = () => {
+    let guestId = localStorage.getItem("guestChatId");
+    if (!guestId) {
+      guestId = `guest_${Date.now()}`;
+      localStorage.setItem("guestChatId", guestId);
+    }
+    return guestId;
+  };
+
+  const getChatThreadByUser = (userId) => {
+    return chatThreads.find((thread) => thread.userId === userId) || null;
+  };
+
+  const getLatestThreads = () => {
+    return [...chatThreads].sort(
+      (a, b) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+    );
+  };
+
+  const addMessageToThread = (userId, userName, userEmail, message) => {
+    const updatedThreads = [...chatThreads];
+    const threadIndex = updatedThreads.findIndex(
+      (thread) => thread.userId === userId,
+    );
+    if (threadIndex !== -1) {
+      updatedThreads[threadIndex] = {
+        ...updatedThreads[threadIndex],
+        userName,
+        userEmail,
+        messages: [...updatedThreads[threadIndex].messages, message],
+        updatedAt: message.createdAt,
+      };
+    } else {
+      updatedThreads.push({
+        userId,
+        userName,
+        userEmail,
+        messages: [message],
+        updatedAt: message.createdAt,
+      });
+    }
+    saveChatThreads(updatedThreads);
+  };
+
   const sendCustomerMessage = (text) => {
+    const userId = currentUser?.id || getGuestId();
+    const userName = currentUser?.name || "Guest";
+    const userEmail = currentUser?.email || "guest@chat.local";
     const message = {
-      id: Date.now(),
+      id: `customer-${Date.now()}`,
       from: "customer",
       text,
       createdAt: new Date().toISOString(),
     };
-    setChatMessages((prev) => [...prev, message]);
+    addMessageToThread(userId, userName, userEmail, message);
+    setSelectedChatUserId(userId);
   };
 
-  const sendAdminMessage = (text) => {
+  const sendAdminMessage = (text, userId = null) => {
+    const targetUserId = userId || selectedChatUserId;
+    if (!targetUserId) {
+      toast.error("Please select a customer chat thread first.");
+      return;
+    }
+    const thread = getChatThreadByUser(targetUserId);
+    const userName = thread?.userName || "Customer";
+    const userEmail = thread?.userEmail || "unknown@chat.local";
     const message = {
-      id: Date.now(),
+      id: `admin-${Date.now()}`,
       from: "admin",
       text,
       createdAt: new Date().toISOString(),
     };
-    setChatMessages((prev) => [...prev, message]);
+    addMessageToThread(targetUserId, userName, userEmail, message);
+  };
+
+  const fetchCurrentUserProfile = async () => {
+    const token = getToken();
+    if (!token) return;
+    try {
+      const response = await axios.get(backendUrl + "/api/user/profile", {
+        headers: { usertoken: token },
+      });
+      if (response.data.success) {
+        setCurrentUser(response.data.user);
+      }
+    } catch (error) {
+      console.error("Failed to fetch current user profile:", error);
+    }
   };
 
   // ✅ Get token from localStorage helper
@@ -504,6 +588,14 @@ export const AppContextProvider = (props) => {
     setAppLoading(false);
   }, []);
 
+  useEffect(() => {
+    if (usertoken) {
+      fetchCurrentUserProfile();
+    } else {
+      setCurrentUser(null);
+    }
+  }, [usertoken]);
+
   // ✅ Load all data on mount
   useEffect(() => {
     loadAllData();
@@ -591,7 +683,13 @@ export const AppContextProvider = (props) => {
     userOrderDetail,
     orderStatus,
     setOrderStatus,
-    chatMessages,
+    currentUser,
+    setCurrentUser,
+    chatThreads,
+    selectedChatUserId,
+    setSelectedChatUserId,
+    getChatThreadByUser,
+    getLatestThreads,
     sendCustomerMessage,
     sendAdminMessage,
     dataLoading,

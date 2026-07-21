@@ -17,6 +17,7 @@ const Login = () => {
     backendUrl,
     usertoken,
     setUsertoken,
+    setCurrentUser,
     admintoken,
     setAdmintoken,
   } = useContext(AppContext);
@@ -37,6 +38,7 @@ const Login = () => {
         });
         if (response.data.success) {
           setUsertoken(response.data.usertoken);
+          setCurrentUser(response.data.user);
           setUserLogin(true);
           localStorage.setItem("usertoken", response.data.usertoken);
         } else {
@@ -52,6 +54,7 @@ const Login = () => {
         console.log(response);
         if (response.data.success) {
           setUsertoken(response.data.usertoken);
+          setCurrentUser(response.data.user);
           setUserLogin(true);
           localStorage.setItem("usertoken", response.data.usertoken);
         } else {

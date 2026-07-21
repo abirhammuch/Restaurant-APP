@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import {
   FaPhone,
@@ -11,10 +11,27 @@ import {
 import { AppContext } from "../context/AppContext";
 
 const Contact = () => {
-  const { chatMessages, sendCustomerMessage } = useContext(AppContext);
+  const {
+    currentUser,
+    chatThreads,
+    getChatThreadByUser,
+    getGuestId,
+    selectedChatUserId,
+    setSelectedChatUserId,
+    sendCustomerMessage,
+  } = useContext(AppContext);
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [status, setStatus] = useState({ type: "", message: "" });
+
+  const chatUserId = currentUser?.id || getGuestId();
+  const currentThread = getChatThreadByUser(chatUserId);
+
+  useEffect(() => {
+    if (chatUserId) {
+      setSelectedChatUserId(chatUserId);
+    }
+  }, [chatUserId, setSelectedChatUserId]);
 
   const handleSendMessage = (e) => {
     e.preventDefault();
@@ -67,32 +84,39 @@ const Contact = () => {
           </div>
 
           <div className="flex-1 overflow-y-auto space-y-4 border border-gray-200 rounded-xl p-4 bg-gray-50 max-h-[60vh]">
-            {chatMessages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${
-                  message.from === "admin" ? "justify-start" : "justify-end"
-                }`}
-              >
+            {currentThread?.messages?.length > 0 ? (
+              currentThread.messages.map((message) => (
                 <div
-                  className={`rounded-2xl p-3 max-w-[90%] ${
-                    message.from === "admin"
-                      ? "bg-white text-gray-800 shadow-sm"
-                      : "bg-amber-100 text-gray-900"
+                  key={message.id}
+                  className={`flex ${
+                    message.from === "admin" ? "justify-start" : "justify-end"
                   }`}
                 >
-                  <div className="mb-2 flex items-center gap-2">
-                    <span className="text-xs font-semibold uppercase tracking-wide">
-                      {message.from === "admin" ? "Admin" : "Customer"}
-                    </span>
-                    <span className="text-[10px] text-gray-500">
-                      {message.from === "admin" ? "Support" : "You"}
-                    </span>
+                  <div
+                    className={`rounded-2xl p-3 max-w-[90%] ${
+                      message.from === "admin"
+                        ? "bg-white text-gray-800 shadow-sm"
+                        : "bg-amber-100 text-gray-900"
+                    }`}
+                  >
+                    <div className="mb-2 flex items-center gap-2">
+                      <span className="text-xs font-semibold uppercase tracking-wide">
+                        {message.from === "admin" ? "Admin" : "Customer"}
+                      </span>
+                      <span className="text-[10px] text-gray-500">
+                        {message.from === "admin" ? "Support" : "You"}
+                      </span>
+                    </div>
+                    <p className="text-sm leading-6">{message.text}</p>
                   </div>
-                  <p className="text-sm leading-6">{message.text}</p>
                 </div>
+              ))
+            ) : (
+              <div className="text-center text-gray-500">
+                No messages yet. Send a waiter request and the admin will reply
+                here.
               </div>
-            ))}
+            )}
           </div>
 
           <form onSubmit={handleSendMessage} className="mt-4">
