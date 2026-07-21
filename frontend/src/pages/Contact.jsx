@@ -125,7 +125,7 @@ const Contact = () => {
               <button
                 type="submit"
                 disabled={isSending || !input.trim()}
-                className="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-3 text-white hover:bg-primary-dull transition disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto w-full"
+                className="inline-flex items-center justify-center rounded-lg bg-amber-600 px-5 py-3 text-white hover:bg-amber-700 transition disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto w-full min-w-[120px]"
               >
                 {isSending ? "Sending..." : "Send"}
                 <FaPaperPlane className="ml-2" />
