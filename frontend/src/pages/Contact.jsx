@@ -77,7 +77,8 @@ const Contact = () => {
             <div>
               <h2 className="text-2xl font-semibold">Live Chat</h2>
               <p className="text-sm text-gray-600">
-                Ask the admin to assign a waiter to your table or order.
+                Ask the anything you want or call a waiter to your table or
+                order.
               </p>
             </div>
           </div>
@@ -113,18 +114,18 @@ const Contact = () => {
 
           <form onSubmit={handleSendMessage} className="mt-4">
             <label className="block text-gray-700 mb-2">Customer message</label>
-            <div className="flex gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <textarea
                 rows="4"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                className="flex-1 border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-primary"
+                className="flex-1 min-h-[140px] border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-primary"
                 placeholder="Type your waiter request here"
               />
               <button
                 type="submit"
                 disabled={isSending || !input.trim()}
-                className="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-3 text-white hover:bg-primary-dull transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-3 text-white hover:bg-primary-dull transition disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto w-full"
               >
                 {isSending ? "Sending..." : "Send"}
                 <FaPaperPlane className="ml-2" />
