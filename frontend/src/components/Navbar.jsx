@@ -103,6 +103,29 @@ const Navbar = () => {
             </span>
           </button>
 
+          <button
+            type="button"
+            onClick={() => handleNavigate("/contact")}
+            className="flex items-center justify-center rounded-full p-2 transition hover:bg-amber-100"
+            aria-label="Call waiter"
+            title="Call waiter"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 text-gray-700"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M7 8h10M7 12h6m-6 4h4m2 2l4 2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h8z"
+              />
+            </svg>
+          </button>
+
           <div className="group relative hidden sm:block">
             <img
               onClick={() => {
