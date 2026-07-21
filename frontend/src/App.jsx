@@ -29,6 +29,7 @@ import Dashboard from "./pages/adminpage/Dashboard";
 import Category from "./pages/adminpage/Category";
 import Order from "./pages/Order";
 import AdminRatings from "./pages/adminpage/AdminRatings";
+import AdminChat from "./pages/adminpage/AdminChat";
 
 const App = () => {
   const location = useLocation();
@@ -81,6 +82,7 @@ const App = () => {
           <Route path="qrcodes" element={<Qrcodes />} />
           <Route path="settings" element={<Settings />} />
           <Route path="ratings" element={<AdminRatings />} />
+          <Route path="chat" element={<AdminChat />} />
         </Route>
       </Routes>
 

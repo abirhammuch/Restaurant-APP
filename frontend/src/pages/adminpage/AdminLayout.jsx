@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { assets } from "../../assets/assets/assets";
 import { NavLink, Outlet } from "react-router-dom";
-import { FaUser, FaQrcode, FaStar } from "react-icons/fa";
+import { FaUser, FaQrcode, FaStar, FaComments } from "react-icons/fa";
 import { HiMenu } from "react-icons/hi";
 import { IoClose } from "react-icons/io5";
 import {
@@ -164,6 +164,18 @@ const AdminLayout = () => {
                 >
                   <MdQrCode />
                   {menuOpen && <p className="text-lg">QR Codes</p>}
+                </NavLink>
+              </div>
+
+              {/* Chat Requests */}
+              <div className="admin cursor-pointer">
+                <NavLink
+                  to="/admin/chat"
+                  onClick={handleNavClick}
+                  className={getNavClass}
+                >
+                  <FaComments className="text-lg" />
+                  {menuOpen && <p className="text-lg">Chat</p>}
                 </NavLink>
               </div>
 
