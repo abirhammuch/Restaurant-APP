@@ -3,12 +3,23 @@ import { NavLink, Link } from "react-router-dom";
 
 import { assets } from "../assets/assets/assets";
 import { AppContext } from "../context/AppContext";
-import LanguageSwitcher from "./LanguageSwitcher";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { setShowSearch, navigate, setUsertoken, usertoken, cartCount } =
-    useContext(AppContext);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("orders");
+  const {
+    setShowSearch,
+    navigate,
+    setUsertoken,
+    usertoken,
+    cartCount,
+    language,
+    changeLanguage,
+    currencyType,
+    changeCurrency,
+    t,
+  } = useContext(AppContext);
 
   const closeMenu = () => setMenuOpen(false);
 
@@ -92,37 +103,160 @@ const Navbar = () => {
             </span>
           </button>
 
-          <LanguageSwitcher />
-
           <div className="group relative hidden sm:block">
             <img
               onClick={() => {
                 if (!usertoken) {
                   handleNavigate("/login");
+                } else {
+                  setProfileDropdownOpen(!profileDropdownOpen);
                 }
               }}
-              className="w-8 cursor-pointer"
+              className="w-8 cursor-pointer hover:opacity-75 transition"
               src={assets.profile_icon}
               alt="profile"
             />
 
-            {usertoken && (
-              <div className="group-hover:block hidden absolute dropdown-menu right-0 pt-3 w-28 rounded-sm bg-gray-200 z-50">
-                <p
-                  onClick={() => handleNavigate("/orders")}
-                  className="cursor-pointer px-2 py-1 hover:bg-gray-300"
-                >
-                  My Orders
-                </p>
-                <p
-                  onClick={logout}
-                  className="cursor-pointer px-2 py-1 hover:bg-gray-300"
-                >
-                  Logout
-                </p>
+            {usertoken && profileDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-64 rounded-lg bg-white border border-gray-200 shadow-xl z-50">
+                {/* Tab Navigation */}
+                <div className="flex border-b border-gray-200">
+                  <button
+                    onClick={() => setActiveTab("orders")}
+                    className={`flex-1 px-4 py-3 text-sm font-medium transition ${
+                      activeTab === "orders"
+                        ? "text-amber-600 border-b-2 border-amber-600"
+                        : "text-gray-600 hover:text-gray-800"
+                    }`}
+                  >
+                    {t("myOrders")}
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("settings")}
+                    className={`flex-1 px-4 py-3 text-sm font-medium transition ${
+                      activeTab === "settings"
+                        ? "text-amber-600 border-b-2 border-amber-600"
+                        : "text-gray-600 hover:text-gray-800"
+                    }`}
+                  >
+                    {t("settings")}
+                  </button>
+                </div>
+
+                {/* Tab Content */}
+                <div className="p-4">
+                  {/* Orders Tab */}
+                  {activeTab === "orders" && (
+                    <button
+                      onClick={() => {
+                        handleNavigate("/orders");
+                        setProfileDropdownOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-2 rounded hover:bg-amber-100 text-gray-700 transition"
+                    >
+                      📋 {t("viewDetails")}
+                    </button>
+                  )}
+
+                  {/* Settings Tab */}
+                  {activeTab === "settings" && (
+                    <div className="space-y-4">
+                      {/* Language Setting */}
+                      <div>
+                        <p className="text-xs font-semibold text-gray-600 mb-2">
+                          {t("language")}
+                        </p>
+                        <div className="space-y-2">
+                          <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-2 rounded">
+                            <input
+                              type="radio"
+                              name="language"
+                              value="en"
+                              checked={language === "en"}
+                              onChange={() => changeLanguage("en")}
+                              className="w-4 h-4 text-amber-600"
+                            />
+                            <span className="text-sm text-gray-700">
+                              {t("english")}
+                            </span>
+                          </label>
+                          <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-2 rounded">
+                            <input
+                              type="radio"
+                              name="language"
+                              value="am"
+                              checked={language === "am"}
+                              onChange={() => changeLanguage("am")}
+                              className="w-4 h-4 text-amber-600"
+                            />
+                            <span className="text-sm text-gray-700">
+                              {t("amharic")}
+                            </span>
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* Currency Setting */}
+                      <div className="border-t border-gray-200 pt-3">
+                        <p className="text-xs font-semibold text-gray-600 mb-2">
+                          {t("currency")}
+                        </p>
+                        <div className="space-y-2">
+                          <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-2 rounded">
+                            <input
+                              type="radio"
+                              name="currency"
+                              value="USD"
+                              checked={currencyType === "USD"}
+                              onChange={() => changeCurrency("USD")}
+                              className="w-4 h-4 text-amber-600"
+                            />
+                            <span className="text-sm text-gray-700">
+                              {t("usd")}
+                            </span>
+                          </label>
+                          <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-2 rounded">
+                            <input
+                              type="radio"
+                              name="currency"
+                              value="ETB"
+                              checked={currencyType === "ETB"}
+                              onChange={() => changeCurrency("ETB")}
+                              className="w-4 h-4 text-amber-600"
+                            />
+                            <span className="text-sm text-gray-700">
+                              {t("etb")}
+                            </span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Logout Button */}
+                <div className="border-t border-gray-200 p-4">
+                  <button
+                    onClick={() => {
+                      logout();
+                      setProfileDropdownOpen(false);
+                    }}
+                    className="w-full px-4 py-2 rounded bg-red-50 text-red-600 hover:bg-red-100 transition font-medium text-sm"
+                  >
+                    🚪 {t("logout")}
+                  </button>
+                </div>
               </div>
             )}
           </div>
+
+          {/* Close dropdown when clicking outside */}
+          {profileDropdownOpen && (
+            <div
+              className="fixed inset-0 z-40"
+              onClick={() => setProfileDropdownOpen(false)}
+            />
+          )}
 
           <button
             type="button"
@@ -169,11 +303,85 @@ const Navbar = () => {
               >
                 My Orders
               </button>
+
+              {/* Mobile Settings Section */}
+              <div className="border-t border-amber-200 px-6 py-4">
+                <p className="text-sm font-semibold text-gray-700 mb-3">
+                  {t("settings")}
+                </p>
+
+                {/* Language Options */}
+                <div className="mb-4">
+                  <p className="text-xs font-semibold text-gray-600 mb-2">
+                    {t("language")}
+                  </p>
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="language"
+                        value="en"
+                        checked={language === "en"}
+                        onChange={() => changeLanguage("en")}
+                        className="w-4 h-4 text-amber-600"
+                      />
+                      <span className="text-sm text-gray-700">
+                        {t("english")}
+                      </span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="language"
+                        value="am"
+                        checked={language === "am"}
+                        onChange={() => changeLanguage("am")}
+                        className="w-4 h-4 text-amber-600"
+                      />
+                      <span className="text-sm text-gray-700">
+                        {t("amharic")}
+                      </span>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Currency Options */}
+                <div>
+                  <p className="text-xs font-semibold text-gray-600 mb-2">
+                    {t("currency")}
+                  </p>
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="currency"
+                        value="USD"
+                        checked={currencyType === "USD"}
+                        onChange={() => changeCurrency("USD")}
+                        className="w-4 h-4 text-amber-600"
+                      />
+                      <span className="text-sm text-gray-700">{t("usd")}</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="currency"
+                        value="ETB"
+                        checked={currencyType === "ETB"}
+                        onChange={() => changeCurrency("ETB")}
+                        className="w-4 h-4 text-amber-600"
+                      />
+                      <span className="text-sm text-gray-700">{t("etb")}</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
               <button
                 onClick={logout}
-                className="w-full text-left px-6 py-4 transition hover:bg-amber-200"
+                className="w-full text-left px-6 py-4 transition hover:bg-red-100 text-red-600 font-medium border-t border-amber-200"
               >
-                Logout
+                🚪 {t("logout")}
               </button>
             </>
           ) : (
