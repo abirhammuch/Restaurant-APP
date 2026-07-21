@@ -3,6 +3,7 @@ import { NavLink, Link } from "react-router-dom";
 
 import { assets } from "../assets/assets/assets";
 import { AppContext } from "../context/AppContext";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -91,7 +92,7 @@ const Navbar = () => {
             </span>
           </button>
 
-          <div className="group relative hidden sm:block">
+          <LanguageSwitcher />
             <img
               onClick={() => {
                 if (!usertoken) {

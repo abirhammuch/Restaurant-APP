@@ -3,16 +3,62 @@ import { categories, dummyOrders } from "../assets/assets/assets";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { translations } from "../assets/translations";
 
 export const AppContext = createContext();
+
+// Exchange rate: 1 USD = 130 ETB (approximate)
+const ETH_TO_USD_RATE = 130;
 
 export const AppContextProvider = (props) => {
   const backendUrl =
     import.meta.env.VITE_BACKEND_URL?.replace(/\/+$/, "") || "";
-  const currency = "$";
-  const delivery_fee = 10;
-  const tax = 8;
+
   const navigate = useNavigate();
+
+  // Language and Currency State
+  const [language, setLanguage] = useState(() => {
+    return localStorage.getItem("language") || "en";
+  });
+
+  const [currencyType, setCurrencyType] = useState(() => {
+    return localStorage.getItem("currencyType") || "USD";
+  });
+
+  // Currency symbol based on type
+  const getCurrencySymbol = () => {
+    return currencyType === "ETB" ? "ብር" : "$";
+  };
+
+  const currency = getCurrencySymbol();
+
+  // Convert price based on currency
+  const convertPrice = (priceInUSD) => {
+    if (currencyType === "ETB") {
+      return Math.round(priceInUSD * ETH_TO_USD_RATE);
+    }
+    return priceInUSD;
+  };
+
+  const delivery_fee = convertPrice(10);
+  const tax = 8; // Tax percentage
+
+  // Translation helper function
+  const t = (key) => {
+    return translations[language]?.[key] || translations.en[key] || key;
+  };
+
+  // Change language function
+  const changeLanguage = (lang) => {
+    setLanguage(lang);
+    localStorage.setItem("language", lang);
+  };
+
+  // Change currency function
+  const changeCurrency = (curr) => {
+    setCurrencyType(curr);
+    localStorage.setItem("currencyType", curr);
+  };
 
   const [fullCategory, setFullCategory] = useState(categories);
   const [foods, setFoods] = useState([]);
@@ -401,8 +447,14 @@ export const AppContextProvider = (props) => {
 
   const value = {
     currency,
+    currencyType,
+    convertPrice,
+    changeCurrency,
     delivery_fee,
     tax,
+    language,
+    changeLanguage,
+    t, // Translation function
     fullCategory,
     setFullCategory,
     foods,
