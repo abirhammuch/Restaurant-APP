@@ -16,6 +16,7 @@ const Checkout = () => {
   const {
     orders,
     currency,
+    formatPrice,
     navigate,
     cart,
     cartCount,
@@ -309,10 +310,7 @@ const Checkout = () => {
                           </div>
                         </div>
 
-                        <p>
-                          {currency}
-                          {order.price}
-                        </p>
+                        <p>{formatPrice(order.price)}</p>
                       </div>
                     </div>
                   ))}
@@ -320,38 +318,28 @@ const Checkout = () => {
                 <div className="mt-15 ">
                   <div className="flex justify-between mb-2">
                     <p className="text-md">Subtotal</p>
-                    <p>
-                      {currency}
-                      {cart.subtotal || 0}
-                    </p>
+                    <p>{formatPrice(cart.subtotal || 0)}</p>
                   </div>
 
                   <div className="flex justify-between mb-2">
                     <p className="text-md">Tax(8%)</p>
-                    <p>
-                      {currency}
-                      {(((cart.subtotal || 0) * tax) / 100).toFixed(2)}
-                    </p>
+                    <p>{formatPrice(((cart.subtotal || 0) * tax) / 100)}</p>
                   </div>
 
                   <div className="flex justify-between mb-5">
                     <p className="text-md">Service Fee</p>
-                    <p>
-                      {currency}
-                      {cart.subtotal < 50 ? 0 : delivery_fee}
-                    </p>
+                    <p>{formatPrice(cart.subtotal < 50 ? 0 : 10)}</p>
                   </div>
                   <hr className="text-gray-400" />
 
                   <div className="flex justify-between mt-4">
                     <p className="font-bold text-lg">Total</p>
                     <p className="font-bold text-lg text-amber-700">
-                      {currency}
-                      {(
+                      {formatPrice(
                         (cart.subtotal || 0) +
-                        (cart.subtotal < 50 ? 0 : delivery_fee) +
-                        ((cart.subtotal || 0) * tax) / 100
-                      ).toFixed(2)}
+                          (cart.subtotal < 50 ? 0 : 10) +
+                          ((cart.subtotal || 0) * tax) / 100,
+                      )}
                     </p>
                   </div>
 

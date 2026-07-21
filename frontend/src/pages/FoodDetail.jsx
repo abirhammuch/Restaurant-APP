@@ -367,8 +367,7 @@ const FoodDetail = () => {
 
           <p className="text-2xl font-bold mt-2">{currentFood.name}</p>
           <p className="text-2xl text-amber-500 font-bold mt-1">
-            {currency}
-            {currentFood.price?.toFixed(2)}
+            {formatPrice(currentFood.price || 0)}
           </p>
 
           <div className="mt-4">
@@ -534,8 +533,7 @@ const FoodDetail = () => {
               <div>
                 <p className="font-bold">{currentFood.name}</p>
                 <p className="text-sm text-gray-500">
-                  {currency}
-                  {currentFood.price}
+                  {formatPrice(currentFood.price || 0)}
                 </p>
               </div>
             </div>

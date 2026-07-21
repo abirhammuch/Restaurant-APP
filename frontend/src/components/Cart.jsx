@@ -13,12 +13,12 @@ const Cart = () => {
     cartCount,
     cart,
     currency,
+    formatPrice,
     navigate,
     popularFood,
     foods,
     removeFromCart,
     updateCartItem,
-    delivery_fee,
   } = useContext(AppContext);
 
   const [more, setMore] = useState(false);
@@ -29,9 +29,11 @@ const Cart = () => {
   }, [foods, more, popularFood]);
 
   const subtotal = cart.subtotal || 0;
-  const delivery = subtotal < 50 ? 0 : delivery_fee;
-  const serviceTax = Number(((subtotal * tax) / 100).toFixed(2));
-  const totalAmount = Number((subtotal + delivery + serviceTax).toFixed(2));
+  const deliveryUsd = subtotal < 50 ? 0 : 10;
+  const serviceTaxUsd = Number(((subtotal * tax) / 100).toFixed(2));
+  const totalAmountUsd = Number(
+    (subtotal + deliveryUsd + serviceTaxUsd).toFixed(2),
+  );
 
   const handleQuantityUpdate = async (foodId, currentQuantity, change) => {
     const newQuantity = currentQuantity + change;
@@ -124,8 +126,9 @@ const Cart = () => {
 
                       <div className="flex items-center justify-between gap-4 sm:flex-col sm:items-end sm:justify-start">
                         <p className="text-lg font-bold text-amber-600">
-                          {currency}
-                          {order.totalPrice || order.price * order.quantity}
+                          {formatPrice(
+                            order.totalPrice || order.price * order.quantity,
+                          )}
                         </p>
                         <button
                           onClick={() => handleRemoveItem(order.foodId)}
@@ -200,22 +203,19 @@ const Cart = () => {
               <div className="flex items-center justify-between text-sm text-gray-600">
                 <p>Subtotal</p>
                 <p className="font-semibold text-gray-900">
-                  {currency}
-                  {subtotal}
+                  {formatPrice(subtotal)}
                 </p>
               </div>
               <div className="flex items-center justify-between text-sm text-gray-600">
                 <p>Delivery Fee</p>
                 <p className="font-semibold text-green-600">
-                  {currency}
-                  {delivery}
+                  {formatPrice(deliveryUsd)}
                 </p>
               </div>
               <div className="flex items-center justify-between text-sm text-gray-600">
                 <p>Service Tax (8%)</p>
                 <p className="font-semibold text-gray-900">
-                  {currency}
-                  {serviceTax.toFixed(2)}
+                  {formatPrice(serviceTaxUsd)}
                 </p>
               </div>
             </div>
@@ -227,8 +227,7 @@ const Cart = () => {
                 <p className="mt-1 text-sm text-gray-500">VAT INCLUDED</p>
               </div>
               <p className="text-xl font-bold text-amber-600">
-                {currency}
-                {totalAmount.toFixed(2)}
+                {formatPrice(totalAmount)}
               </p>
             </div>
 

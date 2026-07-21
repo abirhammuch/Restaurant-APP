@@ -40,6 +40,21 @@ export const AppContextProvider = (props) => {
     return priceInUSD;
   };
 
+  const formatPrice = (priceInUSD) => {
+    const amount = convertPrice(priceInUSD);
+    const amountString =
+      typeof amount === "number" ? amount.toFixed(2) : amount;
+
+    if (currencyType === "ETB") {
+      const label = language === "am" ? "ብር" : "ETB";
+      return language === "am"
+        ? `${amountString} ${label}`
+        : `${label} ${amountString}`;
+    }
+
+    return `$${amountString}`;
+  };
+
   const delivery_fee = convertPrice(10);
   const tax = 8; // Tax percentage
 
@@ -485,6 +500,7 @@ export const AppContextProvider = (props) => {
     currency,
     currencyType,
     convertPrice,
+    formatPrice,
     changeCurrency,
     delivery_fee,
     tax,

@@ -2,6 +2,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import Home from "./pages/Home";
 import Navbar from "./components/Navbar";
+import SkeletonLoader from "./components/SkeletonLoader";
 import { Route, Routes, useLocation, Navigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -34,16 +35,9 @@ const App = () => {
   const isAdminPath = location.pathname.includes("admin");
   const { userLogin, isAdmin, appLoading } = useContext(AppContext);
 
-  // ✅ Show loading spinner while checking admin status
+  // ✅ Show skeleton loading while checking admin status
   if (appLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
+    return <SkeletonLoader />;
   }
 
   return (

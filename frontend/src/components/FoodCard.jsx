@@ -5,7 +5,7 @@ import axios from "axios";
 
 const FoodCard = ({ food }) => {
   const [ratings, setRatings] = useState({});
-  const { currency, navigate, setFoodDetail, addToCart, backendUrl } =
+  const { formatPrice, navigate, setFoodDetail, addToCart, backendUrl } =
     useContext(AppContext);
 
   // ✅ Fetch rating for a single food
@@ -142,8 +142,7 @@ const FoodCard = ({ food }) => {
 
                 <div className="mt-auto flex items-center justify-between gap-3 pt-2">
                   <p className="text-lg font-bold text-amber-500">
-                    {currency}
-                    {item.price?.toFixed(2) || "0.00"}
+                    {formatPrice(item.price || 0)}
                   </p>
 
                   {/* Add to Cart Button */}
