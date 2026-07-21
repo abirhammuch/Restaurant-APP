@@ -93,6 +93,8 @@ const Navbar = () => {
           </button>
 
           <LanguageSwitcher />
+
+          <div className="group relative hidden sm:block">
             <img
               onClick={() => {
                 if (!usertoken) {
