@@ -14,6 +14,7 @@ const FoodDetail = () => {
   const {
     foods,
     currency,
+    formatPrice,
     navigate,
     foodDetail,
     setFoodDetail,
