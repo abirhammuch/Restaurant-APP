@@ -8,7 +8,7 @@ const AdminChat = () => {
     selectedChatUserId,
     setSelectedChatUserId,
     getLatestThreads,
-    getChatThreadByUser,
+    getChatThreadById,
     markThreadRead,
     sendAdminMessage,
   } = useContext(AppContext);
@@ -17,7 +17,7 @@ const AdminChat = () => {
 
   const threads = getLatestThreads();
   const activeThread = selectedChatUserId
-    ? getChatThreadByUser(selectedChatUserId)
+    ? getChatThreadById(selectedChatUserId)
     : null;
 
   const unreadTotal = threads.reduce(
@@ -44,9 +44,9 @@ const AdminChat = () => {
     }, 300);
   };
 
-  const handleSelectThread = (userId) => {
-    setSelectedChatUserId(userId);
-    markThreadRead(userId);
+  const handleSelectThread = (threadId) => {
+    setSelectedChatUserId(threadId);
+    markThreadRead(threadId);
   };
 
   return (
@@ -67,11 +67,11 @@ const AdminChat = () => {
               </div>
               {unreadThreads.map((thread) => (
                 <button
-                  key={thread.userId}
+                  key={thread._id}
                   type="button"
-                  onClick={() => handleSelectThread(thread.userId)}
+                  onClick={() => handleSelectThread(thread._id)}
                   className={`w-full rounded-3xl border px-4 py-4 text-left transition ${
-                    selectedChatUserId === thread.userId
+                    selectedChatUserId === thread._id
                       ? "border-amber-500 bg-amber-50"
                       : "border-gray-200 bg-white hover:border-amber-400"
                   }`}
@@ -111,11 +111,11 @@ const AdminChat = () => {
               </div>
               {readThreads.map((thread) => (
                 <button
-                  key={thread.userId}
+                  key={thread._id}
                   type="button"
-                  onClick={() => handleSelectThread(thread.userId)}
+                  onClick={() => handleSelectThread(thread._id)}
                   className={`w-full rounded-3xl border px-4 py-4 text-left transition ${
-                    selectedChatUserId === thread.userId
+                    selectedChatUserId === thread._id
                       ? "border-amber-500 bg-amber-50"
                       : "border-gray-200 bg-white hover:border-amber-400"
                   }`}

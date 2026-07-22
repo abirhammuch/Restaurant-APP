@@ -210,7 +210,13 @@ export const AppContextProvider = (props) => {
   };
 
   const getChatThreadByUser = (userId) => {
-    return chatThreads.find((thread) => thread.userId === userId) || null;
+    return (
+      chatThreads.find(
+        (thread) =>
+          thread.userId?.toString() === userId?.toString() ||
+          thread.guestId === userId,
+      ) || null
+    );
   };
 
   const getLatestThreads = () => {
@@ -780,6 +786,7 @@ export const AppContextProvider = (props) => {
     setSelectedChatUserId,
     getGuestId,
     getChatThreadByUser,
+    getChatThreadById,
     getLatestThreads,
     markThreadRead,
     sendCustomerMessage,
