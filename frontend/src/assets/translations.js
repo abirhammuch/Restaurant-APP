@@ -205,7 +205,7 @@ export const translations = {
     usd: "USD ($)",
     etb: "ETB (ብር)",
     findFood: "ምግብ ፈልግ",
-    searchFoodPlaceholder: "ምግብ ፈልግ (ለምሳሌ፡ ፒዛ ...)"
+    searchFoodPlaceholder: "ምግብ ፈልግ (ለምሳሌ፡ ፒዛ ...)",
     // Admin / Misc
     dashboard: "ዳሽቦርድ",
     products: "ምርቶች",
