@@ -98,7 +98,7 @@ const Navbar = () => {
     <div className="relative border-b border-gray-500 bg-white">
       <div className="flex justify-between items-center h-[70px] px-4 sm:px-6 lg:px-20">
         <Link to="/" className="flex-shrink-0">
-          <img className="w-24 sm:w-30" src={assets.logo} alt="logo" />
+          <img className="w-24 sm:w-30" src="/logo.png" alt="logo" />
         </Link>
 
         <div className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-medium">

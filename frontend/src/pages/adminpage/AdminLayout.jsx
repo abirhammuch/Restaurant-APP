@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { assets } from "../../assets/assets/assets";
+import React, { useState, useContext } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { FaUser, FaQrcode, FaStar, FaComments } from "react-icons/fa";
 import { HiMenu } from "react-icons/hi";
@@ -11,11 +10,10 @@ import {
   MdSettings,
   MdQrCode,
 } from "react-icons/md";
-import { useContext } from "react";
 import { AppContext } from "../../context/AppContext";
 
 const AdminLayout = () => {
-  const { navigate } = useContext(AppContext);
+  const { navigate, unreadChatCount } = useContext(AppContext);
 
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -74,7 +72,7 @@ const AdminLayout = () => {
             >
               {menuOpen && (
                 <img
-                  src={assets.logo}
+                  src="/logo.png"
                   onClick={() => navigate("/")}
                   className="cursor-pointer"
                 />
@@ -174,8 +172,15 @@ const AdminLayout = () => {
                   onClick={handleNavClick}
                   className={getNavClass}
                 >
-                  <FaComments className="text-lg" />
-                  {menuOpen && <p className="text-lg">Chat</p>}
+                  <div className="relative inline-flex items-center gap-3">
+                    <FaComments className="text-lg" />
+                    {menuOpen && <p className="text-lg">Chat</p>}
+                    {unreadChatCount > 0 && (
+                      <span className="absolute -top-2 -right-2 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-semibold text-white">
+                        {unreadChatCount}
+                      </span>
+                    )}
+                  </div>
                 </NavLink>
               </div>
 

@@ -12,7 +12,7 @@ const FooterLink = () => {
           <div className="col-span-2 space-y-6 lg:col-span-1">
             <div className="flex justify-center md:justify-start">
               <img
-                src={assets.logo}
+                src="/logo.png"
                 alt="Digital Menu logo"
                 className="h-12 w-auto"
               />

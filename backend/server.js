@@ -10,6 +10,7 @@ import categoryRouter from "./routes/categoryRoute.js";
 import cartRouter from "./routes/cartRoute.js";
 import orderRouter from "./routes/orderRoute.js";
 import ratingRouter from "./routes/ratingRouter.js";
+import chatRouter from "./routes/chatRoute.js";
 
 import mongoose from "mongoose";
 
@@ -65,6 +66,7 @@ app.use("/api/category", categoryRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/rating", ratingRouter);
+app.use("/api/chat", chatRouter);
 
 // ✅ Root Route
 app.get("/", (req, res) => {

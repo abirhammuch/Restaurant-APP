@@ -170,6 +170,11 @@ export const AppContextProvider = (props) => {
     });
   };
 
+  const unreadChatCount = chatThreads.reduce(
+    (sum, thread) => sum + (thread.unreadCount || 0),
+    0,
+  );
+
   const markThreadRead = (userId) => {
     const updatedThreads = chatThreads.map((thread) =>
       thread.userId === userId ? { ...thread, unreadCount: 0 } : thread,
@@ -264,6 +269,129 @@ export const AppContextProvider = (props) => {
       token ? "Token exists" : "No token",
     );
     return token;
+  };
+
+  const getAdminToken = () => {
+    const token = localStorage.getItem("admintoken");
+    return token;
+  };
+
+  const updateThreadState = (thread) => {
+    setChatThreads((prevThreads) => {
+      const existingIndex = prevThreads.findIndex(
+        (item) => item._id === thread._id,
+      );
+      if (existingIndex !== -1) {
+        const next = [...prevThreads];
+        next[existingIndex] = thread;
+        return next;
+      }
+      return [thread, ...prevThreads];
+    });
+  };
+
+  const fetchChatThreads = async () => {
+    try {
+      const response = await axios.get(`${backendUrl}/api/chat/threads`, {
+        headers: { admintoken: getAdminToken() },
+      });
+      if (response.data.success) {
+        setChatThreads(response.data.threads || []);
+        return response.data.threads || [];
+      }
+    } catch (error) {
+      console.error("Error fetching chat threads:", error);
+    }
+    return [];
+  };
+
+  const getChatThreadById = (threadId) => {
+    return chatThreads.find((thread) => thread._id === threadId) || null;
+  };
+
+  const getTokenFromLocalStorage = () => {
+    const token = localStorage.getItem("usertoken");
+    return token;
+  };
+
+  const getGuestId = () => {
+    let guestId = localStorage.getItem("guestChatId");
+    if (!guestId) {
+      guestId = `guest_${Date.now()}`;
+      localStorage.setItem("guestChatId", guestId);
+    }
+    return guestId;
+  };
+
+  const sendCustomerMessage = async (text) => {
+    const guestId = getGuestId();
+    try {
+      const response = await axios.post(
+        `${backendUrl}/api/chat/customer/send`,
+        { text },
+        {
+          headers: {
+            usertoken: getToken(),
+            guestId,
+          },
+        },
+      );
+      if (response.data.success) {
+        updateThreadState(response.data.thread);
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Error sending customer message:", error);
+    }
+    return { success: false };
+  };
+
+  const sendAdminMessage = async (text, threadId = null) => {
+    const targetThreadId = threadId || selectedChatUserId;
+    if (!targetThreadId) {
+      toast.error("Please select a customer chat thread first.");
+      return { success: false };
+    }
+    try {
+      const response = await axios.post(
+        `${backendUrl}/api/chat/admin/send`,
+        { threadId: targetThreadId, text },
+        {
+          headers: {
+            admintoken: getAdminToken(),
+          },
+        },
+      );
+      if (response.data.success) {
+        updateThreadState(response.data.thread);
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Error sending admin message:", error);
+      toast.error(error.response?.data?.message || "Failed to send reply");
+    }
+    return { success: false };
+  };
+
+  const markThreadRead = async (threadId) => {
+    try {
+      const response = await axios.post(
+        `${backendUrl}/api/chat/mark-read`,
+        { threadId },
+        {
+          headers: {
+            admintoken: getAdminToken(),
+          },
+        },
+      );
+      if (response.data.success) {
+        updateThreadState(response.data.thread);
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Error marking thread read:", error);
+    }
+    return { success: false };
   };
 
   // ✅ Get food list
@@ -632,6 +760,12 @@ export const AppContextProvider = (props) => {
     }
   }, [usertoken]);
 
+  useEffect(() => {
+    if (admintoken) {
+      fetchChatThreads();
+    }
+  }, [admintoken]);
+
   // ✅ Load all data on mount
   useEffect(() => {
     loadAllData();
@@ -730,6 +864,7 @@ export const AppContextProvider = (props) => {
     markThreadRead,
     sendCustomerMessage,
     sendAdminMessage,
+    unreadChatCount,
     dataLoading,
     loadAllData,
   };
