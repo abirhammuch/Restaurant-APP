@@ -65,7 +65,11 @@ const addFood = async (req, res) => {
   try {
     const {
       name,
+      name_en,
+      name_am,
       description,
+      description_en,
+      description_am,
       price,
       category,
       ingredients,
@@ -123,8 +127,17 @@ const addFood = async (req, res) => {
     const parsedStatus = status || "available";
 
     const food = new foodModel({
-      name: name.trim(),
-      description: description.trim(),
+      name: (name || name_en || name_am || "").trim(),
+      name_en: (name_en || name || "").trim(),
+      name_am: (name_am || name || "").trim(),
+      description: (
+        description ||
+        description_en ||
+        description_am ||
+        ""
+      ).trim(),
+      description_en: (description_en || description || "").trim(),
+      description_am: (description_am || description || "").trim(),
       category,
       price: Number(price),
       ingredients: parsedIngredients,
@@ -196,7 +209,11 @@ const editFood = async (req, res) => {
     const {
       foodId,
       name,
+      name_en,
+      name_am,
       description,
+      description_en,
+      description_am,
       price,
       category,
       ingredients,
@@ -290,7 +307,21 @@ const editFood = async (req, res) => {
 
     const updateData = {
       name: name?.trim() || existingFood.name,
+      name_en:
+        (name_en !== undefined ? name_en.trim() : existingFood.name_en) ||
+        existingFood.name,
+      name_am:
+        (name_am !== undefined ? name_am.trim() : existingFood.name_am) ||
+        existingFood.name,
       description: description?.trim() || existingFood.description,
+      description_en:
+        (description_en !== undefined
+          ? description_en.trim()
+          : existingFood.description_en) || existingFood.description,
+      description_am:
+        (description_am !== undefined
+          ? description_am.trim()
+          : existingFood.description_am) || existingFood.description,
       price: price ? Number(price) : existingFood.price,
       category: category || existingFood.category,
       ingredients: parsedIngredients,

@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 
 const Products = () => {
-  const { currency, backendUrl, admintoken, navigate, allCategory } =
+  const { currency, backendUrl, admintoken, navigate, allCategory, language } =
     useContext(AppContext);
 
   const [page, setPage] = useState(1);
@@ -37,7 +37,9 @@ const Products = () => {
   const [image4, setImage4] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
   const [name, setName] = useState("");
+  const [nameAm, setNameAm] = useState("");
   const [description, setDescription] = useState("");
+  const [descriptionAm, setDescriptionAm] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("maindish");
   const [ingredients, setIngredients] = useState("");
@@ -85,8 +87,12 @@ const Products = () => {
 
     // Apply search
     if (searchedQuery && searchedQuery.trim() !== "") {
+      const key =
+        language === "am"
+          ? (f) => f.name_am || f.name
+          : (f) => f.name_en || f.name;
       results = results.filter((food) =>
-        food.name.toLowerCase().includes(searchedQuery.toLowerCase().trim()),
+        key(food).toLowerCase().includes(searchedQuery.toLowerCase().trim()),
       );
     }
 
@@ -116,6 +122,13 @@ const Products = () => {
     results.sort((a, b) => {
       let compareA = a[sortBy];
       let compareB = b[sortBy];
+
+      if (sortBy === "name") {
+        compareA =
+          (language === "am" ? a.name_am || a.name : a.name_en || a.name) || "";
+        compareB =
+          (language === "am" ? b.name_am || b.name : b.name_en || b.name) || "";
+      }
 
       if (sortBy === "price") {
         compareA = Number(compareA);
@@ -217,7 +230,9 @@ const Products = () => {
     setEditingFoodId(food._id);
     setIsFast(food.isFast || false);
     setName(food.name || "");
+    setNameAm(food.name_am || "");
     setDescription(food.description || "");
+    setDescriptionAm(food.description_am || "");
     setPrice(food.price?.toString() || "");
     setCategory(food.category || "maindish");
     setIngredients(
@@ -325,7 +340,11 @@ const Products = () => {
 
       // Always add these fields
       formData.append("name", name.trim());
+      formData.append("name_en", name.trim());
+      formData.append("name_am", nameAm.trim());
       formData.append("description", description.trim());
+      formData.append("description_en", description.trim());
+      formData.append("description_am", descriptionAm.trim());
       formData.append("price", Number(price));
       formData.append("category", category);
       formData.append("ingredients", ingredients.trim());
@@ -716,6 +735,13 @@ const Products = () => {
                   onChange={(e) => setName(e.target.value)}
                   required
                 />
+                <input
+                  type="text"
+                  placeholder="Enter dish name (Amharic)"
+                  className="px-3 py-1 mt-2 w-full border rounded"
+                  value={nameAm}
+                  onChange={(e) => setNameAm(e.target.value)}
+                />
               </div>
 
               <div className="flex justify-between mt-4">
@@ -760,6 +786,13 @@ const Products = () => {
                   onChange={(e) => setDescription(e.target.value)}
                   rows="3"
                   required
+                />
+                <textarea
+                  placeholder="Write description (Amharic) ..."
+                  className="w-full border rounded px-3 py-2 mt-2"
+                  value={descriptionAm}
+                  onChange={(e) => setDescriptionAm(e.target.value)}
+                  rows="3"
                 />
               </div>
 
@@ -951,10 +984,24 @@ const Products = () => {
                     }}
                   />
                   <div>
-                    <p className="font-medium">{food.name}</p>
-                    <p className="text-xs text-gray-500 truncate">
-                      {food.description?.substring(0, 30)}...
-                    </p>
+                    {(() => {
+                      const displayName =
+                        language === "am"
+                          ? food.name_am || food.name
+                          : food.name_en || food.name;
+                      const displayDescription =
+                        language === "am"
+                          ? food.description_am || food.description
+                          : food.description_en || food.description;
+                      return (
+                        <>
+                          <p className="font-medium">{displayName}</p>
+                          <p className="text-xs text-gray-500 truncate">
+                            {displayDescription?.substring(0, 30)}...
+                          </p>
+                        </>
+                      );
+                    })()}
                   </div>
                   <p className="capitalize">{food.category}</p>
                   <p className="text-orange-600 font-semibold">
