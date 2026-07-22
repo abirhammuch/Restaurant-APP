@@ -43,6 +43,8 @@ app.use(
       "Authorization",
       "usertoken",
       "admintoken",
+      "guestId",
+      "guestid",
     ],
   }),
 );
