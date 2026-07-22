@@ -254,11 +254,10 @@ export const AppContextProvider = (props) => {
     try {
       const response = await axios.post(
         `${backendUrl}/api/chat/customer/send`,
-        { text },
+        { text, guestId },
         {
           headers: {
             usertoken: getToken(),
-            guestId,
           },
         },
       );

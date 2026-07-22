@@ -74,9 +74,8 @@ const getChatThread = async (req, res) => {
 
 const customerSendMessage = async (req, res) => {
   try {
-    const { text } = req.body;
+    const { text, guestId } = req.body;
     const userId = req.userId;
-    const { guestId } = req.headers;
     let user = {};
 
     if (userId) {
