@@ -213,6 +213,17 @@ export const AppContextProvider = (props) => {
     return chatThreads.find((thread) => thread.userId === userId) || null;
   };
 
+  const getLatestThreads = () => {
+    return [...chatThreads].sort((a, b) => {
+      const unreadA = a.unreadCount || 0;
+      const unreadB = b.unreadCount || 0;
+      if (unreadA !== unreadB) {
+        return unreadB - unreadA;
+      }
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    });
+  };
+
   const getTokenFromLocalStorage = () => {
     const token = localStorage.getItem("usertoken");
     return token;
