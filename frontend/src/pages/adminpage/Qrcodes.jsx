@@ -1,4 +1,5 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState, useEffect } from "react";
+import { FaTrash } from "react-icons/fa";
 import { QRCodeCanvas } from "qrcode.react";
 
 const Qrcodes = () => {
@@ -14,8 +15,26 @@ const Qrcodes = () => {
   }, []);
 
   const generateNewQr = () => {
-    const nextTable = tables.length + 1;
-    setTables((prev) => [...prev, nextTable]);
+    const max = tables.length ? Math.max(...tables) : 0;
+    const nextTable = max + 1;
+    const next = [...tables, nextTable];
+    setTables(next);
+    try {
+      localStorage.setItem("dm_qr_tables", JSON.stringify(next));
+    } catch (e) {
+      // ignore
+    }
+  };
+
+  const deleteQr = (table) => {
+    if (!confirm(`Delete QR for Table ${table}?`)) return;
+    const next = tables.filter((t) => t !== table);
+    setTables(next);
+    try {
+      localStorage.setItem("dm_qr_tables", JSON.stringify(next));
+    } catch (e) {
+      // ignore
+    }
   };
 
   const downloadQr = (table, index) => {
@@ -118,6 +137,28 @@ const Qrcodes = () => {
     qrImage.onload = tryDraw;
   };
 
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("dm_qr_tables");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setTables(parsed);
+        }
+      }
+    } catch (e) {
+      // ignore
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("dm_qr_tables", JSON.stringify(tables));
+    } catch (e) {
+      // ignore
+    }
+  }, [tables]);
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-2 md:flex-row md:justify-between md:items-center">
@@ -175,13 +216,23 @@ const Qrcodes = () => {
                 Scan to open the menu for Table {table}.
               </p>
 
-              <button
-                type="button"
-                onClick={() => downloadQr(table, index)}
-                className="mt-4 w-full rounded-3xl bg-amber-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-amber-600"
-              >
-                Download QR with Logo
-              </button>
+              <div className="mt-4 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => downloadQr(table, index)}
+                  className="flex-1 rounded-3xl bg-amber-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-amber-600"
+                >
+                  Download QR with Logo
+                </button>
+                <button
+                  type="button"
+                  onClick={() => deleteQr(table)}
+                  className="rounded-3xl border border-red-200 px-4 py-3 text-sm font-semibold text-red-600 hover:bg-red-50"
+                  title={`Delete Table ${table} QR`}
+                >
+                  <FaTrash />
+                </button>
+              </div>
             </div>
           );
         })}
