@@ -6,22 +6,14 @@ import Title from "./Title";
 import React, { useContext, useState } from "react";
 
 const Category = () => {
-  const { allCategory = [], navigate, language } = useContext(AppContext);
+  const { allCategory = [], navigate } = useContext(AppContext);
   const [more, setMore] = useState(false);
 
-  const handleCategoryClick = (category) => {
-    const categorySlug = (category.name_en || category.name || category.name_am)
-      .trim()
-      .toLowerCase();
-    const path = `/menu/${categorySlug}`;
+  const handleCategoryClick = (categoryName) => {
+    const path = `/menu/${categoryName.trim().toLowerCase()}`;
     navigate(path);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
-
-  const getCategoryLabel = (category) =>
-    language === "am"
-      ? category.name_am || category.name_en || category.name
-      : category.name_en || category.name;
 
   const getCategoryImage = (category) =>
     category?.image || category?.images?.[0] || "";
@@ -45,7 +37,7 @@ const Category = () => {
           return (
             <div
               key={category?._id || category?.name || index}
-              onClick={() => handleCategoryClick(category)}
+              onClick={() => handleCategoryClick(category.name)}
               className="group cursor-pointer rounded-2xl border border-gray-200 bg-white p-3 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg"
             >
               <div className="flex h-full flex-col items-center justify-center text-center">
@@ -53,18 +45,17 @@ const Category = () => {
                   {imageSrc ? (
                     <img
                       src={imageSrc}
-                      alt={getCategoryLabel(category)}
+                      alt={category.name}
                       className="h-28 w-full rounded-lg object-cover transition duration-300 group-hover:scale-105 sm:h-32"
                     />
                   ) : (
                     <div className="flex h-28 w-full items-center justify-center rounded-lg bg-gradient-to-br from-amber-100 to-orange-200 text-lg font-semibold text-amber-700 sm:h-32">
-                      {getCategoryLabel(category)?.charAt(0)?.toUpperCase() ||
-                        "C"}
+                      {category.name?.charAt(0)?.toUpperCase() || "C"}
                     </div>
                   )}
                 </div>
                 <p className="text-sm font-medium text-gray-700">
-                  {getCategoryLabel(category)}
+                  {category.name}
                 </p>
               </div>
             </div>
