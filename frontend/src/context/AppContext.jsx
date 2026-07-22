@@ -128,6 +128,24 @@ export const AppContextProvider = (props) => {
     }
   };
 
+  useEffect(() => {
+    const handleStorageChange = (event) => {
+      if (event.key !== "chatThreads") return;
+      try {
+        const storedThreads = event.newValue ? JSON.parse(event.newValue) : [];
+        setChatThreads(storedThreads);
+      } catch (error) {
+        console.error(
+          "Failed to parse chat threads from storage event:",
+          error,
+        );
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
   const getGuestId = () => {
     let guestId = localStorage.getItem("guestChatId");
     if (!guestId) {
