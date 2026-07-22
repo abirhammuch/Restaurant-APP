@@ -87,8 +87,8 @@ const AdminChat = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       {thread.unreadCount > 0 && (
-                        <span className="rounded-full bg-red-500 px-2 py-1 text-[10px] font-semibold uppercase text-white">
-                          {thread.unreadCount} new
+                        <span className="rounded-full bg-red-500 px-1 py-1 text-[10px] font-semibold uppercase text-white">
+                          {thread.unreadCount} 
                         </span>
                       )}
                       <span className="text-xs text-gray-500">
