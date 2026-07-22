@@ -74,7 +74,7 @@ const AdminLayout = () => {
                 <img
                   src="/logo2.png"
                   onClick={() => navigate("/")}
-                  className="cursor-pointer"
+                  className="cursor-pointer w-25 sm:w-32"
                 />
               )}
               {menuOpen ? (
