@@ -87,6 +87,12 @@ export const translations = {
     amharic: "Amharic",
     usd: "USD ($)",
     etb: "ETB (ብር)",
+    // Admin / Misc
+    dashboard: "Dashboard",
+    products: "Products",
+    qrCodes: "QR Codes",
+    support: "Support",
+    helpCenter: "Help Center",
 
     // Footer
     about_us: "About Us",
@@ -196,6 +202,12 @@ export const translations = {
     amharic: "አማርኛ",
     usd: "USD ($)",
     etb: "ETB (ብር)",
+    // Admin / Misc
+    dashboard: "ዳሽቦርድ",
+    products: "ምርቶች",
+    qrCodes: "የ QR ኮዶች",
+    support: "ድጋፍ",
+    helpCenter: "የእርዳታ ማዕከል",
 
     // Footer
     about_us: "ስለ ኛ",

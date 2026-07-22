@@ -13,7 +13,7 @@ import {
 import { AppContext } from "../../context/AppContext";
 
 const AdminLayout = () => {
-  const { navigate, unreadChatCount } = useContext(AppContext);
+  const { navigate, unreadChatCount, t } = useContext(AppContext);
 
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -101,7 +101,9 @@ const AdminLayout = () => {
                   className={getNavClass}
                 >
                   <MdDashboard />
-                  {menuOpen && <p className="text-lg">Dashboard</p>}
+                  {menuOpen && (
+                    <p className="text-lg">{t("dashboard") || "Dashboard"}</p>
+                  )}
                 </NavLink>
               </div>
 
@@ -113,7 +115,11 @@ const AdminLayout = () => {
                   className={getNavClass}
                 >
                   <MdRestaurantMenu />
-                  {menuOpen && <p className="text-lg">Products</p>}
+                  {menuOpen && (
+                    <p className="text-lg">
+                      {t("products") || t("menu") || "Products"}
+                    </p>
+                  )}
                 </NavLink>
               </div>
 
@@ -125,7 +131,9 @@ const AdminLayout = () => {
                   className={getNavClass}
                 >
                   <MdRestaurantMenu />
-                  {menuOpen && <p className="text-lg">Categories</p>}
+                  {menuOpen && (
+                    <p className="text-lg">{t("category") || "Categories"}</p>
+                  )}
                 </NavLink>
               </div>
 
@@ -137,7 +145,9 @@ const AdminLayout = () => {
                   className={getNavClass}
                 >
                   <MdAddShoppingCart />
-                  {menuOpen && <p className="text-lg">Orders</p>}
+                  {menuOpen && (
+                    <p className="text-lg">{t("myOrders") || "Orders"}</p>
+                  )}
                 </NavLink>
               </div>
 
@@ -149,7 +159,9 @@ const AdminLayout = () => {
                   className={getNavClass}
                 >
                   <FaStar className="text-lg" />
-                  {menuOpen && <p className="text-lg">Ratings</p>}
+                  {menuOpen && (
+                    <p className="text-lg">{t("testimonial") || "Ratings"}</p>
+                  )}
                 </NavLink>
               </div>
 
@@ -161,7 +173,9 @@ const AdminLayout = () => {
                   className={getNavClass}
                 >
                   <MdQrCode />
-                  {menuOpen && <p className="text-lg">QR Codes</p>}
+                  {menuOpen && (
+                    <p className="text-lg">{t("qrCodes") || "QR Codes"}</p>
+                  )}
                 </NavLink>
               </div>
 
@@ -174,7 +188,9 @@ const AdminLayout = () => {
                 >
                   <div className="relative inline-flex items-center gap-3">
                     <FaComments className="text-lg" />
-                    {menuOpen && <p className="text-lg">Chat</p>}
+                    {menuOpen && (
+                      <p className="text-lg">{t("contact") || "Chat"}</p>
+                    )}
                     {unreadChatCount > 0 && (
                       <span className="absolute -top-2 -right-2 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-semibold text-white">
                         {unreadChatCount}
@@ -192,7 +208,9 @@ const AdminLayout = () => {
                   className={getNavClass}
                 >
                   <MdSettings />
-                  {menuOpen && <p className="text-lg">Settings</p>}
+                  {menuOpen && (
+                    <p className="text-lg">{t("settings") || "Settings"}</p>
+                  )}
                 </NavLink>
               </div>
             </div>
@@ -200,8 +218,10 @@ const AdminLayout = () => {
 
           {/* Support */}
           <div className="pb-16 flex flex-col gap-2 border-t w-full items-center border-gray-300 pt-2">
-            <p className="text-md font-bold">SUPPORT</p>
-            <p className="text-md font-bold text-orange-600">Help Center</p>
+            <p className="text-md font-bold">{t("support") || "SUPPORT"}</p>
+            <p className="text-md font-bold text-orange-600">
+              {t("helpCenter") || "Help Center"}
+            </p>
           </div>
         </div>
 
@@ -217,7 +237,9 @@ const AdminLayout = () => {
               >
                 {menuOpen ? <IoClose size={24} /> : <HiMenu size={24} />}
               </button>
-              <p className="text-xl sm:text-2xl text-orange-700">Dashboard</p>
+              <p className="text-xl sm:text-2xl text-orange-700">
+                {t("dashboard") || "Dashboard"}
+              </p>
             </div>
             <div className="flex gap-3 sm:gap-5 items-center ml-auto">
               <button
@@ -225,7 +247,7 @@ const AdminLayout = () => {
                 className="flex items-center gap-2 rounded-2xl border border-gray-500 px-3 py-1 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 sm:px-4 sm:text-base"
               >
                 <FaUser className="text-orange-500" />
-                Sign Out
+                {t("logout") || "Sign Out"}
               </button>
             </div>
           </div>
@@ -239,7 +261,10 @@ const AdminLayout = () => {
 
       {/* Footer */}
       <div className="bg-gray-100 flex justify-center items-center py-5 border-t border-gray-200">
-        <p>&copy;2026 Greencart management. All rights are reserved.</p>
+        <p>
+          &copy;2026{" "}
+          {t("copyright") || "Greencart management. All rights are reserved."}
+        </p>
       </div>
     </div>
   );
