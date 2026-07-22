@@ -17,7 +17,7 @@ const Category = () => {
   const [image3, setImage3] = useState(false);
   const [image4, setImage4] = useState(false);
   const [name, setName] = useState("");
-  const [nameAm, setNameAm] = useState("");
+  const [nameCombined, setNameCombined] = useState("");
   const [order, setOrder] = useState("");
   const [bgColor, setBgColor] = useState("");
   const [textColor, setTextColor] = useState("");
@@ -64,8 +64,9 @@ const Category = () => {
     setEditingCategoryId(category._id);
     setIsEditing(true);
 
-    setName(category.name || "");
-    setNameAm(category.name_am || "");
+    const en = category.name_en || category.name || "";
+    const am = category.name_am || "";
+    setNameCombined(en + (am ? " | " + am : ""));
     setBgColor(category.bgColor || "");
     setTextColor(category.textColor || "");
     setOrder(category.order || "");
@@ -99,9 +100,18 @@ const Category = () => {
     try {
       const formData = new FormData();
 
-      formData.append("name", name);
-      formData.append("name_en", name);
-      formData.append("name_am", nameAm);
+      // parse combined input like "English | Amharic"
+      const combined = (nameCombined || "").trim();
+      let en = combined;
+      let am = "";
+      if (combined.includes("|")) {
+        const parts = combined.split("|");
+        en = (parts[0] || "").trim();
+        am = (parts.slice(1).join("|") || "").trim();
+      }
+      formData.append("name", en || am || "");
+      formData.append("name_en", en);
+      formData.append("name_am", am);
       formData.append("bgColor", bgColor);
       formData.append("textColor", textColor);
       formData.append("order", order);
@@ -146,7 +156,7 @@ const Category = () => {
       if (response.data.success) {
         getCategoryList();
         toast.success(response.data.message);
-        setName("");
+        setNameCombined("");
         setBgColor("");
         setTextColor("");
         setOrder("");
@@ -210,21 +220,14 @@ const Category = () => {
             </label>
           </div>
           <div className="mt-4">
-            <p className="font-md">Category Name (English)</p>
+            <p className="font-md">Category Name (English | Amharic)</p>
             <input
-              onChange={(e) => setName(e.target.value)}
-              value={name}
+              onChange={(e) => setNameCombined(e.target.value)}
+              value={nameCombined}
               type="text"
-              placeholder="Enter category name"
+              placeholder="Enter category name (use '|' to separate English and Amharic)"
               required
               className="px-3 py-1 mt-1 w-full border rounded "
-            />
-            <input
-              onChange={(e) => setNameAm(e.target.value)}
-              value={nameAm}
-              type="text"
-              placeholder="Enter category name (Amharic)"
-              className="px-3 py-1 mt-2 w-full border rounded "
             />
           </div>
 
