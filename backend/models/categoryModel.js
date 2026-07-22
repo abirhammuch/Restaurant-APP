@@ -18,6 +18,16 @@ const categorySchema = new mongoose.Schema({
     trim: true,
     default: "",
   },
+  type_en: {
+    type: String,
+    trim: true,
+    default: "",
+  },
+  type_am: {
+    type: String,
+    trim: true,
+    default: "",
+  },
 
   // Images (like product images)
   images: {

@@ -16,12 +16,13 @@ const Category = () => {
   const [image2, setImage2] = useState(false);
   const [image3, setImage3] = useState(false);
   const [image4, setImage4] = useState(false);
-  const [name, setName] = useState("");
-  const [nameCombined, setNameCombined] = useState("");
+  const [nameEn, setNameEn] = useState("");
+  const [nameAm, setNameAm] = useState("");
   const [order, setOrder] = useState("");
   const [bgColor, setBgColor] = useState("");
   const [textColor, setTextColor] = useState("");
-  const [type, setType] = useState("Fast");
+  const [typeEn, setTypeEn] = useState("Fast");
+  const [typeAm, setTypeAm] = useState("");
 
   const getCategoryList = async () => {
     try {
@@ -64,9 +65,10 @@ const Category = () => {
     setEditingCategoryId(category._id);
     setIsEditing(true);
 
-    const en = category.name_en || category.name || "";
-    const am = category.name_am || "";
-    setNameCombined(en + (am ? " | " + am : ""));
+    setNameEn(category.name_en || category.name || "");
+    setNameAm(category.name_am || "");
+    setTypeEn(category.type_en || category.type || "");
+    setTypeAm(category.type_am || "");
     setBgColor(category.bgColor || "");
     setTextColor(category.textColor || "");
     setOrder(category.order || "");
@@ -100,22 +102,16 @@ const Category = () => {
     try {
       const formData = new FormData();
 
-      // parse combined input like "English | Amharic"
-      const combined = (nameCombined || "").trim();
-      let en = combined;
-      let am = "";
-      if (combined.includes("|")) {
-        const parts = combined.split("|");
-        en = (parts[0] || "").trim();
-        am = (parts.slice(1).join("|") || "").trim();
-      }
-      formData.append("name", en || am || "");
-      formData.append("name_en", en);
-      formData.append("name_am", am);
+      const nameValue = nameEn.trim() || nameAm.trim();
+      formData.append("name", nameValue);
+      formData.append("name_en", nameEn.trim());
+      formData.append("name_am", nameAm.trim());
       formData.append("bgColor", bgColor);
       formData.append("textColor", textColor);
       formData.append("order", order);
-      formData.append("type", type);
+      formData.append("type", typeEn.trim() || typeAm.trim());
+      formData.append("type_en", typeEn.trim());
+      formData.append("type_am", typeAm.trim());
 
       image1 && formData.append("image1", image1);
       image2 && formData.append("image2", image2);
@@ -156,11 +152,13 @@ const Category = () => {
       if (response.data.success) {
         getCategoryList();
         toast.success(response.data.message);
-        setNameCombined("");
+        setNameEn("");
+        setNameAm("");
         setBgColor("");
         setTextColor("");
         setOrder("");
-        setType("Fast");
+        setTypeEn("Fast");
+        setTypeAm("");
         setIsEditing(false);
         setEditingCategoryId("");
         setImage1(false);
@@ -220,26 +218,40 @@ const Category = () => {
             </label>
           </div>
           <div className="mt-4">
-            <p className="font-md">Category Name (English | Amharic)</p>
+            <p className="font-md">Category Name (English)</p>
             <input
-              onChange={(e) => setNameCombined(e.target.value)}
-              value={nameCombined}
+              onChange={(e) => setNameEn(e.target.value)}
+              value={nameEn}
               type="text"
-              placeholder="Enter category name (use '|' to separate English and Amharic)"
+              placeholder="Enter category name in English"
               required
               className="px-3 py-1 mt-1 w-full border rounded "
+            />
+            <input
+              onChange={(e) => setNameAm(e.target.value)}
+              value={nameAm}
+              type="text"
+              placeholder="Enter category name in Amharic"
+              className="px-3 py-1 mt-2 w-full border rounded "
             />
           </div>
 
           <div className="mt-4">
-            <p className="font-md">Category Type</p>
+            <p className="font-md">Category Type (English)</p>
             <input
-              onChange={(e) => setType(e.target.value)}
-              value={type}
+              onChange={(e) => setTypeEn(e.target.value)}
+              value={typeEn}
               type="text"
-              placeholder="Enter category type"
+              placeholder="Enter category type in English"
               required
               className="px-3 py-1 mt-1 w-full border rounded "
+            />
+            <input
+              onChange={(e) => setTypeAm(e.target.value)}
+              value={typeAm}
+              type="text"
+              placeholder="Enter category type in Amharic"
+              className="px-3 py-1 mt-2 w-full border rounded "
             />
           </div>
 

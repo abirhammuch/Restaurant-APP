@@ -49,8 +49,17 @@ const ensureDefaultCategories = async () => {
 // Add Category (like addFood)
 const addCategory = async (req, res) => {
   try {
-    const { name, name_en, name_am, bgColor, textColor, type, order } =
-      req.body;
+    const {
+      name,
+      name_en,
+      name_am,
+      bgColor,
+      textColor,
+      type,
+      type_en,
+      type_am,
+      order,
+    } = req.body;
 
     // Check if category already exists
     const normalized = (name_en || name || name_am || "").trim();
@@ -106,8 +115,10 @@ const addCategory = async (req, res) => {
       name: normalized || name.trim(),
       name_en: (name_en || name || "").trim(),
       name_am: (name_am || name || "").trim(),
+      type: (type || type_en || type_am || "").trim(),
+      type_en: (type_en || type || "").trim(),
+      type_am: (type_am || type || "").trim(),
       images: imagesUrl,
-      type: type,
       bgColor: bgColor || "#FF6B35",
       textColor: textColor || "#FFFFFF",
       order: order || 0,
@@ -192,6 +203,8 @@ const editCategory = async (req, res) => {
       bgColor,
       textColor,
       type,
+      type_en,
+      type_am,
       order,
     } = req.body;
 
@@ -258,7 +271,15 @@ const editCategory = async (req, res) => {
       name_am:
         (name_am !== undefined ? name_am.trim() : existingCategory.name_am) ||
         existingCategory.name,
-      type: type,
+      type:
+        (type !== undefined ? type.trim() : existingCategory.type) ||
+        existingCategory.type,
+      type_en:
+        (type_en !== undefined ? type_en.trim() : existingCategory.type_en) ||
+        existingCategory.type,
+      type_am:
+        (type_am !== undefined ? type_am.trim() : existingCategory.type_am) ||
+        existingCategory.type,
       images: imagesUrl,
       bgColor: bgColor || existingCategory.bgColor,
       textColor: textColor || existingCategory.textColor,
