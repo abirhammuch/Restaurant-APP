@@ -12,7 +12,7 @@ import {
 const router = express.Router();
 
 router.get("/threads", adminAuth, getChatThreads);
-router.get("/thread", adminAuth, getChatThread);
+router.get("/thread", userAuth, getChatThread);
 router.post("/customer/send", userAuth, customerSendMessage);
 router.post("/admin/send", adminAuth, adminSendMessage);
 router.post("/mark-read", adminAuth, markThreadRead);

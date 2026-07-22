@@ -9,6 +9,7 @@ const AdminChat = () => {
     setSelectedChatUserId,
     getLatestThreads,
     getChatThreadById,
+    fetchChatThreads,
     markThreadRead,
     sendAdminMessage,
   } = useContext(AppContext);
@@ -20,6 +21,16 @@ const AdminChat = () => {
     ? getChatThreadById(selectedChatUserId)
     : null;
 
+  useEffect(() => {
+    const loadThreads = async () => {
+      await fetchChatThreads();
+    };
+
+    loadThreads();
+    const interval = setInterval(loadThreads, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
   const unreadTotal = threads.reduce(
     (sum, thread) => sum + (thread.unreadCount || 0),
     0,
@@ -30,18 +41,16 @@ const AdminChat = () => {
   );
   const readThreads = threads.filter((thread) => !(thread.unreadCount || 0));
 
-  const handleSendAdminMessage = (e) => {
+  const handleSendAdminMessage = async (e) => {
     e.preventDefault();
     const trimmed = input.trim();
     if (!trimmed) return;
 
     setIsSending(true);
-    sendAdminMessage(trimmed);
+    await sendAdminMessage(trimmed);
     setInput("");
-
-    setTimeout(() => {
-      setIsSending(false);
-    }, 300);
+    await fetchChatThreads();
+    setIsSending(false);
   };
 
   const handleSelectThread = (threadId) => {
@@ -88,7 +97,7 @@ const AdminChat = () => {
                     <div className="flex items-center gap-2">
                       {thread.unreadCount > 0 && (
                         <span className="rounded-full bg-red-500 px-1 py-1 text-[10px] font-semibold uppercase text-white">
-                          {thread.unreadCount} 
+                          {thread.unreadCount}
                         </span>
                       )}
                       <span className="text-xs text-gray-500">

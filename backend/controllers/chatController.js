@@ -61,7 +61,8 @@ const getChatThreads = async (req, res) => {
 
 const getChatThread = async (req, res) => {
   try {
-    const { userId, guestId } = req.query;
+    const { guestId } = req.query;
+    const userId = req.userId;
     const thread = await getThreadByUser(userId, guestId);
     if (!thread) {
       return res.json({ success: true, thread: null });

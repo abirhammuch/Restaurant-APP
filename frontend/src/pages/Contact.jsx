@@ -11,8 +11,13 @@ import {
 import { AppContext } from "../context/AppContext";
 
 const Contact = () => {
-  const { currentUser, getChatThreadByUser, getGuestId, sendCustomerMessage } =
-    useContext(AppContext);
+  const {
+    currentUser,
+    getChatThreadByUser,
+    getGuestId,
+    sendCustomerMessage,
+    fetchCustomerThread,
+  } = useContext(AppContext);
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [status, setStatus] = useState({ type: "", message: "" });
@@ -20,24 +25,42 @@ const Contact = () => {
   const chatUserId = currentUser?.id || getGuestId();
   const currentThread = getChatThreadByUser(chatUserId);
 
-  const handleSendMessage = (e) => {
+  useEffect(() => {
+    const loadThread = async () => {
+      if (!chatUserId) return;
+      await fetchCustomerThread();
+    };
+
+    loadThread();
+    const interval = setInterval(loadThread, 5000);
+    return () => clearInterval(interval);
+  }, [chatUserId]);
+
+  const handleSendMessage = async (e) => {
     e.preventDefault();
     const trimmed = input.trim();
     if (!trimmed) return;
 
     setIsSending(true);
     setStatus({ type: "", message: "" });
-    sendCustomerMessage(trimmed);
+    const result = await sendCustomerMessage(trimmed);
     setInput("");
 
-    setTimeout(() => {
-      setIsSending(false);
+    if (result.success) {
       setStatus({
         type: "success",
         message: "Your request was sent to admin.",
       });
-      setTimeout(() => setStatus({ type: "", message: "" }), 5000);
-    }, 400);
+      await fetchCustomerThread();
+    } else {
+      setStatus({
+        type: "error",
+        message: "Unable to send your message. Please try again.",
+      });
+    }
+
+    setTimeout(() => setStatus({ type: "", message: "" }), 5000);
+    setIsSending(false);
   };
 
   return (

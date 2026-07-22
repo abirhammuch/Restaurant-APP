@@ -190,6 +190,27 @@ export const AppContextProvider = (props) => {
     });
   };
 
+  const fetchCustomerThread = async () => {
+    try {
+      const guestId = getGuestId();
+      const response = await axios.get(`${backendUrl}/api/chat/thread`, {
+        headers: {
+          usertoken: getToken(),
+        },
+        params: {
+          guestId,
+        },
+      });
+      if (response.data.success && response.data.thread) {
+        updateThreadState(response.data.thread);
+        return response.data.thread;
+      }
+    } catch (error) {
+      console.error("Error fetching customer chat thread:", error);
+    }
+    return null;
+  };
+
   const fetchChatThreads = async () => {
     try {
       const response = await axios.get(`${backendUrl}/api/chat/threads`, {
@@ -787,6 +808,8 @@ export const AppContextProvider = (props) => {
     getChatThreadByUser,
     getChatThreadById,
     getLatestThreads,
+    fetchCustomerThread,
+    fetchChatThreads,
     markThreadRead,
     sendCustomerMessage,
     sendAdminMessage,
