@@ -209,6 +209,10 @@ export const AppContextProvider = (props) => {
     return chatThreads.find((thread) => thread._id === threadId) || null;
   };
 
+  const getChatThreadByUser = (userId) => {
+    return chatThreads.find((thread) => thread.userId === userId) || null;
+  };
+
   const getTokenFromLocalStorage = () => {
     const token = localStorage.getItem("usertoken");
     return token;
