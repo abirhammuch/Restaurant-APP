@@ -224,6 +224,11 @@ export const AppContextProvider = (props) => {
     });
   };
 
+  const unreadChatCount = chatThreads.reduce(
+    (sum, thread) => sum + (thread.unreadCount || 0),
+    0,
+  );
+
   const getTokenFromLocalStorage = () => {
     const token = localStorage.getItem("usertoken");
     return token;
