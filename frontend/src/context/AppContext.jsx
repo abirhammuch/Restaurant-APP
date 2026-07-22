@@ -142,10 +142,21 @@ export const AppContextProvider = (props) => {
   };
 
   const getLatestThreads = () => {
-    return [...chatThreads].sort(
-      (a, b) =>
-        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+    return [...chatThreads].sort((a, b) => {
+      const unreadA = a.unreadCount || 0;
+      const unreadB = b.unreadCount || 0;
+      if (unreadA !== unreadB) {
+        return unreadB - unreadA;
+      }
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    });
+  };
+
+  const markThreadRead = (userId) => {
+    const updatedThreads = chatThreads.map((thread) =>
+      thread.userId === userId ? { ...thread, unreadCount: 0 } : thread,
     );
+    saveChatThreads(updatedThreads);
   };
 
   const addMessageToThread = (userId, userName, userEmail, message) => {
@@ -153,13 +164,20 @@ export const AppContextProvider = (props) => {
     const threadIndex = updatedThreads.findIndex(
       (thread) => thread.userId === userId,
     );
+    const isCustomerMessage = message.from === "customer";
     if (threadIndex !== -1) {
+      const existingThread = updatedThreads[threadIndex];
+      const unreadCount = existingThread.unreadCount || 0;
+      const shouldIncrementUnread =
+        isCustomerMessage && selectedChatUserId !== userId;
+
       updatedThreads[threadIndex] = {
-        ...updatedThreads[threadIndex],
+        ...existingThread,
         userName,
         userEmail,
-        messages: [...updatedThreads[threadIndex].messages, message],
+        messages: [...existingThread.messages, message],
         updatedAt: message.createdAt,
+        unreadCount: shouldIncrementUnread ? unreadCount + 1 : unreadCount,
       };
     } else {
       updatedThreads.push({
@@ -168,6 +186,7 @@ export const AppContextProvider = (props) => {
         userEmail,
         messages: [message],
         updatedAt: message.createdAt,
+        unreadCount: isCustomerMessage ? 1 : 0,
       });
     }
     saveChatThreads(updatedThreads);
@@ -691,6 +710,7 @@ export const AppContextProvider = (props) => {
     getGuestId,
     getChatThreadByUser,
     getLatestThreads,
+    markThreadRead,
     sendCustomerMessage,
     sendAdminMessage,
     dataLoading,

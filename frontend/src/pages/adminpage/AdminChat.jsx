@@ -9,6 +9,7 @@ const AdminChat = () => {
     setSelectedChatUserId,
     getLatestThreads,
     getChatThreadByUser,
+    markThreadRead,
     sendAdminMessage,
   } = useContext(AppContext);
   const [input, setInput] = useState("");
@@ -18,6 +19,16 @@ const AdminChat = () => {
   const activeThread = selectedChatUserId
     ? getChatThreadByUser(selectedChatUserId)
     : null;
+
+  const unreadTotal = threads.reduce(
+    (sum, thread) => sum + (thread.unreadCount || 0),
+    0,
+  );
+
+  const unreadThreads = threads.filter(
+    (thread) => (thread.unreadCount || 0) > 0,
+  );
+  const readThreads = threads.filter((thread) => !(thread.unreadCount || 0));
 
   const handleSendAdminMessage = (e) => {
     e.preventDefault();
@@ -33,40 +44,104 @@ const AdminChat = () => {
     }, 300);
   };
 
+  const handleSelectThread = (userId) => {
+    setSelectedChatUserId(userId);
+    markThreadRead(userId);
+  };
+
   return (
     <div className="grid gap-6 lg:grid-cols-[320px_1fr]">
       <div className="rounded-[28px] border border-gray-200 bg-white p-6 shadow-lg">
         <h2 className="text-2xl font-bold mb-4">Chat Requests</h2>
         <div className="space-y-3">
-          {threads.length > 0 ? (
-            threads.map((thread) => (
-              <button
-                key={thread.userId}
-                type="button"
-                onClick={() => setSelectedChatUserId(thread.userId)}
-                className={`w-full rounded-3xl border px-4 py-4 text-left transition ${
-                  selectedChatUserId === thread.userId
-                    ? "border-amber-500 bg-amber-50"
-                    : "border-gray-200 bg-white hover:border-amber-400"
-                }`}
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="font-semibold text-gray-900">
-                      {thread.userName || "Customer"}
-                    </p>
-                    <p className="text-sm text-gray-500">{thread.userEmail}</p>
+          {unreadTotal > 0 && (
+            <div className="rounded-3xl bg-red-50 p-4 text-sm text-red-700">
+              You have {unreadTotal} unread message{unreadTotal > 1 ? "s" : ""}.
+            </div>
+          )}
+
+          {unreadThreads.length > 0 && (
+            <div className="space-y-3">
+              <div className="text-sm font-semibold text-gray-700">
+                Unread Chats
+              </div>
+              {unreadThreads.map((thread) => (
+                <button
+                  key={thread.userId}
+                  type="button"
+                  onClick={() => handleSelectThread(thread.userId)}
+                  className={`w-full rounded-3xl border px-4 py-4 text-left transition ${
+                    selectedChatUserId === thread.userId
+                      ? "border-amber-500 bg-amber-50"
+                      : "border-gray-200 bg-white hover:border-amber-400"
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-gray-900">
+                        {thread.userName || "Customer"}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {thread.userEmail}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {thread.unreadCount > 0 && (
+                        <span className="rounded-full bg-red-500 px-2 py-1 text-[10px] font-semibold uppercase text-white">
+                          {thread.unreadCount} new
+                        </span>
+                      )}
+                      <span className="text-xs text-gray-500">
+                        {thread.messages.length} messages
+                      </span>
+                    </div>
                   </div>
-                  <span className="text-xs text-gray-500">
-                    {thread.messages.length} messages
-                  </span>
-                </div>
-                <p className="mt-3 text-sm text-gray-600 line-clamp-2">
-                  {thread.messages[thread.messages.length - 1]?.text}
-                </p>
-              </button>
-            ))
-          ) : (
+                  <p className="mt-3 text-sm text-gray-600 line-clamp-2">
+                    {thread.messages[thread.messages.length - 1]?.text}
+                  </p>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {readThreads.length > 0 && (
+            <div className="space-y-3 pt-4">
+              <div className="text-sm font-semibold text-gray-700">
+                Read Chats
+              </div>
+              {readThreads.map((thread) => (
+                <button
+                  key={thread.userId}
+                  type="button"
+                  onClick={() => handleSelectThread(thread.userId)}
+                  className={`w-full rounded-3xl border px-4 py-4 text-left transition ${
+                    selectedChatUserId === thread.userId
+                      ? "border-amber-500 bg-amber-50"
+                      : "border-gray-200 bg-white hover:border-amber-400"
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="font-semibold text-gray-900">
+                        {thread.userName || "Customer"}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {thread.userEmail}
+                      </p>
+                    </div>
+                    <span className="text-xs text-gray-500">
+                      {thread.messages.length} messages
+                    </span>
+                  </div>
+                  <p className="mt-3 text-sm text-gray-600 line-clamp-2">
+                    {thread.messages[thread.messages.length - 1]?.text}
+                  </p>
+                </button>
+              ))}
+            </div>
+          )}
+
+          {threads.length === 0 && (
             <div className="rounded-3xl border border-dashed border-gray-300 p-6 text-center text-gray-500">
               No customer chat requests yet.
             </div>
