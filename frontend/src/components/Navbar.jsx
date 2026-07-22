@@ -88,10 +88,10 @@ const Navbar = () => {
   };
 
   const navItems = [
-    { to: "/", label: "Home" },
-    { to: "/menu", label: "Menu" },
-    { to: "/about", label: "About Us" },
-    { to: "/contact", label: "Contact" },
+    { to: "/", label: t("home") },
+    { to: "/menu", label: t("menu") },
+    { to: "/about", label: t("about") },
+    { to: "/contact", label: t("contact") },
   ];
 
   return (
