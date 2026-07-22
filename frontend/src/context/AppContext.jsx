@@ -63,6 +63,20 @@ export const AppContextProvider = (props) => {
     return translations[language]?.[key] || translations.en[key] || key;
   };
 
+  // Admin-specific language (separate from customer language)
+  const [adminLanguage, setAdminLanguage] = useState(() => {
+    return localStorage.getItem("admin_language") || "en";
+  });
+
+  const tAdmin = (key) => {
+    return translations[adminLanguage]?.[key] || translations.en[key] || key;
+  };
+
+  const changeAdminLanguage = (lang) => {
+    setAdminLanguage(lang);
+    localStorage.setItem("admin_language", lang);
+  };
+
   // Change language function
   const changeLanguage = (lang) => {
     setLanguage(lang);
@@ -741,6 +755,9 @@ export const AppContextProvider = (props) => {
     delivery_fee,
     tax,
     language,
+    adminLanguage,
+    changeAdminLanguage,
+    tAdmin,
     changeLanguage,
     t, // Translation function
     fullCategory,

@@ -49,19 +49,17 @@ const ensureDefaultCategories = async () => {
 // Add Category (like addFood)
 const addCategory = async (req, res) => {
   try {
-    const {
-      name,
-
-      bgColor,
-      textColor,
-      type,
-
-      order,
-    } = req.body;
+    const { name, name_en, name_am, bgColor, textColor, type, order } =
+      req.body;
 
     // Check if category already exists
+    const normalized = (name_en || name || name_am || "").trim();
     const existingCategory = await categoryModel.findOne({
-      name: name.trim(),
+      $or: [
+        { name: normalized },
+        { name_en: normalized },
+        { name_am: normalized },
+      ],
     });
 
     if (existingCategory) {
@@ -105,14 +103,13 @@ const addCategory = async (req, res) => {
     }
 
     const category = new categoryModel({
-      name: name.trim(),
-
+      name: normalized || name.trim(),
+      name_en: (name_en || name || "").trim(),
+      name_am: (name_am || name || "").trim(),
       images: imagesUrl,
       type: type,
-
       bgColor: bgColor || "#FF6B35",
       textColor: textColor || "#FFFFFF",
-
       order: order || 0,
       date: Date.now(),
     });
@@ -190,11 +187,11 @@ const editCategory = async (req, res) => {
     const {
       categoryId,
       name,
-
+      name_en,
+      name_am,
       bgColor,
       textColor,
       type,
-
       order,
     } = req.body;
 
@@ -255,13 +252,16 @@ const editCategory = async (req, res) => {
     // Prepare update data
     const updateData = {
       name: name?.trim() || existingCategory.name,
+      name_en:
+        (name_en !== undefined ? name_en.trim() : existingCategory.name_en) ||
+        existingCategory.name,
+      name_am:
+        (name_am !== undefined ? name_am.trim() : existingCategory.name_am) ||
+        existingCategory.name,
       type: type,
-
       images: imagesUrl,
-
       bgColor: bgColor || existingCategory.bgColor,
       textColor: textColor || existingCategory.textColor,
-
       order: order !== undefined ? Number(order) : existingCategory.order,
     };
 

@@ -17,6 +17,7 @@ const Category = () => {
   const [image3, setImage3] = useState(false);
   const [image4, setImage4] = useState(false);
   const [name, setName] = useState("");
+  const [nameAm, setNameAm] = useState("");
   const [order, setOrder] = useState("");
   const [bgColor, setBgColor] = useState("");
   const [textColor, setTextColor] = useState("");
@@ -64,6 +65,7 @@ const Category = () => {
     setIsEditing(true);
 
     setName(category.name || "");
+    setNameAm(category.name_am || "");
     setBgColor(category.bgColor || "");
     setTextColor(category.textColor || "");
     setOrder(category.order || "");
@@ -98,6 +100,8 @@ const Category = () => {
       const formData = new FormData();
 
       formData.append("name", name);
+      formData.append("name_en", name);
+      formData.append("name_am", nameAm);
       formData.append("bgColor", bgColor);
       formData.append("textColor", textColor);
       formData.append("order", order);
@@ -206,7 +210,7 @@ const Category = () => {
             </label>
           </div>
           <div className="mt-4">
-            <p className="font-md">Category Name</p>
+            <p className="font-md">Category Name (English)</p>
             <input
               onChange={(e) => setName(e.target.value)}
               value={name}
@@ -214,6 +218,13 @@ const Category = () => {
               placeholder="Enter category name"
               required
               className="px-3 py-1 mt-1 w-full border rounded "
+            />
+            <input
+              onChange={(e) => setNameAm(e.target.value)}
+              value={nameAm}
+              type="text"
+              placeholder="Enter category name (Amharic)"
+              className="px-3 py-1 mt-2 w-full border rounded "
             />
           </div>
 
@@ -308,7 +319,12 @@ const Category = () => {
                   className="grid grid-cols-1 gap-3 lg:grid-cols-[1fr_2fr_1fr_1fr] ml-0 lg:ml-6 border-t mt-5 pt-3 border-gray-400 px-3 lg:px-0"
                 >
                   <img src={item.images[0]} className="w-16" />
-                  <p>{item.name}</p>
+                  <div>
+                    <p className="font-medium">{item.name}</p>
+                    {item.name_am && (
+                      <p className="text-xs text-gray-500">{item.name_am}</p>
+                    )}
+                  </div>
                   <p>{item.type}</p>
                   <div className="flex gap-6 justify-end px-6">
                     <FaPencil

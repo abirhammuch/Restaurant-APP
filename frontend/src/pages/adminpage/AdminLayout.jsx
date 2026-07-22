@@ -13,7 +13,13 @@ import {
 import { AppContext } from "../../context/AppContext";
 
 const AdminLayout = () => {
-  const { navigate, unreadChatCount, t } = useContext(AppContext);
+  const {
+    navigate,
+    unreadChatCount,
+    tAdmin,
+    adminLanguage,
+    changeAdminLanguage,
+  } = useContext(AppContext);
 
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -102,7 +108,9 @@ const AdminLayout = () => {
                 >
                   <MdDashboard />
                   {menuOpen && (
-                    <p className="text-lg">{t("dashboard") || "Dashboard"}</p>
+                    <p className="text-lg">
+                      {tAdmin("dashboard") || "Dashboard"}
+                    </p>
                   )}
                 </NavLink>
               </div>
@@ -117,7 +125,7 @@ const AdminLayout = () => {
                   <MdRestaurantMenu />
                   {menuOpen && (
                     <p className="text-lg">
-                      {t("products") || t("menu") || "Products"}
+                      {tAdmin("products") || tAdmin("menu") || "Products"}
                     </p>
                   )}
                 </NavLink>
@@ -132,7 +140,9 @@ const AdminLayout = () => {
                 >
                   <MdRestaurantMenu />
                   {menuOpen && (
-                    <p className="text-lg">{t("category") || "Categories"}</p>
+                    <p className="text-lg">
+                      {tAdmin("category") || "Categories"}
+                    </p>
                   )}
                 </NavLink>
               </div>
@@ -146,7 +156,7 @@ const AdminLayout = () => {
                 >
                   <MdAddShoppingCart />
                   {menuOpen && (
-                    <p className="text-lg">{t("myOrders") || "Orders"}</p>
+                    <p className="text-lg">{tAdmin("myOrders") || "Orders"}</p>
                   )}
                 </NavLink>
               </div>
@@ -160,7 +170,9 @@ const AdminLayout = () => {
                 >
                   <FaStar className="text-lg" />
                   {menuOpen && (
-                    <p className="text-lg">{t("testimonial") || "Ratings"}</p>
+                    <p className="text-lg">
+                      {tAdmin("testimonial") || "Ratings"}
+                    </p>
                   )}
                 </NavLink>
               </div>
@@ -174,7 +186,7 @@ const AdminLayout = () => {
                 >
                   <MdQrCode />
                   {menuOpen && (
-                    <p className="text-lg">{t("qrCodes") || "QR Codes"}</p>
+                    <p className="text-lg">{tAdmin("qrCodes") || "QR Codes"}</p>
                   )}
                 </NavLink>
               </div>
@@ -189,7 +201,7 @@ const AdminLayout = () => {
                   <div className="relative inline-flex items-center gap-3">
                     <FaComments className="text-lg" />
                     {menuOpen && (
-                      <p className="text-lg">{t("contact") || "Chat"}</p>
+                      <p className="text-lg">{tAdmin("contact") || "Chat"}</p>
                     )}
                     {unreadChatCount > 0 && (
                       <span className="absolute -top-2 -right-2 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-semibold text-white">
@@ -209,7 +221,9 @@ const AdminLayout = () => {
                 >
                   <MdSettings />
                   {menuOpen && (
-                    <p className="text-lg">{t("settings") || "Settings"}</p>
+                    <p className="text-lg">
+                      {tAdmin("settings") || "Settings"}
+                    </p>
                   )}
                 </NavLink>
               </div>
@@ -218,9 +232,11 @@ const AdminLayout = () => {
 
           {/* Support */}
           <div className="pb-16 flex flex-col gap-2 border-t w-full items-center border-gray-300 pt-2">
-            <p className="text-md font-bold">{t("support") || "SUPPORT"}</p>
+            <p className="text-md font-bold">
+              {tAdmin("support") || "SUPPORT"}
+            </p>
             <p className="text-md font-bold text-orange-600">
-              {t("helpCenter") || "Help Center"}
+              {tAdmin("helpCenter") || "Help Center"}
             </p>
           </div>
         </div>
@@ -238,17 +254,28 @@ const AdminLayout = () => {
                 {menuOpen ? <IoClose size={24} /> : <HiMenu size={24} />}
               </button>
               <p className="text-xl sm:text-2xl text-orange-700">
-                {t("dashboard") || "Dashboard"}
+                {tAdmin("dashboard") || "Dashboard"}
               </p>
             </div>
             <div className="flex gap-3 sm:gap-5 items-center ml-auto">
-              <button
-                onClick={logout}
-                className="flex items-center gap-2 rounded-2xl border border-gray-500 px-3 py-1 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 sm:px-4 sm:text-base"
-              >
-                <FaUser className="text-orange-500" />
-                {t("logout") || "Sign Out"}
-              </button>
+              <div className="flex items-center gap-3">
+                <select
+                  value={adminLanguage}
+                  onChange={(e) => changeAdminLanguage(e.target.value)}
+                  className="px-3 py-1 border rounded"
+                >
+                  <option value="en">EN</option>
+                  <option value="am">AM</option>
+                </select>
+
+                <button
+                  onClick={logout}
+                  className="flex items-center gap-2 rounded-2xl border border-gray-500 px-3 py-1 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 sm:px-4 sm:text-base"
+                >
+                  <FaUser className="text-orange-500" />
+                  {tAdmin("logout") || "Sign Out"}
+                </button>
+              </div>
             </div>
           </div>
 
@@ -263,7 +290,8 @@ const AdminLayout = () => {
       <div className="bg-gray-100 flex justify-center items-center py-5 border-t border-gray-200">
         <p>
           &copy;2026{" "}
-          {t("copyright") || "Greencart management. All rights are reserved."}
+          {tAdmin("copyright") ||
+            "Greencart management. All rights are reserved."}
         </p>
       </div>
     </div>

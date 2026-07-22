@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const categorySchema = new mongoose.Schema({
   // Product-like fields
@@ -6,18 +6,25 @@ const categorySchema = new mongoose.Schema({
     type: String,
     required: true,
     unique: true,
-    trim: true
+    trim: true,
   },
-  
- 
- 
-  
+  name_en: {
+    type: String,
+    trim: true,
+    default: "",
+  },
+  name_am: {
+    type: String,
+    trim: true,
+    default: "",
+  },
+
   // Images (like product images)
   images: {
     type: [String],
-    default: []
+    default: [],
   },
-  
+
   // Category-specific fields
   // path: {
   //   type: String,
@@ -25,62 +32,62 @@ const categorySchema = new mongoose.Schema({
   //   trim: true,
   //   lowercase: true
   // },
-  
+
   bgColor: {
     type: String,
-    default: '#FF6B35'
+    default: "#FF6B35",
   },
-  
+
   textColor: {
     type: String,
-    default: '#FFFFFF'
+    default: "#FFFFFF",
   },
-  
+
   // borderColor: {
   //   type: String,
   //   default: '#FF6B35'
   // },
-  
+
   // icon: {
   //   type: String,
   //   default: '📁'
   // },
-  
+
   // Classification
   // branch: {
   //   type: String,
   //   enum: ['gidft', 'tsom', 'both'],
   //   default: 'both'
   // },
-  
+
   // Status
   // isActive: {
   //   type: Boolean,
   //   default: true
   // },
-  
+
   // Display Order
   order: {
     type: Number,
-    default: 0
+    default: 0,
   },
-  type:{
+  type: {
     type: String,
   },
   // Number of products in this category
   productCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
-  
+
   // Created At
   date: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
+const categoryModel =
+  mongoose.models.Category || mongoose.model("Category", categorySchema);
 
-const categoryModel = mongoose.models.Category || mongoose.model("Category", categorySchema)
-
-export default categoryModel
+export default categoryModel;

@@ -8,8 +8,14 @@ import { toast } from "react-toastify";
 import axios from "axios";
 
 const Products = () => {
-  const { currency, backendUrl, admintoken, navigate, allCategory, language } =
-    useContext(AppContext);
+  const {
+    currency,
+    backendUrl,
+    admintoken,
+    navigate,
+    allCategory,
+    adminLanguage,
+  } = useContext(AppContext);
 
   const [page, setPage] = useState(1);
   const productPerPage = 10;
@@ -88,7 +94,7 @@ const Products = () => {
     // Apply search
     if (searchedQuery && searchedQuery.trim() !== "") {
       const key =
-        language === "am"
+        adminLanguage === "am"
           ? (f) => f.name_am || f.name
           : (f) => f.name_en || f.name;
       results = results.filter((food) =>
@@ -125,9 +131,13 @@ const Products = () => {
 
       if (sortBy === "name") {
         compareA =
-          (language === "am" ? a.name_am || a.name : a.name_en || a.name) || "";
+          (adminLanguage === "am"
+            ? a.name_am || a.name
+            : a.name_en || a.name) || "";
         compareB =
-          (language === "am" ? b.name_am || b.name : b.name_en || b.name) || "";
+          (adminLanguage === "am"
+            ? b.name_am || b.name
+            : b.name_en || b.name) || "";
       }
 
       if (sortBy === "price") {
@@ -757,7 +767,7 @@ const Products = () => {
                     {allCategory &&
                       allCategory.map((item, index) => (
                         <option key={index} value={item.name}>
-                          {item.name}
+                          {adminLanguage === "am" ? item.name_am || item.name : item.name_en || item.name}
                         </option>
                       ))}
                   </select>
@@ -986,11 +996,11 @@ const Products = () => {
                   <div>
                     {(() => {
                       const displayName =
-                        language === "am"
+                        adminLanguage === "am"
                           ? food.name_am || food.name
                           : food.name_en || food.name;
                       const displayDescription =
-                        language === "am"
+                        adminLanguage === "am"
                           ? food.description_am || food.description
                           : food.description_en || food.description;
                       return (
