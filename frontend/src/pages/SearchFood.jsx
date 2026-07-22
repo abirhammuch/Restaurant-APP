@@ -10,18 +10,26 @@ const SearchFood = () => {
     searchedQuery,
     searchedFood,
     setSearchedQuery,
+    language,
   } = useContext(AppContext);
+
+  const getLocalizedFoodName = (food) =>
+    language === "am"
+      ? food.name_am || food.name_en || food.name
+      : food.name_en || food.name;
 
   useEffect(() => {
     if (searchedQuery?.trim().length > 0) {
       const query = searchedQuery.trim().toLowerCase();
       setSearchedFood(
-        foods.filter((food) => food.name?.toLowerCase().includes(query)),
+        foods.filter((food) =>
+          getLocalizedFoodName(food)?.toLowerCase().includes(query),
+        ),
       );
     } else {
       setSearchedFood(foods);
     }
-  }, [foods, searchedQuery, setSearchedFood]);
+  }, [foods, searchedQuery, setSearchedFood, language]);
 
   return (
     <div className="px-4 py-6 sm:px-6 lg:px-20">

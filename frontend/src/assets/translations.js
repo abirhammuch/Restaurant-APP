@@ -87,6 +87,8 @@ export const translations = {
     amharic: "Amharic",
     usd: "USD ($)",
     etb: "ETB (ብር)",
+    findFood: "Find Food",
+    searchFoodPlaceholder: "Search Food (e.g Pizza ... )",
     // Admin / Misc
     dashboard: "Dashboard",
     products: "Products",
@@ -202,6 +204,8 @@ export const translations = {
     amharic: "አማርኛ",
     usd: "USD ($)",
     etb: "ETB (ብር)",
+    findFood: "ምግብ ፈልግ",
+    searchFoodPlaceholder: "ምግብ ፈልግ (ለምሳሌ፡ ፒዛ ...)"
     // Admin / Misc
     dashboard: "ዳሽቦርድ",
     products: "ምርቶች",

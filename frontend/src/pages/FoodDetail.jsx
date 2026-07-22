@@ -22,7 +22,18 @@ const FoodDetail = () => {
     setPopularFood,
     addToCart,
     backendUrl,
+    language,
   } = useContext(AppContext);
+
+  const getLocalizedFoodName = (food) =>
+    language === "am"
+      ? food.name_am || food.name_en || food.name
+      : food.name_en || food.name;
+
+  const getLocalizedFoodDescription = (food) =>
+    language === "am"
+      ? food.description_am || food.description_en || food.description
+      : food.description_en || food.description;
   const { id, category } = useParams();
 
   const [thumbnel, setThumbnel] = useState("");
@@ -290,7 +301,7 @@ const FoodDetail = () => {
           <div className="flex flex-col">
             <img
               src={thumbnel || currentFood.images?.[0] || assets.upload_area}
-              alt={currentFood.name}
+              alt={getLocalizedFoodName(currentFood)}
               className="w-full rounded-2xl max-h-[400px] object-cover"
               onError={(e) => {
                 e.target.src = assets.upload_area;
@@ -366,7 +377,9 @@ const FoodDetail = () => {
             </div>
           )}
 
-          <p className="text-2xl font-bold mt-2">{currentFood.name}</p>
+          <p className="text-2xl font-bold mt-2">
+            {getLocalizedFoodName(currentFood)}
+          </p>
           <p className="text-2xl text-amber-500 font-bold mt-1">
             {formatPrice(currentFood.price || 0)}
           </p>
@@ -374,7 +387,7 @@ const FoodDetail = () => {
           <div className="mt-4">
             <p className="text-lg font-semibold">THE EXPERIENCE</p>
             <p className="text-sm pb-5 text-gray-700 mt-2">
-              {currentFood.description}
+              {getLocalizedFoodDescription(currentFood)}
             </p>
 
             <p className="text-md font-semibold">INGREDIENTS</p>

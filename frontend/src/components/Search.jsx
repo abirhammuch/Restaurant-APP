@@ -11,13 +11,21 @@ const Search = () => {
     searchedQuery,
     searchedFood,
     setSearchedQuery,
+    language,
+    t,
   } = useContext(AppContext);
 
+  const getLocalizedFoodName = (food) =>
+    language === "am"
+      ? food.name_am || food.name_en || food.name
+      : food.name_en || food.name;
+
   useEffect(() => {
-    if (searchedQuery.length > 0) {
+    if (searchedQuery?.trim().length > 0) {
+      const query = searchedQuery.trim().toLowerCase();
       setSearchedFood(
         foods.filter((food) =>
-          food.name.toLowerCase().includes(searchedQuery.toLowerCase()),
+          getLocalizedFoodName(food)?.toLowerCase().includes(query),
         ),
       );
     } else {
@@ -32,7 +40,9 @@ const Search = () => {
           onChange={(e) => setSearchedQuery(e.target.value)}
           type="text"
           className=" px-9 py-2 bg-white rounded-[6px] w- md:w-90"
-          placeholder="Search Food (e.g Pizza ... )"
+          placeholder={
+            t("searchFoodPlaceholder") || "Search Food (e.g Pizza ... )"
+          }
         />
         <img
           className="absolute top-3 left-2"
@@ -45,7 +55,7 @@ const Search = () => {
         onClick={() => navigate("/menu/search")}
         className="bg-amber-600 text-white text-sm py-2 rounded-sm px-3 cursor-pointer"
       >
-        Find Food
+        {t("findFood") || "Find Food"}
       </button>
     </div>
   );

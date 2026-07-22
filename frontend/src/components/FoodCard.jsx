@@ -5,8 +5,24 @@ import axios from "axios";
 
 const FoodCard = ({ food }) => {
   const [ratings, setRatings] = useState({});
-  const { formatPrice, navigate, setFoodDetail, addToCart, backendUrl } =
-    useContext(AppContext);
+  const {
+    formatPrice,
+    navigate,
+    setFoodDetail,
+    addToCart,
+    backendUrl,
+    language,
+  } = useContext(AppContext);
+
+  const getLocalizedFoodName = (item) =>
+    language === "am"
+      ? item.name_am || item.name_en || item.name
+      : item.name_en || item.name;
+
+  const getLocalizedFoodDescription = (item) =>
+    language === "am"
+      ? item.description_am || item.description_en || item.description
+      : item.description_en || item.description;
 
   // ✅ Fetch rating for a single food
   const fetchRating = async (foodId) => {
@@ -103,11 +119,7 @@ const FoodCard = ({ food }) => {
                   src={
                     item.images?.[0] || item.image?.[0] || assets.upload_area
                   }
-                  alt={item.name || "Food"}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                  onError={(e) => {
-                    e.target.src = assets.upload_area;
-                  }}
+                  alt={getLocalizedFoodName(item) || "Food"}
                 />
 
                 {/* Category Badge */}
@@ -133,10 +145,11 @@ const FoodCard = ({ food }) => {
               <div className="flex flex-1 flex-col gap-3 px-4 py-4 sm:px-5 sm:py-5">
                 <div className="space-y-1">
                   <p className="truncate text-lg font-bold text-slate-800">
-                    {item.name}
+                    {getLocalizedFoodName(item)}
                   </p>
                   <p className="line-clamp-2 flex-1 text-sm leading-6 text-gray-600">
-                    {item.description || "No description available"}
+                    {getLocalizedFoodDescription(item) ||
+                      "No description available"}
                   </p>
                 </div>
 
