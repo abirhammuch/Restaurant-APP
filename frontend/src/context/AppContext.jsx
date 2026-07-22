@@ -221,7 +221,6 @@ export const AppContextProvider = (props) => {
       createdAt: new Date().toISOString(),
     };
     addMessageToThread(userId, userName, userEmail, message);
-    setSelectedChatUserId(userId);
   };
 
   const sendAdminMessage = (text, userId = null) => {

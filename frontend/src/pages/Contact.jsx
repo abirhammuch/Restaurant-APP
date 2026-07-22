@@ -11,27 +11,14 @@ import {
 import { AppContext } from "../context/AppContext";
 
 const Contact = () => {
-  const {
-    currentUser,
-    chatThreads,
-    getChatThreadByUser,
-    getGuestId,
-    selectedChatUserId,
-    setSelectedChatUserId,
-    sendCustomerMessage,
-  } = useContext(AppContext);
+  const { currentUser, getChatThreadByUser, getGuestId, sendCustomerMessage } =
+    useContext(AppContext);
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [status, setStatus] = useState({ type: "", message: "" });
 
   const chatUserId = currentUser?.id || getGuestId();
   const currentThread = getChatThreadByUser(chatUserId);
-
-  useEffect(() => {
-    if (chatUserId) {
-      setSelectedChatUserId(chatUserId);
-    }
-  }, [chatUserId, setSelectedChatUserId]);
 
   const handleSendMessage = (e) => {
     e.preventDefault();
