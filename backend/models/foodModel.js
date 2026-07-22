@@ -15,6 +15,11 @@ const foodSchema = new mongoose.Schema(
     images: { type: Array, required: true },
     category: { type: String, required: true },
     ingredients: { type: Array, required: true },
+    ingredients_am: { type: Array },
+    allergens: { type: Array },
+    allergens_am: { type: Array },
+    dietaryTags: { type: Array },
+    dietaryTags_am: { type: Array },
 
     preparationTime: { type: Number, required: true },
     averageRating: { type: Number },

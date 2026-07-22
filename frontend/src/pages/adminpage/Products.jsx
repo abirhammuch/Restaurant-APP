@@ -46,6 +46,9 @@ const Products = () => {
   const [nameAm, setNameAm] = useState("");
   const [description, setDescription] = useState("");
   const [descriptionAm, setDescriptionAm] = useState("");
+  const [ingredientsAm, setIngredientsAm] = useState("");
+  const [allergensAm, setAllergensAm] = useState("");
+  const [dietaryTagsAm, setDietaryTagsAm] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("maindish");
   const [ingredients, setIngredients] = useState("");
@@ -199,8 +202,11 @@ const Products = () => {
     setPrice("");
     setCategory("maindish");
     setIngredients("");
+    setIngredientsAm("");
     setAllergens("");
+    setAllergensAm("");
     setDietaryTags("");
+    setDietaryTagsAm("");
     setPreparationTime("");
     setAverageRating("");
     setTotalReviews("");
@@ -250,15 +256,30 @@ const Products = () => {
         ? food.ingredients.join(", ")
         : food.ingredients || "",
     );
+    setIngredientsAm(
+      Array.isArray(food.ingredients_am)
+        ? food.ingredients_am.join(", ")
+        : food.ingredients_am || "",
+    );
     setAllergens(
       Array.isArray(food.allergens)
         ? food.allergens.join(", ")
         : food.allergens || "",
     );
+    setAllergensAm(
+      Array.isArray(food.allergens_am)
+        ? food.allergens_am.join(", ")
+        : food.allergens_am || "",
+    );
     setDietaryTags(
       Array.isArray(food.dietaryTags)
         ? food.dietaryTags.join(", ")
         : food.dietaryTags || "",
+    );
+    setDietaryTagsAm(
+      Array.isArray(food.dietaryTags_am)
+        ? food.dietaryTags_am.join(", ")
+        : food.dietaryTags_am || "",
     );
     setPreparationTime(food.preparationTime?.toString() || "");
     setAverageRating(food.averageRating?.toString() || "");
@@ -358,8 +379,11 @@ const Products = () => {
       formData.append("price", Number(price));
       formData.append("category", category);
       formData.append("ingredients", ingredients.trim());
+      formData.append("ingredients_am", ingredientsAm.trim());
       formData.append("allergens", allergens.trim() || "None");
+      formData.append("allergens_am", allergensAm.trim() || "None");
       formData.append("dietaryTags", dietaryTags.trim() || "None");
+      formData.append("dietaryTags_am", dietaryTagsAm.trim() || "None");
       formData.append("preparationTime", Number(preparationTime));
       formData.append("averageRating", Number(averageRating) || 0);
       formData.append("totalReviews", Number(totalReviews) || 0);
@@ -767,7 +791,9 @@ const Products = () => {
                     {allCategory &&
                       allCategory.map((item, index) => (
                         <option key={index} value={item.name}>
-                          {adminLanguage === "am" ? item.name_am || item.name : item.name_en || item.name}
+                          {adminLanguage === "am"
+                            ? item.name_am || item.name
+                            : item.name_en || item.name}
                         </option>
                       ))}
                   </select>
@@ -816,9 +842,52 @@ const Products = () => {
                   onChange={(e) => setIngredients(e.target.value)}
                   required
                 />
+                <input
+                  type="text"
+                  placeholder="Main Ingredients (Amharic) - comma separated"
+                  className="w-full px-3 py-2 mt-2 border rounded"
+                  value={ingredientsAm}
+                  onChange={(e) => setIngredientsAm(e.target.value)}
+                />
                 <p className="text-xs text-gray-500 mt-1">
                   Separate ingredients with commas
                 </p>
+              </div>
+
+              <div className="mt-3">
+                <p>Allergens</p>
+                <input
+                  type="text"
+                  placeholder="Comma separated allergens"
+                  className="w-full px-3 py-2 mt-2 border rounded"
+                  value={allergens}
+                  onChange={(e) => setAllergens(e.target.value)}
+                />
+                <input
+                  type="text"
+                  placeholder="Allergens (Amharic) - comma separated"
+                  className="w-full px-3 py-2 mt-2 border rounded"
+                  value={allergensAm}
+                  onChange={(e) => setAllergensAm(e.target.value)}
+                />
+              </div>
+
+              <div className="mt-3">
+                <p>Dietary Tags</p>
+                <input
+                  type="text"
+                  placeholder="Comma separated tags: vegan, gluten-free"
+                  className="w-full px-3 py-2 mt-2 border rounded"
+                  value={dietaryTags}
+                  onChange={(e) => setDietaryTags(e.target.value)}
+                />
+                <input
+                  type="text"
+                  placeholder="Dietary Tags (Amharic) - comma separated"
+                  className="w-full px-3 py-2 mt-2 border rounded"
+                  value={dietaryTagsAm}
+                  onChange={(e) => setDietaryTagsAm(e.target.value)}
+                />
               </div>
 
               <div className="mt-3">

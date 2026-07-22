@@ -73,6 +73,11 @@ const addFood = async (req, res) => {
       price,
       category,
       ingredients,
+      ingredients_am,
+      allergens,
+      allergens_am,
+      dietaryTags,
+      dietaryTags_am,
       preparationTime,
       averageRating,
       totalReviews,
@@ -121,6 +126,49 @@ const addFood = async (req, res) => {
         .filter((item) => item);
     }
 
+    // Parse amharic ingredients
+    let parsedIngredientsAm = [];
+    if (ingredients_am) {
+      parsedIngredientsAm = ingredients_am
+        .split(",")
+        .map((item) => item.trim())
+        .filter((item) => item);
+    }
+
+    // Parse allergens
+    let parsedAllergens = [];
+    if (allergens) {
+      parsedAllergens = allergens
+        .split(",")
+        .map((item) => item.trim())
+        .filter((item) => item);
+    }
+
+    let parsedAllergensAm = [];
+    if (allergens_am) {
+      parsedAllergensAm = allergens_am
+        .split(",")
+        .map((item) => item.trim())
+        .filter((item) => item);
+    }
+
+    // Parse dietary tags
+    let parsedDietary = [];
+    if (dietaryTags) {
+      parsedDietary = dietaryTags
+        .split(",")
+        .map((item) => item.trim())
+        .filter((item) => item);
+    }
+
+    let parsedDietaryAm = [];
+    if (dietaryTags_am) {
+      parsedDietaryAm = dietaryTags_am
+        .split(",")
+        .map((item) => item.trim())
+        .filter((item) => item);
+    }
+
     // Parse booleans
     const parsedIsFast = isFast === "true" || isFast === true;
     const parsedPopular = popular === "true" || popular === true;
@@ -141,6 +189,11 @@ const addFood = async (req, res) => {
       category,
       price: Number(price),
       ingredients: parsedIngredients,
+      ingredients_am: parsedIngredientsAm,
+      allergens: parsedAllergens,
+      allergens_am: parsedAllergensAm,
+      dietaryTags: parsedDietary,
+      dietaryTags_am: parsedDietaryAm,
       images: imagesUrl,
       preparationTime: Number(preparationTime),
       averageRating: Number(averageRating) || 0,
@@ -217,6 +270,11 @@ const editFood = async (req, res) => {
       price,
       category,
       ingredients,
+      ingredients_am,
+      allergens,
+      allergens_am,
+      dietaryTags,
+      dietaryTags_am,
       preparationTime,
       averageRating,
       totalReviews,
@@ -294,6 +352,69 @@ const editFood = async (req, res) => {
       }
     }
 
+    // Parse ingredients am
+    let parsedIngredientsAm = existingFood.ingredients_am || [];
+    if (ingredients_am !== undefined && ingredients_am !== null) {
+      if (typeof ingredients_am === "string") {
+        parsedIngredientsAm = ingredients_am
+          .split(",")
+          .map((item) => item.trim())
+          .filter((item) => item);
+      } else if (Array.isArray(ingredients_am)) {
+        parsedIngredientsAm = ingredients_am;
+      }
+    }
+
+    // Parse allergens
+    let parsedAllergens = existingFood.allergens || [];
+    if (allergens !== undefined && allergens !== null) {
+      if (typeof allergens === "string") {
+        parsedAllergens = allergens
+          .split(",")
+          .map((item) => item.trim())
+          .filter((item) => item);
+      } else if (Array.isArray(allergens)) {
+        parsedAllergens = allergens;
+      }
+    }
+
+    let parsedAllergensAm = existingFood.allergens_am || [];
+    if (allergens_am !== undefined && allergens_am !== null) {
+      if (typeof allergens_am === "string") {
+        parsedAllergensAm = allergens_am
+          .split(",")
+          .map((item) => item.trim())
+          .filter((item) => item);
+      } else if (Array.isArray(allergens_am)) {
+        parsedAllergensAm = allergens_am;
+      }
+    }
+
+    // Parse dietary tags
+    let parsedDietary = existingFood.dietaryTags || [];
+    if (dietaryTags !== undefined && dietaryTags !== null) {
+      if (typeof dietaryTags === "string") {
+        parsedDietary = dietaryTags
+          .split(",")
+          .map((item) => item.trim())
+          .filter((item) => item);
+      } else if (Array.isArray(dietaryTags)) {
+        parsedDietary = dietaryTags;
+      }
+    }
+
+    let parsedDietaryAm = existingFood.dietaryTags_am || [];
+    if (dietaryTags_am !== undefined && dietaryTags_am !== null) {
+      if (typeof dietaryTags_am === "string") {
+        parsedDietaryAm = dietaryTags_am
+          .split(",")
+          .map((item) => item.trim())
+          .filter((item) => item);
+      } else if (Array.isArray(dietaryTags_am)) {
+        parsedDietaryAm = dietaryTags_am;
+      }
+    }
+
     // Parse booleans
     const parsedIsFast =
       isFast !== undefined
@@ -325,6 +446,11 @@ const editFood = async (req, res) => {
       price: price ? Number(price) : existingFood.price,
       category: category || existingFood.category,
       ingredients: parsedIngredients,
+      ingredients_am: parsedIngredientsAm,
+      allergens: parsedAllergens,
+      allergens_am: parsedAllergensAm,
+      dietaryTags: parsedDietary,
+      dietaryTags_am: parsedDietaryAm,
       preparationTime: preparationTime
         ? Number(preparationTime)
         : existingFood.preparationTime,
