@@ -16,6 +16,28 @@ const AdminChat = () => {
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
 
+  const initials = (name) => {
+    if (!name) return "CU";
+    return name
+      .split(" ")
+      .map((n) => n[0] || "")
+      .join("")
+      .slice(0, 2)
+      .toUpperCase();
+  };
+
+  const timeAgo = (iso) => {
+    if (!iso) return "";
+    const diff = Date.now() - new Date(iso).getTime();
+    const minutes = Math.floor(diff / 60000);
+    if (minutes < 1) return "now";
+    if (minutes < 60) return `${minutes}m`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h`;
+    const days = Math.floor(hours / 24);
+    return `${days}d`;
+  };
+
   const threads = getLatestThreads();
   const activeThread = selectedChatUserId
     ? getChatThreadById(selectedChatUserId)
@@ -79,35 +101,52 @@ const AdminChat = () => {
                   key={thread._id}
                   type="button"
                   onClick={() => handleSelectThread(thread._id)}
-                  className={`w-full rounded-3xl border px-4 py-4 text-left transition ${
+                  className={`w-full rounded-3xl border px-4 py-4 text-left transition shadow-sm hover:shadow-lg ${
                     selectedChatUserId === thread._id
                       ? "border-amber-500 bg-amber-50"
                       : "border-gray-200 bg-white hover:border-amber-400"
                   }`}
                 >
-                  <div className="flex items-center justify-between gap-3">
-                    <div>
-                      <p className="font-semibold text-gray-900">
-                        {thread.userName || "Customer"}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {thread.userEmail}
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0">
+                      <div className="h-12 w-12 rounded-full bg-amber-100 flex items-center justify-center text-amber-800 font-semibold">
+                        {initials(thread.userName)}
+                      </div>
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="min-w-0">
+                          <p className="font-semibold text-gray-900 truncate">
+                            {thread.userName || "Customer"}
+                          </p>
+                          <p className="text-sm text-gray-500 truncate">
+                            {thread.userEmail}
+                          </p>
+                        </div>
+                        <div className="flex flex-col items-end">
+                          <span className="text-xs text-gray-400">
+                            {timeAgo(thread.updatedAt)}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            {thread.messages.length} msgs
+                          </span>
+                        </div>
+                      </div>
+
+                      <p className="mt-2 text-sm text-gray-600 line-clamp-2">
+                        {thread.messages[thread.messages.length - 1]?.text}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2">
+
+                    <div className="flex-shrink-0 pl-3">
                       {thread.unreadCount > 0 && (
-                        <span className="rounded-full bg-red-500 px-1 py-1 text-[10px] font-semibold uppercase text-white">
+                        <span className="inline-flex h-8 min-w-[36px] items-center justify-center rounded-full bg-red-500 px-3 text-sm font-semibold text-white">
                           {thread.unreadCount}
                         </span>
                       )}
-                      <span className="text-xs text-gray-500">
-                        {thread.messages.length} messages
-                      </span>
                     </div>
                   </div>
-                  <p className="mt-3 text-sm text-gray-600 line-clamp-2">
-                    {thread.messages[thread.messages.length - 1]?.text}
-                  </p>
                 </button>
               ))}
             </div>
