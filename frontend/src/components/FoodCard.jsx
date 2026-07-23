@@ -8,7 +8,7 @@ const FoodCard = ({ food }) => {
   const { formatPrice, navigate, setFoodDetail, addToCart, backendUrl } =
     useContext(AppContext);
 
-  // ✅ Fetch rating for a single food
+  //  Fetch rating for a single food
   const fetchRating = async (foodId) => {
     try {
       const response = await axios.get(
