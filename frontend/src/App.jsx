@@ -38,6 +38,18 @@ const App = () => {
   const { userLogin, isAdmin, appLoading, dataLoading } =
     useContext(AppContext);
 
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.slice(1);
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth", block: "start" });
+        return;
+      }
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [location.pathname, location.search, location.hash]);
+
   // ✅ Show skeleton loading while auth check or initial data load is in progress
   if (appLoading || dataLoading) {
     return <SkeletonLoader />;
