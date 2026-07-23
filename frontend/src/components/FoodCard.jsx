@@ -107,7 +107,7 @@ const FoodCard = ({ food }) => {
           return (
             <div
               key={index}
-              className="relative flex flex-col overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-[0_12px_30px_-12px_rgba(15,23,42,0.18)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_-12px_rgba(15,23,42,0.25)] cursor-pointer"
+              className="attract-card relative flex flex-col overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-[0_12px_30px_-12px_rgba(15,23,42,0.18)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_-12px_rgba(15,23,42,0.25)] cursor-pointer"
               onClick={() => foodDetail(item)}
             >
               {/* Image */}
