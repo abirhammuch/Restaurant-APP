@@ -30,10 +30,10 @@ const Checkout = () => {
     couponCode,
     couponDiscount,
     couponMessage,
+    couponType,
+    couponRate,
     t,
   } = useContext(AppContext);
-  // include couponRate for discount calculations
-  const { couponRate } = useContext(AppContext);
   const location = useLocation();
   const [method, setMethod] = useState("cash");
   const [name, setName] = useState("");
@@ -140,8 +140,14 @@ const Checkout = () => {
   const subtotal = cart.subtotal || 0;
   const taxAmount = (subtotal * (tax || 8)) / 100;
   const deliveryFee = (cart.subtotal < 50 ? 0 : delivery_fee) || 0;
-  const discountAmount = Number((subtotal * couponRate).toFixed(2));
-  const total = subtotal + taxAmount + deliveryFee - discountAmount;
+  const discountAmount =
+    couponType === "fixed"
+      ? couponDiscount
+      : Number((subtotal * couponRate).toFixed(2));
+  const total = Math.max(
+    0,
+    subtotal + taxAmount + deliveryFee - discountAmount,
+  );
 
   return (
     <div>

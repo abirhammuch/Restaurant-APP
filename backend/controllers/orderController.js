@@ -130,6 +130,9 @@ const createOrder = async (req, res) => {
         discount = Number(((subtotal * promo.discountValue) / 100).toFixed(2));
       }
 
+      const maximumOrderAmount = subtotal + deliveryFee + tax;
+      discount = Number(Math.min(discount, maximumOrderAmount).toFixed(2));
+
       if (
         promo.totalDiscountBudget &&
         promo.totalDiscountUsed + discount > promo.totalDiscountBudget
@@ -143,7 +146,8 @@ const createOrder = async (req, res) => {
       appliedPromo = promo;
     }
 
-    const total = subtotal + deliveryFee + tax - discount;
+    const total = Math.max(0, subtotal + deliveryFee + tax - discount);
+    const paymentStatus = total === 0 ? "paid" : "pending";
 
     //  Create order with your model fields
     const order = new orderModel({
@@ -163,7 +167,7 @@ const createOrder = async (req, res) => {
         phone: deliveryAddress?.phone || user.phone || "",
       },
       paymentMethod: paymentMethod || "cash",
-      paymentStatus: "pending",
+      paymentStatus,
       orderStatus: "pending",
       note: note || "",
       couponCode: couponCode || "",

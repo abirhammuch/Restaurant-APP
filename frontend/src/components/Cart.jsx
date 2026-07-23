@@ -26,6 +26,7 @@ const Cart = () => {
     couponMessage,
     applyCouponCode,
     t,
+    couponType,
     couponRate,
   } = useContext(AppContext);
 
@@ -39,9 +40,14 @@ const Cart = () => {
   const subtotal = cart.subtotal || 0;
   const deliveryUsd = subtotal < 50 ? 0 : 10;
   const serviceTaxUsd = Number(((subtotal * tax) / 100).toFixed(2));
-  const discountUsd = Number((subtotal * couponRate).toFixed(2));
+  const discountUsd =
+    couponType === "fixed"
+      ? couponDiscount
+      : Number((subtotal * couponRate).toFixed(2));
   const totalAmountUsd = Number(
-    (subtotal + deliveryUsd + serviceTaxUsd - discountUsd).toFixed(2),
+    Math.max(0, subtotal + deliveryUsd + serviceTaxUsd - discountUsd).toFixed(
+      2,
+    ),
   );
 
   const handleQuantityUpdate = async (foodId, currentQuantity, change) => {

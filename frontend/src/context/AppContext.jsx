@@ -738,7 +738,7 @@ export const AppContextProvider = (props) => {
         setCouponType(response.data.promo?.discountType || "percentage");
         setCouponRate(
           response.data.promo?.discountType === "percentage"
-            ? response.data.promo?.discountValue || 0
+            ? (response.data.promo?.discountValue || 0) / 100
             : 0,
         );
         setCouponMessage(
