@@ -155,12 +155,10 @@ export const validatePromo = async (req, res) => {
     }
 
     if (promo.maxRedemptions && promo.redemptionCount >= promo.maxRedemptions) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Promo code redemption limit reached",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Promo code redemption limit reached",
+      });
     }
 
     if (promo.maxUsers && promo.usedUsers.length >= promo.maxUsers) {
@@ -169,13 +167,20 @@ export const validatePromo = async (req, res) => {
         .json({ success: false, message: "Promo code user limit reached" });
     }
 
-    if (userId && promo.usedUsers.includes(userId)) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Promo code already used by this user",
-        });
+    if (
+      userId &&
+      promo.usedUsers.some((u) => u.toString() === userId.toString())
+    ) {
+      console.log(
+        "ValidatePromo: promo.usedUsers for ",
+        normalized,
+        ":",
+        promo.usedUsers,
+      );
+      return res.status(400).json({
+        success: false,
+        message: "Promo code already used by this user",
+      });
     }
 
     const discountAmount =
