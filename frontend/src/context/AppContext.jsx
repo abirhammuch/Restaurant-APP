@@ -124,6 +124,13 @@ export const AppContextProvider = (props) => {
       ? category?.type_am || category?.type_en || category?.type
       : category?.type_en || category?.type;
 
+  const getLocalizedIngredients = (food) =>
+    language === "am"
+      ? food?.ingredients_am?.length
+        ? food.ingredients_am
+        : food?.ingredients || []
+      : food?.ingredients || [];
+
   const getLocalizedCategoryLabel = (categoryKey) => {
     if (!categoryKey) return categoryKey;
     const category = allCategory.find(
@@ -843,6 +850,7 @@ export const AppContextProvider = (props) => {
     getLocalizedCategoryLabel,
     getCategoryByKey,
     doesFoodBelongToCategory,
+    getLocalizedIngredients,
     fullCategory,
     setFullCategory,
     foods,

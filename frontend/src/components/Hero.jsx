@@ -25,6 +25,7 @@ const Hero = () => {
             <p className="text-5xl font-bold text-white mb-4">
               Gourmet Dining,<br/> <span className="text-amber-600 ">Delivered </span> to You.
             </p>
+            <p className="text-5xl font-bold text-amber-600">ግሩም ቴስት</p>
             <p className="flex justify-center text-center  items-center max-w-[450px] text-white font-bold ">
               Savor handcrafted dishs from the finest local chsfs. Fresh
               ingredient, bold flavors, and seamless ordering

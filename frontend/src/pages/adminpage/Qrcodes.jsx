@@ -119,7 +119,7 @@ const Qrcodes = () => {
 
       ctx.fillStyle = "#475569";
       ctx.font = "600 26px Inter, sans-serif";
-      ctx.fillText("Powered by Digital Menu", width / 2, qrY + qrSize + 80);
+      ctx.fillText("Powered by Marshal", width / 2, qrY + qrSize + 80);
 
       const link = document.createElement("a");
       link.href = outputCanvas.toDataURL("image/png");

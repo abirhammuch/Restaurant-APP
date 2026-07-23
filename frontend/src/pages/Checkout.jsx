@@ -27,6 +27,7 @@ const Checkout = () => {
     clearCart,
     getUserOrder,
     getLocalizedFoodName,
+    t,
   } = useContext(AppContext);
   const location = useLocation();
   const [method, setMethod] = useState("cash");
@@ -50,29 +51,29 @@ const Checkout = () => {
     event.preventDefault();
 
     if (!method.trim()) {
-      toast.error("Please Select payment method");
+      toast.error(t("selectPaymentMethod"));
       return;
     }
 
     if (!name.trim()) {
-      toast.error("Please enter your full name");
+      toast.error(t("pleaseEnterYourFullName"));
       return;
     }
 
     if (!email.trim()) {
-      toast.error("Please enter your email");
+      toast.error(t("pleaseEnterYourEmail"));
       return;
     }
     if (!phone.trim()) {
-      toast.error("Please enter your phone number");
+      toast.error(t("pleaseEnterYourPhone"));
       return;
     }
     if (!table.trim()) {
-      toast.error("Please enter table number ");
+      toast.error(t("pleaseEnterTableNumber"));
       return;
     }
     if (!cart.items || cart.items.length === 0) {
-      toast.error("Your cart is empty");
+      toast.error(t("cartEmpty"));
       return;
     }
     setLoading(true);
@@ -106,7 +107,7 @@ const Checkout = () => {
       );
       console.log("order response ", response.data);
       if (response.data.success) {
-        toast.success(" Order placed successfully!");
+        toast.success(t("orderPlaced"));
 
         // ✅ Refresh the user orders list immediately
         await getUserOrder();
@@ -143,7 +144,7 @@ const Checkout = () => {
         className="flex gap-3 mt-9 px-5 cursor-pointer "
       >
         <FaArrowLeft />
-        <p>Back to Cart</p>
+        <p>{t("backToCart")}</p>
       </div>
       <div className="">
         <div>
@@ -153,25 +154,23 @@ const Checkout = () => {
             className="lg:grid grid-cols-[2fr_1fr] px-5 mt-5 mx-9 gap-9 "
           >
             <div className="">
-              <p className="text-2xl font-bold">Checkout</p>
-              <p className="text-gray-600">
-                Complete your order details below to enjoy your meal.
-              </p>
+              <p className="text-2xl font-bold">{t("checkoutTitle")}</p>
+              <p className="text-gray-600">{t("completeOrderDetails")}</p>
               <div className=" gap-3 mt-9">
                 <div className="flex gap-3 items-center mb-4">
                   <FaUser />
-                  <p>Customer Information</p>
+                  <p>{t("customerInformation")}</p>
                 </div>
 
                 <div className="md:flex  gap-4">
                   <div className="flex flex-col gap-2 ">
-                    <p className="font-medium">Full Name</p>
+                    <p className="font-medium">{t("fullName")}</p>
                     <div className="relative">
                       <input
                         onChange={(e) => setName(e.target.value)}
                         value={name}
                         type="text"
-                        placeholder="Enter your name"
+                        placeholder={t("enterYourName")}
                         className="border border-gray-300 rounded-md py-2 px-9 focus:outline-none focus:ring-2 focus:ring-amber-600 "
                         required
                       />
@@ -180,13 +179,13 @@ const Checkout = () => {
                   </div>
 
                   <div className="flex flex-col gap-2 ">
-                    <p className="font-medium">Phone Number</p>
+                    <p className="font-medium">{t("phoneNumber")}</p>
                     <div className="relative">
                       <input
                         onChange={(e) => setPhone(e.target.value)}
                         value={phone}
                         type="phone"
-                        placeholder="09 11 22 33 44"
+                        placeholder={t("enterYourPhone")}
                         className="border border-gray-300 rounded-md py-2 px-9 focus:outline-none focus:ring-2 focus:ring-amber-600 "
                         required
                       />
@@ -196,13 +195,13 @@ const Checkout = () => {
                 </div>
 
                 <div className="flex flex-col gap-2  mt-5">
-                  <p className="font-medium">Email Address</p>
+                  <p className="font-medium">{t("emailAddress")}</p>
                   <div className="relative">
                     <input
                       onChange={(e) => setEmail(e.target.value)}
                       value={email}
                       type="email"
-                      placeholder="example@gmaul.com"
+                      placeholder={t("emailAddress")}
                       className="border border-gray-300 rounded-md py-2 px-9 focus:outline-none focus:ring-2 focus:ring-amber-600  "
                       required
                     />
@@ -212,25 +211,23 @@ const Checkout = () => {
 
                 <hr className="mt-5 text-gray-300" />
                 <div className="mt-4">
-                  <p className="font-medium  text-lg">Dining Details</p>
+                  <p className="font-medium  text-lg">{t("diningDetails")}</p>
                   <div className="sm:flex gap-5 items-center justify-between">
                     <div>
-                      <p className="mb-2 mt-2">Table Number</p>
+                      <p className="mb-2 mt-2">{t("tableNumber")}</p>
                       <input
                         onChange={(e) => setTable(e.target.value)}
                         value={table}
                         type="text"
-                        placeholder="# e.g 12"
+                        placeholder={t("tableNumberPlaceholder")}
                         className="px-2 py-1"
                         required
                       />
-                      <p className="text-sm text-gray-700">
-                        Found on the corner of your table or QR stand
-                      </p>
+                      <p className="text-sm text-gray-700">{t("tableHint")}</p>
                     </div>
 
                     <div>
-                      <p className="mb-2 mt-2">Payment Method</p>
+                      <p className="mb-2 mt-2">{t("paymentMethod")}</p>
                       <div className="sm:flex justify-center items-center gap-9">
                         <div
                           onClick={() => setMethod("telebirr")}
@@ -241,7 +238,7 @@ const Checkout = () => {
                           <p
                             className={`${method === "telebirr" ? "text-amber-600" : ""}`}
                           >
-                            Telebirr
+                            {t("telebirr")}
                           </p>
                         </div>
                         <div
@@ -253,7 +250,7 @@ const Checkout = () => {
                           <p
                             className={`${method === "cash" ? "text-amber-600" : ""}`}
                           >
-                            Cash
+                            {t("cash")}
                           </p>
                         </div>
                       </div>
@@ -262,14 +259,16 @@ const Checkout = () => {
                 </div>
 
                 <hr className="mt-5 text-gray-300" />
-                <p className="font-medium  text-lg mt-4">Special Requist</p>
-                <p className="mb-2 mt-2 text-sm">Order Notes (Optional)</p>
+                <p className="font-medium  text-lg mt-4">
+                  {t("specialRequest")}
+                </p>
+                <p className="mb-2 mt-2 text-sm">{t("orderNotesOptional")}</p>
                 <div>
                   <textarea
                     onChange={(e) => setNote(e.target.value)}
                     value={note}
                     type="textarea"
-                    placeholder="e.g. No onions, extra napkins or allergen info"
+                    placeholder={t("orderNotesPlaceholder")}
                     className=" w-full px-3 py-3 "
                   />
                 </div>
@@ -281,13 +280,13 @@ const Checkout = () => {
             <div>
               <div className="shadow-2xl px-9 py-8 rounded-2xl">
                 <div className="flex  items-center justify-between mb-9">
-                  <p className="text-2xl font-bold">Order summery</p>
+                  <p className="text-2xl font-bold">{t("orderSummary")}</p>
                   <p className=" border px-3 py-1 rounded-md border-gray-300 ">
                     <span className="text-orange-600 font-bold">
                       {" "}
                       {cartCount}
                     </span>{" "}
-                    Items
+                    {t("itemsLabel")}
                   </p>
                 </div>
 
@@ -320,23 +319,23 @@ const Checkout = () => {
 
                 <div className="mt-15 ">
                   <div className="flex justify-between mb-2">
-                    <p className="text-md">Subtotal</p>
+                    <p className="text-md">{t("subtotal")}</p>
                     <p>{formatPrice(cart.subtotal || 0)}</p>
                   </div>
 
                   <div className="flex justify-between mb-2">
-                    <p className="text-md">Tax(8%)</p>
+                    <p className="text-md">{t("tax")}</p>
                     <p>{formatPrice(((cart.subtotal || 0) * tax) / 100)}</p>
                   </div>
 
                   <div className="flex justify-between mb-5">
-                    <p className="text-md">Service Fee</p>
+                    <p className="text-md">{t("deliveryFee")}</p>
                     <p>{formatPrice(cart.subtotal < 50 ? 0 : 10)}</p>
                   </div>
                   <hr className="text-gray-400" />
 
                   <div className="flex justify-between mt-4">
-                    <p className="font-bold text-lg">Total</p>
+                    <p className="font-bold text-lg">{t("total")}</p>
                     <p className="font-bold text-lg text-amber-700">
                       {formatPrice(
                         (cart.subtotal || 0) +
@@ -350,12 +349,10 @@ const Checkout = () => {
                     type="submit"
                     className="text-center bg-amber-600 w-full py-3 text-white text-lg rounded-2xl cursor-pointer hover:bg-amber-700 mt-4"
                   >
-                    Place Order
+                    {t("placeOrder")}
                   </button>
                   <p className="text-sm mt-2 text-gray-600">
-                    {" "}
-                    By placing this order, you agree to our Terms of service and
-                    Privecy Policy
+                    {t("orderTerms")}
                   </p>
                 </div>
               </div>
@@ -367,13 +364,10 @@ const Checkout = () => {
                   </div>
                 </div>
                 <div>
-                  <p className="font-bold">Need help with your order?</p>
-                  <p className="text-sm text-gray-600">
-                    Our concierge team is available for any questions about
-                    allergens or ingredients.
-                  </p>
+                  <p className="font-bold">{t("needHelp")}</p>
+                  <p className="text-sm text-gray-600">{t("allergensInfo")}</p>
                   <p className="font-bold text-amber-600 mt-3 cursor-pointer">
-                    Call Service Representative
+                    {t("callServiceRepresentative")}
                   </p>
                 </div>
               </div>

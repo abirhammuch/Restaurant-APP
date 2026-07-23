@@ -24,6 +24,8 @@ const FoodDetail = () => {
     backendUrl,
     getLocalizedFoodName,
     getLocalizedFoodDescription,
+    getLocalizedIngredients,
+    t,
   } = useContext(AppContext);
   const { id, category } = useParams();
 
@@ -255,7 +257,7 @@ const FoodDetail = () => {
       <div className="flex justify-center items-center h-64">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading food details...</p>
+          <p className="mt-4 text-gray-600">{t("loadingFoodDetails")}</p>
         </div>
       </div>
     );
@@ -264,12 +266,12 @@ const FoodDetail = () => {
   if (!currentFood) {
     return (
       <div className="text-center py-20">
-        <p className="text-2xl font-bold text-gray-600">Food not found</p>
+        <p className="text-2xl font-bold text-gray-600">{t("foodNotFound")}</p>
         <button
           onClick={() => navigate("/menu")}
           className="mt-4 bg-amber-500 text-white px-6 py-2 rounded-lg hover:bg-amber-600"
         >
-          Back to Menu
+          {t("backToMenu")}
         </button>
       </div>
     );
@@ -283,7 +285,7 @@ const FoodDetail = () => {
         className="md:px-4 text-sm ml-9 mt-6 cursor-pointer text-amber-500 hover:text-amber-600 flex gap-3 items-center"
       >
         <FaArrowLeft />
-        <p>Back to Menu</p>
+        <p>{t("backToMenu")}</p>
       </div>
 
       <div className="flex flex-col md:flex-row justify-around items-start ml-6 gap-3 mt-9">
@@ -293,7 +295,7 @@ const FoodDetail = () => {
             <img
               src={thumbnel || currentFood.images?.[0] || assets.upload_area}
               alt={getLocalizedFoodName(currentFood)}
-              className="w-full rounded-2xl max-h-[400px] object-cover"
+              className="w-full rounded-2xl max-h-100 object-cover"
               onError={(e) => {
                 e.target.src = assets.upload_area;
               }}
@@ -306,9 +308,9 @@ const FoodDetail = () => {
               className="flex items-center gap-2 cursor-pointer"
               onClick={() => setShowComment((prev) => !prev)}
             >
-              <h3 className="text-lg font-semibold">Reviews</h3>
+              <h3 className="text-lg font-semibold">{t("reviews")}</h3>
               <span className="text-sm text-gray-500">
-                ({ratingStats.totalReviews} reviews)
+                ({ratingStats.totalReviews} {t("reviews")})
               </span>
               <span className="text-sm text-gray-400">
                 {showComment ? "▲" : "▼"}
@@ -329,9 +331,7 @@ const FoodDetail = () => {
                     />
                   ))
                 ) : (
-                  <p className="text-gray-500 text-sm">
-                    No reviews yet. Be the first to review!
-                  </p>
+                  <p className="text-gray-500 text-sm">{t("noReviewsYet")}</p>
                 )}
               </div>
             )}
@@ -349,7 +349,7 @@ const FoodDetail = () => {
               {ratingStats.averageRating?.toFixed(1) || "0"}
             </span>
             <span className="text-sm text-gray-500">
-              ({ratingStats.totalReviews || 0} reviews)
+              ({ratingStats.totalReviews || 0} {t("reviews")})
             </span>
           </div>
 
@@ -359,7 +359,7 @@ const FoodDetail = () => {
               onClick={() => setShowRatingModal(true)}
               className="mt-2 text-sm text-amber-500 hover:text-amber-600 underline"
             >
-              Rate this item
+              {t("rateThisItem")}
             </button>
           )}
           {userRating && (
@@ -376,14 +376,14 @@ const FoodDetail = () => {
           </p>
 
           <div className="mt-4">
-            <p className="text-lg font-semibold">THE EXPERIENCE</p>
+            <p className="text-lg font-semibold">{t("experience")}</p>
             <p className="text-sm pb-5 text-gray-700 mt-2">
               {getLocalizedFoodDescription(currentFood)}
             </p>
 
-            <p className="text-md font-semibold">INGREDIENTS</p>
+            <p className="text-md font-semibold">{t("ingredientsLabel")}</p>
             <div className="flex flex-wrap gap-3 mt-3 mb-5">
-              {currentFood.ingredients?.map((ing, index) => (
+              {getLocalizedIngredients(currentFood)?.map((ing, index) => (
                 <div
                   key={index}
                   className="border px-5 py-2 rounded-2xl border-gray-400 font-bold text-sm bg-amber-100"
@@ -397,7 +397,7 @@ const FoodDetail = () => {
           {/* Quantity and Add to Cart */}
           <div className="border px-5 py-5 bg-gray-100 border-gray-300 rounded-2xl mt-9">
             <div className="flex gap-4 justify-between items-center">
-              <p className="text-md px-3">Select Quantity</p>
+              <p className="text-md px-3">{t("selectQuantity")}</p>
               <div className="flex gap-6 border px-4 py-1 rounded-2xl border-gray-500 items-center bg-white">
                 <button
                   type="button"
@@ -440,10 +440,10 @@ const FoodDetail = () => {
                 onClick={() => handleAddToCart(currentFood._id)}
                 className="bg-amber-500 px-8 py-3 rounded-2xl text-white cursor-pointer hover:bg-amber-600 transition-colors"
               >
-                Add to Order
+                {t("addToOrder")}
               </button>
               <p className="flex justify-center border px-2 py-1 rounded-2xl border-gray-400 items-center cursor-pointer hover:bg-gray-200 transition-colors">
-                Share
+                {t("share")}
               </p>
             </div>
           </div>
@@ -479,15 +479,19 @@ const FoodDetail = () => {
           <div>
             {toglePopular ? (
               <div>
-                <p className="text-2xl mb-3">Popular Right Now</p>
+                <p className="text-2xl mb-3">{t("popularRightNow")}</p>
                 <p className="text-sm text-gray-600">
-                  Customers who ordered this also loved these items.
+                  {t("customersAlsoLoved")}
                 </p>
                 <div
                   onClick={() => setMore((prev) => !prev)}
                   className="mt-3 flex justify-end cursor-pointer"
                 >
-                  {more ? <Less text={"Less"} /> : <More text={"More"} />}
+                  {more ? (
+                    <Less text={t("viewLess")} />
+                  ) : (
+                    <More text={t("viewMore")} />
+                  )}
                 </div>
                 <div className="mt-4">
                   <FoodCard food={popularFood} />
@@ -495,15 +499,19 @@ const FoodDetail = () => {
               </div>
             ) : (
               <div>
-                <p className="text-2xl mb-3">Perfect Match</p>
+                <p className="text-2xl mb-3">{t("perfectMatch")}</p>
                 <p className="text-sm text-gray-600">
-                  Perfect match with your selection.
+                  {t("perfectMatchSubtitle")}
                 </p>
                 <div
                   onClick={() => setMore((prev) => !prev)}
                   className="mt-3 flex justify-end cursor-pointer"
                 >
-                  {more ? <Less text={"Less"} /> : <More text={"More"} />}
+                  {more ? (
+                    <Less text={t("viewLess")} />
+                  ) : (
+                    <More text={t("viewMore")} />
+                  )}
                 </div>
                 <div className="mt-4">
                   <FoodCard food={perfectMatch} />
@@ -519,7 +527,7 @@ const FoodDetail = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-6 w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold">Rate This Item</h3>
+              <h3 className="text-xl font-bold">{t("rateThisItem")}</h3>
               <button
                 onClick={() => setShowRatingModal(false)}
                 className="text-gray-500 hover:text-gray-700 text-2xl"
@@ -550,14 +558,14 @@ const FoodDetail = () => {
             <p className="text-center text-sm text-gray-500 mb-4">
               {ratingValue > 0
                 ? `${ratingValue} star${ratingValue > 1 ? "s" : ""}`
-                : "Tap to rate"}
+                : t("tapToRate")}
             </p>
 
             {/* Comment */}
             <textarea
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
-              placeholder="Share your experience with this dish..."
+              placeholder={t("shareYourExperience")}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 text-sm mb-4"
               rows="3"
             />
@@ -568,14 +576,14 @@ const FoodDetail = () => {
                 onClick={() => setShowRatingModal(false)}
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                Cancel
+                {t("cancel")}
               </button>
               <button
                 onClick={handleRatingSubmit}
                 disabled={submitting || ratingValue === 0}
                 className="flex-1 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50"
               >
-                {submitting ? "Submitting..." : "Submit Rating"}
+                {submitting ? t("submitting") : t("submitRating")}
               </button>
             </div>
           </div>
