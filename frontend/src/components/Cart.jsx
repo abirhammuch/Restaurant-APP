@@ -26,6 +26,7 @@ const Cart = () => {
     couponMessage,
     applyCouponCode,
     t,
+    couponRate,
   } = useContext(AppContext);
 
   const [more, setMore] = useState(false);

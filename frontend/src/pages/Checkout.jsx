@@ -32,6 +32,8 @@ const Checkout = () => {
     couponMessage,
     t,
   } = useContext(AppContext);
+  // include couponRate for discount calculations
+  const { couponRate } = useContext(AppContext);
   const location = useLocation();
   const [method, setMethod] = useState("cash");
   const [name, setName] = useState("");
