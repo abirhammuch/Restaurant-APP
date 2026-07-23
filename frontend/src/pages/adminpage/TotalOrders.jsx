@@ -114,6 +114,57 @@ const Orders = () => {
     }
   };
 
+  const buildExportCsv = (orders) => {
+    const headers = [
+      "Order ID",
+      "Customer Name",
+      "Phone",
+      "Table",
+      "Total",
+      "Order Date",
+      "Order Time",
+      "Order Status",
+      "Payment Status",
+    ];
+
+    const escapeCell = (value) =>
+      `"${String(value ?? "").replace(/"/g, '""')}"`;
+
+    const rows = orders.map((order) => [
+      escapeCell(order._id),
+      escapeCell(order.deliveryAddress?.name || "N/A"),
+      escapeCell(order.deliveryAddress?.phone || "N/A"),
+      escapeCell(order.table || "N/A"),
+      escapeCell(order.total?.toFixed(2) || "0.00"),
+      escapeCell(getFormattedDate(order.createdAt)),
+      escapeCell(getFormattedTime(order.createdAt)),
+      escapeCell(order.orderStatus || "N/A"),
+      escapeCell(order.paymentStatus || "pending"),
+    ]);
+
+    return [headers.join(","), ...rows.map((row) => row.join(","))].join("\n");
+  };
+
+  const handleExportOrders = () => {
+    const exportOrders = filteredOrders?.length ? filteredOrders : [];
+    if (!exportOrders.length) {
+      toast.info("No orders available to export.");
+      return;
+    }
+
+    const csvData = buildExportCsv(exportOrders);
+    const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.setAttribute("download", "orders-export.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   // ✅ Get status color
   const getStatusColor = (status) => {
     const colors = {
@@ -198,10 +249,14 @@ const Orders = () => {
           </p>
         </div>
         <div className="flex gap-3">
-          <div className="flex gap-2 border px-3 py-2 rounded-md border-gray-300 cursor-pointer hover:bg-gray-100 transition-colors">
+          <button
+            type="button"
+            onClick={handleExportOrders}
+            className="flex gap-2 border px-3 py-2 rounded-md border-gray-300 bg-white hover:bg-gray-100 transition-colors"
+          >
             <FaDownload />
             <p>Export</p>
-          </div>
+          </button>
           <div className="flex gap-2 border px-3 py-2 rounded-md border-gray-300 cursor-pointer bg-amber-500 text-white font-bold hover:bg-orange-600 transition-colors">
             <p>+</p>
             <p>New In-shop Order</p>
