@@ -24,7 +24,7 @@ const cardVariants = {
   exit: { opacity: 0, y: -18, transition: { duration: 0.2 } },
 };
 
-const FoodCard = ({ food }) => {
+const FoodCard = ({ food, animateCards = false }) => {
   const [ratings, setRatings] = useState({});
   const {
     formatPrice,
@@ -122,10 +122,10 @@ const FoodCard = ({ food }) => {
   return (
     <motion.div
       className="grid grid-cols-1 gap-5 px-2 py-4 sm:grid-cols-2 sm:px-4 sm:py-6 md:grid-cols-3 lg:grid-cols-4 lg:gap-6"
-      variants={listVariants}
-      initial="hidden"
-      animate="show"
-      exit="exit"
+      variants={animateCards ? listVariants : undefined}
+      initial={animateCards ? "hidden" : undefined}
+      animate={animateCards ? "show" : undefined}
+      exit={animateCards ? "exit" : undefined}
     >
       {food && food.length > 0 ? (
         food.map((item, index) => {

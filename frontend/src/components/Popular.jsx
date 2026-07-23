@@ -1,29 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
-import { motion } from "framer-motion";
 import Title from "./Title";
 import { AppContext } from "../context/AppContext";
 
 import Food from "./FoodCard";
 import More from "./More";
 import Less from "./Less";
-
-const popularVariants = {
-  hidden: { opacity: 0, y: 20 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.45, ease: "easeOut" },
-  },
-};
-
-const headerVariants = {
-  hidden: { opacity: 0, y: 15 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.35, ease: "easeOut" },
-  },
-};
 
 const Popular = () => {
   const { foods, popularFood, setPopularFood } = useContext(AppContext);
@@ -36,16 +17,8 @@ const Popular = () => {
   }, [more, popularFood]);
 
   return (
-    <motion.div
-      className="mt-8 rounded-3xl border border-amber-100 bg-linear-to-br from-amber-50 via-white to-orange-50 px-4 py-6 sm:px-6 lg:px-8"
-      variants={popularVariants}
-      initial="hidden"
-      animate="show"
-    >
-      <motion.div
-        className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
-        variants={headerVariants}
-      >
+    <div className="mt-8 rounded-3xl border border-amber-100 bg-linear-to-br from-amber-50 via-white to-orange-50 px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <Title text="Popular Right Now" />
           <p className="mt-2 text-center text-sm text-gray-600 sm:text-left">
@@ -62,10 +35,10 @@ const Popular = () => {
             {more ? <Less text="Less" /> : <More text="More" />}
           </button>
         </div>
-      </motion.div>
+      </div>
 
-      <Food food={more ? popularFood : slicedPopularFood} />
-    </motion.div>
+      <Food food={more ? popularFood : slicedPopularFood} animateCards={true} />
+    </div>
   );
 };
 
