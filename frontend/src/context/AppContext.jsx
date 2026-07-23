@@ -212,6 +212,9 @@ export const AppContextProvider = (props) => {
     count: 0,
   });
   const [cartCount, setCartCount] = useState(0);
+  const [couponCode, setCouponCode] = useState("");
+  const [couponRate, setCouponRate] = useState(0);
+  const [couponMessage, setCouponMessage] = useState("");
   // ✅ Cart loading state
   const [cartLoading, setCartLoading] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -666,6 +669,7 @@ export const AppContextProvider = (props) => {
       if (response.data.success) {
         setCart({ items: [], subtotal: 0, total: 0, count: 0 });
         setCartCount(0);
+        clearCouponCode();
         toast.success(response.data.message);
         return { success: true };
       } else {
@@ -677,6 +681,37 @@ export const AppContextProvider = (props) => {
       toast.error(error.response?.data?.message || error.message);
       return { success: false };
     }
+  };
+
+  const couponRules = {
+    PROMO10: 0.1,
+    SAVE20: 0.2,
+    WELCOME5: 0.05,
+  };
+
+  const clearCouponCode = () => {
+    setCouponCode("");
+    setCouponRate(0);
+    setCouponMessage("");
+  };
+
+  const applyCouponCode = (code, subtotal) => {
+    const normalizedCode = code?.toString().trim().toUpperCase() || "";
+    if (!normalizedCode) {
+      setCouponMessage("Please enter a promo code.");
+      return { success: false };
+    }
+
+    const rate = couponRules[normalizedCode];
+    if (!rate) {
+      setCouponMessage("Invalid promo code. Try PROMO10, SAVE20, or WELCOME5.");
+      return { success: false };
+    }
+
+    setCouponCode(normalizedCode);
+    setCouponRate(rate);
+    setCouponMessage(`Promo applied: ${Math.round(rate * 100)}% off`);
+    return { success: true };
   };
 
   // ✅ Get Cart Count
@@ -891,6 +926,12 @@ export const AppContextProvider = (props) => {
     removeFromCart,
     cart,
     cartCount,
+    couponCode,
+    setCouponCode,
+    couponRate,
+    couponMessage,
+    applyCouponCode,
+    clearCouponCode,
     appLoading, // ✅ Renamed from loading
     setAppLoading,
     cartLoading, // ✅ New cart loading state

@@ -1,35 +1,34 @@
 // controllers/orderController.js
-import orderModel from '../models/orderModel.js';
-import userModel from '../models/userModel.js';
-import foodModel from '../models/foodModel.js';
+import orderModel from "../models/orderModel.js";
+import userModel from "../models/userModel.js";
+import foodModel from "../models/foodModel.js";
+
+const couponRules = {
+  PROMO10: 0.1,
+  SAVE20: 0.2,
+  WELCOME5: 0.05,
+};
 
 // ✅ Create Order - Matches your model
 const createOrder = async (req, res) => {
   try {
     const userId = req.userId;
-    const {
-      items,
-      deliveryAddress,
-      paymentMethod,
-      note,
-      couponCode,
-      table,
-      
-    } = req.body;
+    const { items, deliveryAddress, paymentMethod, note, couponCode, table } =
+      req.body;
 
-    console.log('=== CREATE ORDER ===');
-    console.log('User ID:', userId);
-    console.log('Items:', items?.length || 0);
-    console.log('Payment Method:', paymentMethod);
-    console.log('Table:', table);
-    console.log('Note:', note);
-    console.log('Delivery Address:', deliveryAddress);
+    console.log("=== CREATE ORDER ===");
+    console.log("User ID:", userId);
+    console.log("Items:", items?.length || 0);
+    console.log("Payment Method:", paymentMethod);
+    console.log("Table:", table);
+    console.log("Note:", note);
+    console.log("Delivery Address:", deliveryAddress);
 
     // Validate items
     if (!items || items.length === 0) {
       return res.status(400).json({
         success: false,
-        message: 'No items in order'
+        message: "No items in order",
       });
     }
 
@@ -38,7 +37,7 @@ const createOrder = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: "User not found",
       });
     }
 
@@ -51,7 +50,7 @@ const createOrder = async (req, res) => {
       if (!food) {
         return res.status(404).json({
           success: false,
-          message: `Food item ${item.foodId} not found`
+          message: `Food item ${item.foodId} not found`,
         });
       }
 
@@ -64,7 +63,7 @@ const createOrder = async (req, res) => {
         price: food.price,
         quantity: item.quantity,
         totalPrice: totalPrice,
-        image: food.images?.[0] || ''
+        image: food.images?.[0] || "",
       });
     }
 
@@ -72,7 +71,20 @@ const createOrder = async (req, res) => {
     const deliveryFee = subtotal > 500 ? 0 : 10;
     const taxRate = 8;
     const tax = (subtotal * taxRate) / 100;
-    const discount = 0;
+    const normalizedCouponCode =
+      couponCode?.toString().trim().toUpperCase() || "";
+    const discountRate = normalizedCouponCode
+      ? couponRules[normalizedCouponCode] || 0
+      : 0;
+
+    if (couponCode && !discountRate) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid coupon code",
+      });
+    }
+
+    const discount = Number((subtotal * discountRate).toFixed(2));
     const total = subtotal + deliveryFee + tax - discount;
 
     //  Create order with your model fields
@@ -85,44 +97,44 @@ const createOrder = async (req, res) => {
       discount,
       total,
       deliveryAddress: {
-        name: deliveryAddress?.name || user.name || '',
-        email: deliveryAddress?.email || user.email || '',
-        branch: deliveryAddress?.branch || 'Restaurant',
-        zipCode: deliveryAddress?.zipCode || '',
-        country: deliveryAddress?.country || 'Ethiopia',
-        phone: deliveryAddress?.phone || user.phone || ''
+        name: deliveryAddress?.name || user.name || "",
+        email: deliveryAddress?.email || user.email || "",
+        branch: deliveryAddress?.branch || "Restaurant",
+        zipCode: deliveryAddress?.zipCode || "",
+        country: deliveryAddress?.country || "Ethiopia",
+        phone: deliveryAddress?.phone || user.phone || "",
       },
-      paymentMethod: paymentMethod || 'cash',
-      paymentStatus: 'pending',
-      orderStatus: 'pending',
-      note: note || '',
-      couponCode: couponCode || '',
-      table: table || deliveryAddress?.table || '',
-      estimatedDeliveryTime: new Date(Date.now() + 30 * 60000) // 30 minutes from now
+      paymentMethod: paymentMethod || "cash",
+      paymentStatus: "pending",
+      orderStatus: "pending",
+      note: note || "",
+      couponCode: couponCode || "",
+      table: table || deliveryAddress?.table || "",
+      estimatedDeliveryTime: new Date(Date.now() + 30 * 60000), // 30 minutes from now
     });
 
     await order.save();
 
     // ✅ Clear user's cart after order
     user.cartData = {};
-    user.markModified('cartData');
+    user.markModified("cartData");
     await user.save();
 
     // ✅ Populate user info for response
-    const populatedOrder = await orderModel.findById(order._id)
-      .populate('userId', 'name email phone');
+    const populatedOrder = await orderModel
+      .findById(order._id)
+      .populate("userId", "name email phone");
 
     res.json({
       success: true,
-      message: 'Order placed successfully',
-      order: populatedOrder
+      message: "Order placed successfully",
+      order: populatedOrder,
     });
-
   } catch (error) {
-    console.error('Create order error:', error);
+    console.error("Create order error:", error);
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -131,21 +143,21 @@ const createOrder = async (req, res) => {
 const getUserOrders = async (req, res) => {
   try {
     const userId = req.userId;
-    
-    const orders = await orderModel.find({ userId })
+
+    const orders = await orderModel
+      .find({ userId })
       .sort({ createdAt: -1 })
       .limit(50);
 
     res.json({
       success: true,
-      orders
+      orders,
     });
-
   } catch (error) {
-    console.error('Get user orders error:', error);
+    console.error("Get user orders error:", error);
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -156,26 +168,26 @@ const getOrderDetails = async (req, res) => {
     const userId = req.userId;
     const { orderId } = req.params;
 
-    const order = await orderModel.findOne({ _id: orderId, userId })
-      .populate('userId', 'name email phone');
+    const order = await orderModel
+      .findOne({ _id: orderId, userId })
+      .populate("userId", "name email phone");
 
     if (!order) {
       return res.status(404).json({
         success: false,
-        message: 'Order not found'
+        message: "Order not found",
       });
     }
 
     res.json({
       success: true,
-      order
+      order,
     });
-
   } catch (error) {
-    console.error('Get order details error:', error);
+    console.error("Get order details error:", error);
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -190,32 +202,31 @@ const cancelOrder = async (req, res) => {
     if (!order) {
       return res.status(404).json({
         success: false,
-        message: 'Order not found'
+        message: "Order not found",
       });
     }
 
-    const cancellableStatuses = ['pending', 'confirmed'];
+    const cancellableStatuses = ["pending", "confirmed"];
     if (!cancellableStatuses.includes(order.orderStatus)) {
       return res.status(400).json({
         success: false,
-        message: `Order cannot be cancelled. Current status: ${order.orderStatus}`
+        message: `Order cannot be cancelled. Current status: ${order.orderStatus}`,
       });
     }
 
-    order.orderStatus = 'cancelled';
+    order.orderStatus = "cancelled";
     await order.save();
 
     res.json({
       success: true,
-      message: 'Order cancelled successfully',
-      order
+      message: "Order cancelled successfully",
+      order,
     });
-
   } catch (error) {
-    console.error('Cancel order error:', error);
+    console.error("Cancel order error:", error);
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -229,15 +240,23 @@ const updateOrderStatus = async (req, res) => {
     if (!status) {
       return res.status(400).json({
         success: false,
-        message: 'Status is required'
+        message: "Status is required",
       });
     }
 
-    const validStatuses = ['pending', 'confirmed', 'preparing', 'ready', 'delivering', 'delivered', 'cancelled'];
+    const validStatuses = [
+      "pending",
+      "confirmed",
+      "preparing",
+      "ready",
+      "delivering",
+      "delivered",
+      "cancelled",
+    ];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid status. Valid statuses: ' + validStatuses.join(', ')
+        message: "Invalid status. Valid statuses: " + validStatuses.join(", "),
       });
     }
 
@@ -245,7 +264,7 @@ const updateOrderStatus = async (req, res) => {
     if (!order) {
       return res.status(404).json({
         success: false,
-        message: 'Order not found'
+        message: "Order not found",
       });
     }
 
@@ -254,15 +273,14 @@ const updateOrderStatus = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Order status updated successfully',
-      order
+      message: "Order status updated successfully",
+      order,
     });
-
   } catch (error) {
-    console.error('Update order status error:', error);
+    console.error("Update order status error:", error);
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -271,21 +289,22 @@ const updateOrderStatus = async (req, res) => {
 const getAllOrders = async (req, res) => {
   try {
     const { status, page = 1, limit = 20, search } = req.query;
-    
+
     const query = {};
     if (status) query.orderStatus = status;
     if (search) {
       query.$or = [
-        { 'items.name': { $regex: search, $options: 'i' } },
-        { 'deliveryAddress.name': { $regex: search, $options: 'i' } },
-        { 'deliveryAddress.phone': { $regex: search, $options: 'i' } },
-        { 'table': { $regex: search, $options: 'i' } }
+        { "items.name": { $regex: search, $options: "i" } },
+        { "deliveryAddress.name": { $regex: search, $options: "i" } },
+        { "deliveryAddress.phone": { $regex: search, $options: "i" } },
+        { table: { $regex: search, $options: "i" } },
       ];
     }
-    
+
     const total = await orderModel.countDocuments(query);
-    const orders = await orderModel.find(query)
-      .populate('userId', 'name email phone')
+    const orders = await orderModel
+      .find(query)
+      .populate("userId", "name email phone")
       .sort({ createdAt: -1 })
       .skip((parseInt(page) - 1) * parseInt(limit))
       .limit(parseInt(limit));
@@ -297,15 +316,14 @@ const getAllOrders = async (req, res) => {
         total,
         page: parseInt(page),
         limit: parseInt(limit),
-        totalPages: Math.ceil(total / parseInt(limit))
-      }
+        totalPages: Math.ceil(total / parseInt(limit)),
+      },
     });
-
   } catch (error) {
-    console.error('Get all orders error:', error);
+    console.error("Get all orders error:", error);
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -316,23 +334,23 @@ const getOrderStats = async (req, res) => {
     const statusStats = await orderModel.aggregate([
       {
         $group: {
-          _id: '$orderStatus',
+          _id: "$orderStatus",
           count: { $sum: 1 },
-          totalRevenue: { $sum: '$total' }
-        }
-      }
+          totalRevenue: { $sum: "$total" },
+        },
+      },
     ]);
 
     const totalRevenue = await orderModel.aggregate([
       {
-        $match: { orderStatus: { $ne: 'cancelled' } }
+        $match: { orderStatus: { $ne: "cancelled" } },
       },
       {
         $group: {
           _id: null,
-          total: { $sum: '$total' }
-        }
-      }
+          total: { $sum: "$total" },
+        },
+      },
     ]);
 
     const today = new Date();
@@ -343,25 +361,25 @@ const getOrderStats = async (req, res) => {
     const ordersToday = await orderModel.countDocuments({
       createdAt: {
         $gte: today,
-        $lt: tomorrow
-      }
+        $lt: tomorrow,
+      },
     });
 
     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
     const ordersThisMonth = await orderModel.countDocuments({
-      createdAt: { $gte: startOfMonth }
+      createdAt: { $gte: startOfMonth },
     });
 
     const avgOrderValue = await orderModel.aggregate([
       {
-        $match: { orderStatus: { $ne: 'cancelled' } }
+        $match: { orderStatus: { $ne: "cancelled" } },
       },
       {
         $group: {
           _id: null,
-          average: { $avg: '$total' }
-        }
-      }
+          average: { $avg: "$total" },
+        },
+      },
     ]);
 
     res.json({
@@ -372,15 +390,14 @@ const getOrderStats = async (req, res) => {
         ordersToday,
         ordersThisMonth,
         averageOrderValue: avgOrderValue[0]?.average || 0,
-        totalOrders: await orderModel.countDocuments()
-      }
+        totalOrders: await orderModel.countDocuments(),
+      },
     });
-
   } catch (error) {
-    console.error('Get order stats error:', error);
+    console.error("Get order stats error:", error);
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -394,15 +411,15 @@ const deleteOrder = async (req, res) => {
     if (!order) {
       return res.status(404).json({
         success: false,
-        message: 'Order not found'
+        message: "Order not found",
       });
     }
 
-    const deletableStatuses = ['cancelled', 'delivered'];
+    const deletableStatuses = ["cancelled", "delivered"];
     if (!deletableStatuses.includes(order.orderStatus)) {
       return res.status(400).json({
         success: false,
-        message: `Cannot delete order with status: ${order.orderStatus}. Only cancelled or delivered orders can be deleted.`
+        message: `Cannot delete order with status: ${order.orderStatus}. Only cancelled or delivered orders can be deleted.`,
       });
     }
 
@@ -410,14 +427,13 @@ const deleteOrder = async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Order deleted successfully'
+      message: "Order deleted successfully",
     });
-
   } catch (error) {
-    console.error('Delete order error:', error);
+    console.error("Delete order error:", error);
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -425,24 +441,24 @@ const deleteOrder = async (req, res) => {
 // ✅ Admin: Get Order Analytics
 const getOrderAnalytics = async (req, res) => {
   try {
-    const { type = 'daily', days = 30 } = req.query;
+    const { type = "daily", days = 30 } = req.query;
 
     let groupFormat;
-    if (type === 'daily') {
+    if (type === "daily") {
       groupFormat = {
-        year: { $year: '$createdAt' },
-        month: { $month: '$createdAt' },
-        day: { $dayOfMonth: '$createdAt' }
+        year: { $year: "$createdAt" },
+        month: { $month: "$createdAt" },
+        day: { $dayOfMonth: "$createdAt" },
       };
-    } else if (type === 'monthly') {
+    } else if (type === "monthly") {
       groupFormat = {
-        year: { $year: '$createdAt' },
-        month: { $month: '$createdAt' }
+        year: { $year: "$createdAt" },
+        month: { $month: "$createdAt" },
       };
     } else {
       return res.status(400).json({
         success: false,
-        message: 'Invalid type. Use "daily" or "monthly"'
+        message: 'Invalid type. Use "daily" or "monthly"',
       });
     }
 
@@ -453,33 +469,32 @@ const getOrderAnalytics = async (req, res) => {
       {
         $match: {
           createdAt: { $gte: startDate },
-          orderStatus: { $ne: 'cancelled' }
-        }
+          orderStatus: { $ne: "cancelled" },
+        },
       },
       {
         $group: {
           _id: groupFormat,
           orders: { $sum: 1 },
-          revenue: { $sum: '$total' }
-        }
+          revenue: { $sum: "$total" },
+        },
       },
       {
-        $sort: { '_id.year': 1, '_id.month': 1, '_id.day': 1 }
-      }
+        $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 },
+      },
     ]);
 
     res.json({
       success: true,
       analytics,
       type,
-      days: parseInt(days)
+      days: parseInt(days),
     });
-
   } catch (error) {
-    console.error('Get order analytics error:', error);
+    console.error("Get order analytics error:", error);
     res.status(500).json({
       success: false,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -493,5 +508,5 @@ export {
   getAllOrders,
   getOrderStats,
   deleteOrder,
-  getOrderAnalytics
+  getOrderAnalytics,
 };

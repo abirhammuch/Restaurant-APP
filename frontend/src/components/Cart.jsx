@@ -20,6 +20,11 @@ const Cart = () => {
     removeFromCart,
     updateCartItem,
     getLocalizedFoodName,
+    couponCode,
+    setCouponCode,
+    couponRate,
+    couponMessage,
+    applyCouponCode,
     t,
   } = useContext(AppContext);
 
@@ -33,8 +38,9 @@ const Cart = () => {
   const subtotal = cart.subtotal || 0;
   const deliveryUsd = subtotal < 50 ? 0 : 10;
   const serviceTaxUsd = Number(((subtotal * tax) / 100).toFixed(2));
+  const discountUsd = Number((subtotal * couponRate).toFixed(2));
   const totalAmountUsd = Number(
-    (subtotal + deliveryUsd + serviceTaxUsd).toFixed(2),
+    (subtotal + deliveryUsd + serviceTaxUsd - discountUsd).toFixed(2),
   );
 
   const handleQuantityUpdate = async (foodId, currentQuantity, change) => {
@@ -186,13 +192,22 @@ const Cart = () => {
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                   <input
                     type="text"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value)}
                     placeholder="Promo Code"
                     className="w-full rounded-xl border border-orange-200 bg-white px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400 sm:w-48"
                   />
-                  <button className="rounded-xl bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-700">
+                  <button
+                    onClick={() => applyCouponCode(couponCode, subtotal)}
+                    className="rounded-xl bg-amber-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-amber-700"
+                    type="button"
+                  >
                     Apply
                   </button>
                 </div>
+                {couponMessage && (
+                  <p className="mt-2 text-sm text-amber-700">{couponMessage}</p>
+                )}
               </div>
             </div>
           </div>
@@ -220,6 +235,14 @@ const Cart = () => {
                   {formatPrice(serviceTaxUsd)}
                 </p>
               </div>
+              {discountUsd > 0 && (
+                <div className="flex items-center justify-between text-sm text-gray-600">
+                  <p>Discount</p>
+                  <p className="font-semibold text-red-600">
+                    -{formatPrice(discountUsd)}
+                  </p>
+                </div>
+              )}
             </div>
 
             <hr className="my-5 border-gray-200" />

@@ -27,6 +27,9 @@ const Checkout = () => {
     clearCart,
     getUserOrder,
     getLocalizedFoodName,
+    couponCode,
+    couponRate,
+    couponMessage,
     t,
   } = useContext(AppContext);
   const location = useLocation();
@@ -93,7 +96,7 @@ const Checkout = () => {
         },
         paymentMethod: method,
         note: note || "",
-        couponCode: "",
+        couponCode: couponCode || "",
       };
 
       const response = await axios.post(
@@ -135,7 +138,8 @@ const Checkout = () => {
   const subtotal = cart.subtotal || 0;
   const taxAmount = (subtotal * (tax || 8)) / 100;
   const deliveryFee = (cart.subtotal < 50 ? 0 : delivery_fee) || 0;
-  const total = subtotal + taxAmount + deliveryFee;
+  const discountAmount = Number((subtotal * couponRate).toFixed(2));
+  const total = subtotal + taxAmount + deliveryFee - discountAmount;
 
   return (
     <div>
@@ -320,30 +324,37 @@ const Checkout = () => {
                 <div className="mt-15 ">
                   <div className="flex justify-between mb-2">
                     <p className="text-md">{t("subtotal")}</p>
-                    <p>{formatPrice(cart.subtotal || 0)}</p>
+                    <p>{formatPrice(subtotal)}</p>
                   </div>
 
                   <div className="flex justify-between mb-2">
                     <p className="text-md">{t("tax")}</p>
-                    <p>{formatPrice(((cart.subtotal || 0) * tax) / 100)}</p>
+                    <p>{formatPrice(taxAmount)}</p>
                   </div>
 
                   <div className="flex justify-between mb-5">
                     <p className="text-md">{t("deliveryFee")}</p>
-                    <p>{formatPrice(cart.subtotal < 50 ? 0 : 10)}</p>
+                    <p>{formatPrice(deliveryFee)}</p>
                   </div>
+                  {discountAmount > 0 && (
+                    <div className="flex justify-between mb-2 text-red-600">
+                      <p className="text-md">Discount</p>
+                      <p>-{formatPrice(discountAmount)}</p>
+                    </div>
+                  )}
                   <hr className="text-gray-400" />
 
                   <div className="flex justify-between mt-4">
                     <p className="font-bold text-lg">{t("total")}</p>
                     <p className="font-bold text-lg text-amber-700">
-                      {formatPrice(
-                        (cart.subtotal || 0) +
-                          (cart.subtotal < 50 ? 0 : 10) +
-                          ((cart.subtotal || 0) * tax) / 100,
-                      )}
+                      {formatPrice(total)}
                     </p>
                   </div>
+                  {couponMessage && (
+                    <p className="mt-2 text-sm text-amber-700">
+                      {couponMessage}
+                    </p>
+                  )}
 
                   <button
                     type="submit"
