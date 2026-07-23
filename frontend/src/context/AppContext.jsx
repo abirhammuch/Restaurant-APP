@@ -214,6 +214,8 @@ export const AppContextProvider = (props) => {
   const [cartCount, setCartCount] = useState(0);
   const [couponCode, setCouponCode] = useState("");
   const [couponRate, setCouponRate] = useState(0);
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [couponType, setCouponType] = useState("percentage");
   const [couponMessage, setCouponMessage] = useState("");
   // ✅ Cart loading state
   const [cartLoading, setCartLoading] = useState(false);
@@ -692,26 +694,66 @@ export const AppContextProvider = (props) => {
   const clearCouponCode = () => {
     setCouponCode("");
     setCouponRate(0);
+    setCouponDiscount(0);
+    setCouponType("percentage");
     setCouponMessage("");
   };
 
-  const applyCouponCode = (code, subtotal) => {
+  const applyCouponCode = async (code, subtotal) => {
     const normalizedCode = code?.toString().trim().toUpperCase() || "";
     if (!normalizedCode) {
       setCouponMessage("Please enter a promo code.");
       return { success: false };
     }
 
-    const rate = couponRules[normalizedCode];
-    if (!rate) {
-      setCouponMessage("Invalid promo code. Try PROMO10, SAVE20, or WELCOME5.");
+    const token = getToken();
+    if (!token) {
+      setCouponMessage("Please login to apply a promo code.");
       return { success: false };
     }
 
-    setCouponCode(normalizedCode);
-    setCouponRate(rate);
-    setCouponMessage(`Promo applied: ${Math.round(rate * 100)}% off`);
-    return { success: true };
+    try {
+      const response = await axios.post(
+        backendUrl + "/api/promo/validate",
+        {
+          couponCode: normalizedCode,
+          userId: currentUser?._id,
+          subtotal,
+        },
+        {
+          headers: {
+            usertoken: token,
+          },
+        },
+      );
+
+      if (response.data.success) {
+        setCouponCode(normalizedCode);
+        setCouponDiscount(response.data.discount || 0);
+        setCouponType(response.data.promo?.discountType || "percentage");
+        setCouponRate(
+          response.data.promo?.discountType === "percentage"
+            ? response.data.promo?.discountValue || 0
+            : 0,
+        );
+        setCouponMessage(
+          response.data.discount > 0
+            ? `Promo applied: ${response.data.promo?.discountType === "fixed" ? formatPrice(response.data.discount) : `${Math.round(response.data.promo?.discountValue || 0)}% off`}`
+            : "Promo applied successfully",
+        );
+        return { success: true };
+      }
+
+      setCouponMessage(response.data.message || "Invalid promo code.");
+      return { success: false };
+    } catch (error) {
+      console.log(error);
+      setCouponMessage(
+        error.response?.data?.message ||
+          "Invalid promo code. Please check and try again.",
+      );
+      return { success: false };
+    }
   };
 
   // ✅ Get Cart Count
@@ -929,6 +971,8 @@ export const AppContextProvider = (props) => {
     couponCode,
     setCouponCode,
     couponRate,
+    couponDiscount,
+    couponType,
     couponMessage,
     applyCouponCode,
     clearCouponCode,

@@ -22,7 +22,7 @@ const Cart = () => {
     getLocalizedFoodName,
     couponCode,
     setCouponCode,
-    couponRate,
+    couponDiscount,
     couponMessage,
     applyCouponCode,
     t,

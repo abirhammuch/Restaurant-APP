@@ -2,12 +2,7 @@
 import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
 import foodModel from "../models/foodModel.js";
-
-const couponRules = {
-  PROMO10: 0.1,
-  SAVE20: 0.2,
-  WELCOME5: 0.05,
-};
+import promoModel from "../models/promoModel.js";
 
 // ✅ Create Order - Matches your model
 const createOrder = async (req, res) => {
@@ -71,20 +66,83 @@ const createOrder = async (req, res) => {
     const deliveryFee = subtotal > 500 ? 0 : 10;
     const taxRate = 8;
     const tax = (subtotal * taxRate) / 100;
+
+    let discount = 0;
+    let appliedPromo = null;
     const normalizedCouponCode =
       couponCode?.toString().trim().toUpperCase() || "";
-    const discountRate = normalizedCouponCode
-      ? couponRules[normalizedCouponCode] || 0
-      : 0;
 
-    if (couponCode && !discountRate) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid coupon code",
+    if (normalizedCouponCode) {
+      const promo = await promoModel.findOne({
+        code: normalizedCouponCode,
+        active: true,
       });
+
+      if (!promo) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid promo code",
+        });
+      }
+
+      if (promo.expiresAt && promo.expiresAt < new Date()) {
+        return res.status(400).json({
+          success: false,
+          message: "Promo code has expired",
+        });
+      }
+
+      if (
+        promo.maxRedemptions &&
+        promo.redemptionCount >= promo.maxRedemptions
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "Promo code redemption limit reached",
+        });
+      }
+
+      const userAlreadyUsed = promo.usedUsers.some(
+        (user) => user.toString() === userId.toString(),
+      );
+
+      if (promo.maxUsers && userAlreadyUsed) {
+        return res.status(400).json({
+          success: false,
+          message: "Promo code has already been used by this user",
+        });
+      }
+
+      if (
+        promo.maxUsers &&
+        promo.usedUsers.length >= promo.maxUsers &&
+        !userAlreadyUsed
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "Promo code user limit reached",
+        });
+      }
+
+      if (promo.discountType === "fixed") {
+        discount = Number(promo.discountValue.toFixed(2));
+      } else {
+        discount = Number(((subtotal * promo.discountValue) / 100).toFixed(2));
+      }
+
+      if (
+        promo.totalDiscountBudget &&
+        promo.totalDiscountUsed + discount > promo.totalDiscountBudget
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "Promo discount budget exceeded",
+        });
+      }
+
+      appliedPromo = promo;
     }
 
-    const discount = Number((subtotal * discountRate).toFixed(2));
     const total = subtotal + deliveryFee + tax - discount;
 
     //  Create order with your model fields
@@ -114,6 +172,19 @@ const createOrder = async (req, res) => {
     });
 
     await order.save();
+
+    if (appliedPromo) {
+      appliedPromo.redemptionCount += 1;
+      appliedPromo.totalDiscountUsed += discount;
+      if (
+        !appliedPromo.usedUsers.some(
+          (user) => user.toString() === userId.toString(),
+        )
+      ) {
+        appliedPromo.usedUsers.push(userId);
+      }
+      await appliedPromo.save();
+    }
 
     // ✅ Clear user's cart after order
     user.cartData = {};

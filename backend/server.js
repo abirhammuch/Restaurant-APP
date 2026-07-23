@@ -9,6 +9,7 @@ import connectCloudinary from "./config/cloudinary.js";
 import categoryRouter from "./routes/categoryRoute.js";
 import cartRouter from "./routes/cartRoute.js";
 import orderRouter from "./routes/orderRoute.js";
+import promoRouter from "./routes/promoRoute.js";
 import ratingRouter from "./routes/ratingRouter.js";
 import chatRouter from "./routes/chatRoute.js";
 
@@ -67,6 +68,7 @@ app.use("/api/food", foodRouter);
 app.use("/api/category", categoryRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
+app.use("/api/promo", promoRouter);
 app.use("/api/rating", ratingRouter);
 app.use("/api/chat", chatRouter);
 

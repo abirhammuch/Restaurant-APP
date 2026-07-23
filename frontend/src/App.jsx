@@ -28,6 +28,7 @@ import Qrcodes from "./pages/adminpage/Qrcodes";
 import Settings from "./pages/adminpage/Settings";
 import Dashboard from "./pages/adminpage/Dashboard";
 import Category from "./pages/adminpage/Category";
+import PromoManagement from "./pages/adminpage/PromoManagement";
 import Order from "./pages/Order";
 import AdminRatings from "./pages/adminpage/AdminRatings";
 import AdminChat from "./pages/adminpage/AdminChat";
@@ -92,6 +93,7 @@ const App = () => {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="products" element={<Products />} />
             <Route path="categories" element={<Category />} />
+            <Route path="promotions" element={<PromoManagement />} />
             <Route path="totalorders" element={<Orders />} />
             <Route path="qrcodes" element={<Qrcodes />} />
             <Route path="settings" element={<Settings />} />

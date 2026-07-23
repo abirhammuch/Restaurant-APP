@@ -9,6 +9,7 @@ import {
   MdAddShoppingCart,
   MdSettings,
   MdQrCode,
+  MdLocalOffer,
 } from "react-icons/md";
 import { AppContext } from "../../context/AppContext";
 
@@ -158,6 +159,18 @@ const AdminLayout = () => {
                   {menuOpen && (
                     <p className="text-lg">{tAdmin("myOrders") || "Orders"}</p>
                   )}
+                </NavLink>
+              </div>
+
+              {/* Promo Management */}
+              <div className="admin cursor-pointer">
+                <NavLink
+                  to="/admin/promotions"
+                  onClick={handleNavClick}
+                  className={getNavClass}
+                >
+                  <FaStar className="text-lg" />
+                  {menuOpen && <p className="text-lg">Promo Codes</p>}
                 </NavLink>
               </div>
 

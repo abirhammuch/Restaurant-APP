@@ -28,7 +28,7 @@ const Checkout = () => {
     getUserOrder,
     getLocalizedFoodName,
     couponCode,
-    couponRate,
+    couponDiscount,
     couponMessage,
     t,
   } = useContext(AppContext);
