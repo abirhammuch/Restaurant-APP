@@ -718,7 +718,7 @@ export const AppContextProvider = (props) => {
         {
           couponCode: normalizedCode,
           userId: currentUser?._id,
-          subtotal,
+          subtotal: Number(subtotal) || 0,
         },
         {
           headers: {
@@ -726,6 +726,11 @@ export const AppContextProvider = (props) => {
           },
         },
       );
+
+      // helpful debug logging when server returns unexpected status
+      if (!response.data || !response.data.success) {
+        console.error("Validate promo response:", response.data);
+      }
 
       if (response.data.success) {
         setCouponCode(normalizedCode);
@@ -744,10 +749,15 @@ export const AppContextProvider = (props) => {
         return { success: true };
       }
 
+      // surface server-provided message when validation failed
       setCouponMessage(response.data.message || "Invalid promo code.");
       return { success: false };
     } catch (error) {
       console.log(error);
+      console.error(
+        "Validate promo error response:",
+        error.response?.data || error,
+      );
       setCouponMessage(
         error.response?.data?.message ||
           "Invalid promo code. Please check and try again.",
