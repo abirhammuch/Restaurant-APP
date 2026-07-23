@@ -1,7 +1,28 @@
 import React, { useContext, useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { AppContext } from "../context/AppContext";
 import { assets } from "../assets/assets/assets";
 import axios from "axios";
+
+const listVariants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.06, delayChildren: 0.08 },
+  },
+  exit: { opacity: 0, transition: { duration: 0.25 } },
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 20, scale: 0.98 },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.35, ease: "easeOut" },
+  },
+  exit: { opacity: 0, y: -18, transition: { duration: 0.2 } },
+};
 
 const FoodCard = ({ food }) => {
   const [ratings, setRatings] = useState({});
@@ -99,15 +120,23 @@ const FoodCard = ({ food }) => {
   };
 
   return (
-    <div className="grid grid-cols-1 gap-5 px-2 py-4 sm:grid-cols-2 sm:px-4 sm:py-6 md:grid-cols-3 lg:grid-cols-4 lg:gap-6">
+    <motion.div
+      className="grid grid-cols-1 gap-5 px-2 py-4 sm:grid-cols-2 sm:px-4 sm:py-6 md:grid-cols-3 lg:grid-cols-4 lg:gap-6"
+      variants={listVariants}
+      initial="hidden"
+      animate="show"
+      exit="exit"
+    >
       {food && food.length > 0 ? (
         food.map((item, index) => {
           const avgRating = ratings[item._id] || item.averageRating || 0;
 
           return (
-            <div
-              key={index}
-              className="attract-card relative flex flex-col overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-[0_12px_30px_-12px_rgba(15,23,42,0.18)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_16px_40px_-12px_rgba(15,23,42,0.25)] cursor-pointer"
+            <motion.div
+              key={item._id || index}
+              variants={cardVariants}
+              whileHover={{ y: -4, scale: 1.01 }}
+              className="attract-card relative flex flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-[0_12px_30px_-12px_rgba(15,23,42,0.18)] transition-all duration-300 hover:shadow-[0_16px_40px_-12px_rgba(15,23,42,0.25)] cursor-pointer"
               onClick={() => foodDetail(item)}
             >
               {/* Image */}
@@ -168,7 +197,7 @@ const FoodCard = ({ food }) => {
                   </button>
                 </div>
               </div>
-            </div>
+            </motion.div>
           );
         })
       ) : (
@@ -176,7 +205,7 @@ const FoodCard = ({ food }) => {
           No food items available
         </div>
       )}
-    </div>
+    </motion.div>
   );
 };
 

@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import Navbar from "./components/Navbar";
 import SkeletonLoader from "./components/SkeletonLoader";
 import { Route, Routes, useLocation, Navigate } from "react-router-dom";
+import { AnimatePresence } from "framer-motion";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import MenuPage from "./pages/MenuPage";
@@ -49,42 +50,44 @@ const App = () => {
       {/* Show Navbar only on non-admin routes */}
       {!isAdminPath && <Navbar />}
 
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Home />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/cart" element={<CartPage />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/orders" element={<Order />} />
-        <Route path="/orders/:orderId" element={<OrderDetail />} />
-        <Route path="/menu" element={<MenuPage />} />
-        <Route path="/menu/:category" element={<CategoryPage />} />
-        <Route path="/menu/search" element={<SearchFood />} />
-        <Route path="/menu/:category/:id" element={<FoodDetail />} />
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          {/* Public Routes */}
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/orders" element={<Order />} />
+          <Route path="/orders/:orderId" element={<OrderDetail />} />
+          <Route path="/menu" element={<MenuPage />} />
+          <Route path="/menu/:category" element={<CategoryPage />} />
+          <Route path="/menu/search" element={<SearchFood />} />
+          <Route path="/menu/:category/:id" element={<FoodDetail />} />
 
-        {/* Admin Login - Separate Route */}
-        <Route path="/admin/login" element={<AdminLogin />} />
+          {/* Admin Login - Separate Route */}
+          <Route path="/admin/login" element={<AdminLogin />} />
 
-        {/* ✅ Admin Routes - Protected with Navigate */}
-        <Route
-          path="/admin"
-          element={
-            isAdmin ? <AdminLayout /> : <Navigate to="/admin/login" replace />
-          }
-        >
-          <Route index element={<Dashboard />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="products" element={<Products />} />
-          <Route path="categories" element={<Category />} />
-          <Route path="totalorders" element={<Orders />} />
-          <Route path="qrcodes" element={<Qrcodes />} />
-          <Route path="settings" element={<Settings />} />
-          <Route path="ratings" element={<AdminRatings />} />
-          <Route path="chat" element={<AdminChat />} />
-        </Route>
-      </Routes>
+          {/* ✅ Admin Routes - Protected with Navigate */}
+          <Route
+            path="/admin"
+            element={
+              isAdmin ? <AdminLayout /> : <Navigate to="/admin/login" replace />
+            }
+          >
+            <Route index element={<Dashboard />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="products" element={<Products />} />
+            <Route path="categories" element={<Category />} />
+            <Route path="totalorders" element={<Orders />} />
+            <Route path="qrcodes" element={<Qrcodes />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="ratings" element={<AdminRatings />} />
+            <Route path="chat" element={<AdminChat />} />
+          </Route>
+        </Routes>
+      </AnimatePresence>
 
       {/* Show Footer only on non-admin routes */}
       {!isAdminPath && (
