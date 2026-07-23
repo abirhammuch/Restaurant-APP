@@ -10,13 +10,9 @@ const SearchFood = () => {
     searchedQuery,
     searchedFood,
     setSearchedQuery,
-    language,
+    getLocalizedFoodName,
+    t,
   } = useContext(AppContext);
-
-  const getLocalizedFoodName = (food) =>
-    language === "am"
-      ? food.name_am || food.name_en || food.name
-      : food.name_en || food.name;
 
   useEffect(() => {
     if (searchedQuery?.trim().length > 0) {
@@ -29,7 +25,7 @@ const SearchFood = () => {
     } else {
       setSearchedFood(foods);
     }
-  }, [foods, searchedQuery, setSearchedFood, language]);
+  }, [foods, searchedQuery, setSearchedFood, getLocalizedFoodName]);
 
   return (
     <div className="px-4 py-6 sm:px-6 lg:px-20">
@@ -40,7 +36,7 @@ const SearchFood = () => {
             onChange={(e) => setSearchedQuery(e.target.value)}
             type="text"
             className="w-full rounded-lg border border-gray-300 py-3 pl-10 pr-4 outline-none focus:border-amber-500"
-            placeholder="Search food, drinks, or snacks"
+            placeholder={t("searchFoodPlaceholder")}
           />
           <img
             className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2"

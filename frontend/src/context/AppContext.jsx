@@ -103,6 +103,82 @@ export const AppContextProvider = (props) => {
   const [usertoken, setUsertoken] = useState("");
   const [admintoken, setAdmintoken] = useState("");
   const [allCategory, setAllCategory] = useState([]);
+
+  const getLocalizedFoodName = (food) =>
+    language === "am"
+      ? food?.name_am || food?.name_en || food?.name
+      : food?.name_en || food?.name;
+
+  const getLocalizedFoodDescription = (food) =>
+    language === "am"
+      ? food?.description_am || food?.description_en || food?.description
+      : food?.description_en || food?.description;
+
+  const getLocalizedCategoryName = (category) =>
+    language === "am"
+      ? category?.name_am || category?.name_en || category?.name
+      : category?.name_en || category?.name;
+
+  const getLocalizedCategoryType = (category) =>
+    language === "am"
+      ? category?.type_am || category?.type_en || category?.type
+      : category?.type_en || category?.type;
+
+  const getLocalizedCategoryLabel = (categoryKey) => {
+    if (!categoryKey) return categoryKey;
+    const category = allCategory.find(
+      (item) =>
+        item?.name === categoryKey ||
+        item?.name_en === categoryKey ||
+        item?.name_am === categoryKey ||
+        item?._id === categoryKey,
+    );
+    return category ? getLocalizedCategoryName(category) : categoryKey;
+  };
+
+  const getCategoryByKey = (categoryKey) => {
+    if (!categoryKey) return null;
+    const normalizedKey = categoryKey?.toString().trim().toLowerCase();
+    return (
+      allCategory.find((item) => {
+        const candidates = [
+          item?._id?.toString(),
+          item?.name,
+          item?.name_en,
+          item?.name_am,
+        ];
+        return candidates.some(
+          (value) => value?.toString().trim().toLowerCase() === normalizedKey,
+        );
+      }) || null
+    );
+  };
+
+  const doesFoodBelongToCategory = (food, categoryKey) => {
+    if (!food || !categoryKey) return false;
+    const normalizedFoodCategory = food?.category
+      ?.toString()
+      .trim()
+      .toLowerCase();
+    const category = getCategoryByKey(categoryKey);
+    if (category) {
+      const categoryCandidates = [
+        category._id?.toString(),
+        category.name,
+        category.name_en,
+        category.name_am,
+      ];
+      return categoryCandidates.some(
+        (value) =>
+          value?.toString().trim().toLowerCase() === normalizedFoodCategory,
+      );
+    }
+
+    return (
+      normalizedFoodCategory === categoryKey?.toString().trim().toLowerCase()
+    );
+  };
+
   const [userOrder, setUserOrder] = useState([]);
   const [orderStatus, setOrderStatus] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
@@ -760,6 +836,13 @@ export const AppContextProvider = (props) => {
     tAdmin,
     changeLanguage,
     t, // Translation function
+    getLocalizedFoodName,
+    getLocalizedFoodDescription,
+    getLocalizedCategoryName,
+    getLocalizedCategoryType,
+    getLocalizedCategoryLabel,
+    getCategoryByKey,
+    doesFoodBelongToCategory,
     fullCategory,
     setFullCategory,
     foods,

@@ -19,6 +19,8 @@ const Cart = () => {
     foods,
     removeFromCart,
     updateCartItem,
+    getLocalizedFoodName,
+    t,
   } = useContext(AppContext);
 
   const [more, setMore] = useState(false);
@@ -76,19 +78,19 @@ const Cart = () => {
                         <img
                           src={order.image}
                           className="h-20 w-20 rounded-2xl object-cover sm:h-24 sm:w-24"
-                          alt={order.name}
+                          alt={getLocalizedFoodName(order)}
                         />
                         <div className="flex-1">
                           <div className="flex flex-wrap items-center gap-2">
                             <p className="text-lg font-bold text-gray-900">
-                              {order.name}
+                              {getLocalizedFoodName(order)}
                             </p>
                             <p className="rounded-full bg-orange-100 px-2.5 py-1 text-sm font-semibold text-orange-700">
                               x{order.quantity}
                             </p>
                           </div>
                           <p className="mt-2 text-sm text-gray-600">
-                            ${order.price} each
+                            {formatPrice(order.price)} each
                           </p>
 
                           <div className="mt-3 flex items-center gap-3 rounded-2xl bg-gray-100 px-3 py-2 w-fit">
@@ -149,16 +151,16 @@ const Cart = () => {
             ) : (
               <div className="mt-6 rounded-[24px] border border-dashed border-gray-300 bg-gray-50 py-10 text-center">
                 <p className="text-lg font-semibold text-gray-700">
-                  Your cart is empty
+                  {t("cartEmpty")}
                 </p>
                 <p className="mt-2 text-sm text-gray-500">
-                  Add a few favorites and come back here.
+                  {t("continueShopping")}
                 </p>
                 <button
                   onClick={() => navigate("/menu")}
                   className="mt-5 rounded-full bg-orange-500 px-6 py-2.5 font-semibold text-white transition hover:bg-orange-600"
                 >
-                  Start Shopping
+                  {t("continueShopping")}
                 </button>
               </div>
             )}

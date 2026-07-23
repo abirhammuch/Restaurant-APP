@@ -5,8 +5,18 @@ import axios from "axios";
 
 const FoodCard = ({ food }) => {
   const [ratings, setRatings] = useState({});
-  const { formatPrice, navigate, setFoodDetail, addToCart, backendUrl } =
-    useContext(AppContext);
+  const {
+    formatPrice,
+    navigate,
+    setFoodDetail,
+    addToCart,
+    backendUrl,
+    language,
+    getLocalizedFoodName,
+    getLocalizedFoodDescription,
+    getLocalizedCategoryLabel,
+    getCategoryByKey,
+  } = useContext(AppContext);
 
   //  Fetch rating for a single food
   const fetchRating = async (foodId) => {
@@ -45,16 +55,19 @@ const FoodCard = ({ food }) => {
 
   // ✅ Navigate to food detail - FIXED
   const foodDetail = (item) => {
-    console.log("Navigating to:", item.name, item._id);
+    const categoryObj = getCategoryByKey(item.category);
+    const categoryPath = categoryObj
+      ? categoryObj.name_en ||
+        categoryObj.name ||
+        categoryObj.name_am ||
+        categoryObj._id
+      : item.category;
 
-    // Set food detail in context
     setFoodDetail(item);
 
-    // Navigate with proper path
-    const path = `/menu/${item.category}/${item._id}`;
-    console.log("Navigating to:", path);
-
-    // Use navigate with the full path
+    const path = `/menu/${encodeURIComponent(
+      categoryPath?.toString().trim().toLowerCase(),
+    )}/${item._id}`;
     navigate(path);
   };
 
@@ -103,7 +116,7 @@ const FoodCard = ({ food }) => {
                   src={
                     item.images?.[0] || item.image?.[0] || assets.upload_area
                   }
-                  alt={item.name || "Food"}
+                  alt={getLocalizedFoodName(item) || "Food"}
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                   onError={(e) => {
                     e.target.src = assets.upload_area;
@@ -112,7 +125,7 @@ const FoodCard = ({ food }) => {
 
                 {/* Category Badge */}
                 <p className="absolute top-3 left-3 bg-white px-3 py-1 rounded-2xl text-xs font-medium shadow-md">
-                  {item.category || "Uncategorized"}
+                  {getLocalizedCategoryLabel(item.category) || "Uncategorized"}
                 </p>
 
                 {/* Rating Badge */}
@@ -133,10 +146,11 @@ const FoodCard = ({ food }) => {
               <div className="flex flex-1 flex-col gap-3 px-4 py-4 sm:px-5 sm:py-5">
                 <div className="space-y-1">
                   <p className="truncate text-lg font-bold text-slate-800">
-                    {item.name}
+                    {getLocalizedFoodName(item)}
                   </p>
                   <p className="line-clamp-2 flex-1 text-sm leading-6 text-gray-600">
-                    {item.description || "No description available"}
+                    {getLocalizedFoodDescription(item) ||
+                      "No description available"}
                   </p>
                 </div>
 

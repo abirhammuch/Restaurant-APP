@@ -26,6 +26,7 @@ const Checkout = () => {
     backendUrl,
     clearCart,
     getUserOrder,
+    getLocalizedFoodName,
   } = useContext(AppContext);
   const location = useLocation();
   const [method, setMethod] = useState("cash");
@@ -305,7 +306,9 @@ const Checkout = () => {
                             />
                           </div>
                           <div>
-                            <p className="text-sm mt-4">{order.name}</p>
+                            <p className="text-sm mt-4">
+                              {getLocalizedFoodName(order)}
+                            </p>
                             <p className="mb-7 text-sm">Qty: 1</p>
                           </div>
                         </div>

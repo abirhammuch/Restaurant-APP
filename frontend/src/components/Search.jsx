@@ -11,19 +11,22 @@ const Search = () => {
     searchedQuery,
     searchedFood,
     setSearchedQuery,
+    getLocalizedFoodName,
+    t,
   } = useContext(AppContext);
 
   useEffect(() => {
     if (searchedQuery.length > 0) {
+      const query = searchedQuery.toLowerCase();
       setSearchedFood(
         foods.filter((food) =>
-          food.name.toLowerCase().includes(searchedQuery.toLowerCase()),
+          getLocalizedFoodName(food)?.toLowerCase().includes(query),
         ),
       );
     } else {
       setSearchedFood(foods);
     }
-  }, [foods, searchedQuery]);
+  }, [foods, searchedQuery, getLocalizedFoodName, setSearchedFood]);
 
   return (
     <div className=" hidden  sm:flex gap-4 justify-center my-12">
@@ -32,7 +35,7 @@ const Search = () => {
           onChange={(e) => setSearchedQuery(e.target.value)}
           type="text"
           className=" px-9 py-2 bg-white rounded-[6px] w- md:w-90"
-          placeholder="Search Food (e.g Pizza ... )"
+          placeholder={t("searchFoodPlaceholder")}
         />
         <img
           className="absolute top-3 left-2"

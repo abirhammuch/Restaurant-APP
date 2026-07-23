@@ -4,19 +4,17 @@ import FoodCard from "../components/FoodCard";
 import { useParams } from "react-router-dom";
 
 const CategoryPage = () => {
-  const { foods } = useContext(AppContext);
+  const { foods, doesFoodBelongToCategory } = useContext(AppContext);
   const { category } = useParams();
 
   const [filterdCategory, setFilteredCategory] = useState([]);
 
   useEffect(() => {
-    const filtered = foods.filter(
-      (food) => food.category.toLowerCase() === category.toLowerCase(),
+    const filtered = foods.filter((food) =>
+      doesFoodBelongToCategory(food, category),
     );
     setFilteredCategory(filtered);
-  }, [foods]);
-  console.log(filterdCategory);
-  
+  }, [foods, category, doesFoodBelongToCategory]);
 
   return (
     <div>

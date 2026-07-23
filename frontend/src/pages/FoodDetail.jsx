@@ -22,18 +22,9 @@ const FoodDetail = () => {
     setPopularFood,
     addToCart,
     backendUrl,
-    language,
+    getLocalizedFoodName,
+    getLocalizedFoodDescription,
   } = useContext(AppContext);
-
-  const getLocalizedFoodName = (food) =>
-    language === "am"
-      ? food.name_am || food.name_en || food.name
-      : food.name_en || food.name;
-
-  const getLocalizedFoodDescription = (food) =>
-    language === "am"
-      ? food.description_am || food.description_en || food.description
-      : food.description_en || food.description;
   const { id, category } = useParams();
 
   const [thumbnel, setThumbnel] = useState("");
@@ -541,11 +532,11 @@ const FoodDetail = () => {
             <div className="flex items-center gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
               <img
                 src={currentFood.images?.[0] || assets.upload_area}
-                alt={currentFood.name}
+                alt={getLocalizedFoodName(currentFood)}
                 className="w-14 h-14 object-cover rounded-lg"
               />
               <div>
-                <p className="font-bold">{currentFood.name}</p>
+                <p className="font-bold">{getLocalizedFoodName(currentFood)}</p>
                 <p className="text-sm text-gray-500">
                   {formatPrice(currentFood.price || 0)}
                 </p>

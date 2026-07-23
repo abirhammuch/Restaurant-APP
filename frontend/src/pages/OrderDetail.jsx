@@ -20,7 +20,8 @@ const OrderDetail = () => {
   const [updateRatingId, setUpdateRatingId] = useState(null);
   const [existingRatingData, setExistingRatingData] = useState(null);
   const { orderId } = useParams();
-  const { currency, formatPrice, backendUrl } = useContext(AppContext);
+  const { currency, formatPrice, backendUrl, getLocalizedFoodName } =
+    useContext(AppContext);
 
   const getToken = () => localStorage.getItem("usertoken");
 
@@ -458,7 +459,7 @@ const OrderDetail = () => {
                     <div className="flex items-center gap-3">
                       <img
                         src={item.image}
-                        alt={item.name}
+                        alt={getLocalizedFoodName(item)}
                         className="w-12 h-12 object-cover rounded-lg"
                         onError={(e) =>
                           (e.target.src =
@@ -466,7 +467,9 @@ const OrderDetail = () => {
                         }
                       />
                       <div>
-                        <p className="font-bold">{item.name}</p>
+                        <p className="font-bold">
+                          {getLocalizedFoodName(item)}
+                        </p>
                         <p className="text-sm text-gray-500">
                           Qty: {item.quantity}
                         </p>
@@ -507,7 +510,7 @@ const OrderDetail = () => {
                 className="flex justify-between py-2 border-b border-gray-200"
               >
                 <div className="flex items-center gap-2">
-                  <span>{item.name}</span>
+                  <span>{getLocalizedFoodName(item)}</span>
                   <span className="text-gray-500">x{item.quantity}</span>
                 </div>
                 <span>{formatPrice(item.totalPrice)}</span>
@@ -603,7 +606,7 @@ const OrderDetail = () => {
             <div className="flex items-center gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
               <img
                 src={selectedItem.image}
-                alt={selectedItem.name}
+                alt={getLocalizedFoodName(selectedItem)}
                 className="w-14 h-14 object-cover rounded-lg"
                 onError={(e) =>
                   (e.target.src =
@@ -611,7 +614,9 @@ const OrderDetail = () => {
                 }
               />
               <div>
-                <p className="font-bold">{selectedItem.name}</p>
+                <p className="font-bold">
+                  {getLocalizedFoodName(selectedItem)}
+                </p>
                 <p className="text-sm text-gray-500">
                   Qty: {selectedItem.quantity}
                 </p>
