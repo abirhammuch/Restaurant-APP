@@ -6,6 +6,8 @@ import { assets } from "../../assets/assets/assets";
 import { AppContext } from "../../context/AppContext";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
 
 const Orders = () => {
   const { totalOrders, setTotalOrders, backendUrl } = useContext(AppContext);
@@ -114,7 +116,13 @@ const Orders = () => {
     }
   };
 
-  const buildExportExcel = (orders) => {
+  const handleExportOrders = () => {
+    const exportOrders = filteredOrders?.length ? filteredOrders : [];
+    if (!exportOrders.length) {
+      toast.info("No orders available to export.");
+      return;
+    }
+
     const headers = [
       "Order ID",
       "Customer Name",
@@ -127,69 +135,38 @@ const Orders = () => {
       "Payment Status",
     ];
 
-    const escapeHtml = (value) =>
-      String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
-
-    const rows = orders.map((order) => [
-      escapeHtml(order._id),
-      escapeHtml(order.deliveryAddress?.name || "N/A"),
-      escapeHtml(order.deliveryAddress?.phone || "N/A"),
-      escapeHtml(order.table || "N/A"),
-      escapeHtml(order.total?.toFixed(2) || "0.00"),
-      escapeHtml(getFormattedDate(order.createdAt)),
-      escapeHtml(getFormattedTime(order.createdAt)),
-      escapeHtml(order.orderStatus || "N/A"),
-      escapeHtml(order.paymentStatus || "pending"),
+    const rows = exportOrders.map((order) => [
+      order._id || "N/A",
+      order.deliveryAddress?.name || "N/A",
+      order.deliveryAddress?.phone || "N/A",
+      order.table || "N/A",
+      order.total?.toFixed(2) || "0.00",
+      getFormattedDate(order.createdAt),
+      getFormattedTime(order.createdAt),
+      order.orderStatus || "N/A",
+      order.paymentStatus || "pending",
     ]);
 
-    const headerRow = headers
-      .map((header) => `<th>${escapeHtml(header)}</th>`)
-      .join("");
-
-    const bodyRows = rows
-      .map(
-        (row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join("")}</tr>`,
-      )
-      .join("");
-
-    return `<!DOCTYPE html>
-<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-  <head>
-    <meta charset="UTF-8" />
-  </head>
-  <body>
-    <table>
-      <thead><tr>${headerRow}</tr></thead>
-      <tbody>${bodyRows}</tbody>
-    </table>
-  </body>
-</html>`;
-  };
-
-  const handleExportOrders = () => {
-    const exportOrders = filteredOrders?.length ? filteredOrders : [];
-    if (!exportOrders.length) {
-      toast.info("No orders available to export.");
-      return;
-    }
-
-    const excelData = buildExportExcel(exportOrders);
-    const blob = new Blob([excelData], {
-      type: "application/vnd.ms-excel;charset=utf-8;",
+    const doc = new jsPDF({
+      orientation: "landscape",
+      unit: "pt",
+      format: "A4",
     });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
+    doc.setFontSize(14);
+    doc.text("Order Export", 40, 40);
 
-    link.href = url;
-    link.setAttribute("download", "orders-export.xls");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    autoTable(doc, {
+      head: [headers],
+      body: rows,
+      startY: 60,
+      styles: { fontSize: 10, cellPadding: 6 },
+      headStyles: { fillColor: [40, 116, 166] },
+      alternateRowStyles: { fillColor: [240, 240, 240] },
+      theme: "striped",
+      margin: { left: 40, right: 40 },
+    });
+
+    doc.save("orders-export.pdf");
   };
 
   // ✅ Get status color
