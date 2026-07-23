@@ -25,6 +25,7 @@ const FoodDetail = () => {
     getLocalizedFoodName,
     getLocalizedFoodDescription,
     getLocalizedIngredients,
+    getCategoryByKey,
     t,
   } = useContext(AppContext);
   const { id, category } = useParams();
@@ -126,7 +127,18 @@ const FoodDetail = () => {
   // ✅ Update perfect match when more changes
   useEffect(() => {
     if (foods && foods.length > 0 && category) {
-      const filteredFoods = foods.filter((food) => food.category === category);
+      const categoryObj = getCategoryByKey(category);
+      const normalizedCategory = categoryObj
+        ? categoryObj.name_en?.toString().trim().toLowerCase() ||
+          categoryObj.name?.toString().trim().toLowerCase() ||
+          categoryObj.name_am?.toString().trim().toLowerCase() ||
+          categoryObj._id?.toString().trim().toLowerCase()
+        : category?.toString().trim().toLowerCase();
+
+      const filteredFoods = foods.filter((food) => {
+        const foodCategory = food.category?.toString().trim().toLowerCase();
+        return foodCategory === normalizedCategory && food._id !== id;
+      });
 
       if (more) {
         setPerfectMatch(filteredFoods);
@@ -134,7 +146,7 @@ const FoodDetail = () => {
         setPerfectMatch(filteredFoods.slice(0, 4));
       }
     }
-  }, [more, foods, category]);
+  }, [more, foods, category, id, getCategoryByKey]);
 
   // ✅ Handle add to cart
   const handleAddToCart = async (foodId) => {
