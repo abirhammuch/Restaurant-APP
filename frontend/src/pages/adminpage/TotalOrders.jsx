@@ -114,7 +114,7 @@ const Orders = () => {
     }
   };
 
-  const buildExportCsv = (orders) => {
+  const buildExportExcel = (orders) => {
     const headers = [
       "Order ID",
       "Customer Name",
@@ -127,22 +127,47 @@ const Orders = () => {
       "Payment Status",
     ];
 
-    const escapeCell = (value) =>
-      `"${String(value ?? "").replace(/"/g, '""')}"`;
+    const escapeHtml = (value) =>
+      String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
 
     const rows = orders.map((order) => [
-      escapeCell(order._id),
-      escapeCell(order.deliveryAddress?.name || "N/A"),
-      escapeCell(order.deliveryAddress?.phone || "N/A"),
-      escapeCell(order.table || "N/A"),
-      escapeCell(order.total?.toFixed(2) || "0.00"),
-      escapeCell(getFormattedDate(order.createdAt)),
-      escapeCell(getFormattedTime(order.createdAt)),
-      escapeCell(order.orderStatus || "N/A"),
-      escapeCell(order.paymentStatus || "pending"),
+      escapeHtml(order._id),
+      escapeHtml(order.deliveryAddress?.name || "N/A"),
+      escapeHtml(order.deliveryAddress?.phone || "N/A"),
+      escapeHtml(order.table || "N/A"),
+      escapeHtml(order.total?.toFixed(2) || "0.00"),
+      escapeHtml(getFormattedDate(order.createdAt)),
+      escapeHtml(getFormattedTime(order.createdAt)),
+      escapeHtml(order.orderStatus || "N/A"),
+      escapeHtml(order.paymentStatus || "pending"),
     ]);
 
-    return [headers.join(","), ...rows.map((row) => row.join(","))].join("\n");
+    const headerRow = headers
+      .map((header) => `<th>${escapeHtml(header)}</th>`)
+      .join("");
+
+    const bodyRows = rows
+      .map(
+        (row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join("")}</tr>`,
+      )
+      .join("");
+
+    return `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <table>
+      <thead><tr>${headerRow}</tr></thead>
+      <tbody>${bodyRows}</tbody>
+    </table>
+  </body>
+</html>`;
   };
 
   const handleExportOrders = () => {
@@ -152,13 +177,15 @@ const Orders = () => {
       return;
     }
 
-    const csvData = buildExportCsv(exportOrders);
-    const blob = new Blob([csvData], { type: "text/csv;charset=utf-8;" });
+    const excelData = buildExportExcel(exportOrders);
+    const blob = new Blob([excelData], {
+      type: "application/vnd.ms-excel;charset=utf-8;",
+    });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
 
     link.href = url;
-    link.setAttribute("download", "orders-export.csv");
+    link.setAttribute("download", "orders-export.xls");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
