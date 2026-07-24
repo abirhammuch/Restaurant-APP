@@ -12,13 +12,41 @@ https://github.com/abirhammuch/Restaurant-APP
 
 ## ✨ Features
 
-- Responsive design
-- Modern user interface
-- Browse restaurant menu
-- Food category filtering
-- Beautiful food cards
-- Fast and interactive experience
-- Frontend and backend separated
+### 👥 User Features
+- User Registration & Login
+- Browse Menu
+- Search Foods
+- Filter by Categories
+- Shopping Cart
+- Wishlist (Favorites)
+- Food Ratings & Reviews
+- Apply Promo Codes
+- Secure Checkout
+- Order Tracking
+- Live Chat with Admin
+- Google Maps Integration
+- Dark & Light Mode
+- Responsive Design
+
+### 👨‍💼 Admin Features
+- Admin Dashboard
+- Manage Categories
+- Manage Foods
+- Manage Orders
+- Manage Customers
+- Manage Reviews
+- Manage Promo Codes
+- Live Chat with Customers
+- Sales Analytics
+
+### ⚙️ Technical Features
+- JWT Authentication
+- Protected Routes
+- REST API
+- Responsive UI
+- Toast Notifications
+- Image Upload
+- Frontend & Backend Separation
 
 ## 🛠️ Tech Stack
 
@@ -82,17 +110,7 @@ npm install
 npm start
 ```
 
-## 🎯 Future Improvements
 
-- User Authentication
-- Shopping Cart
-- Checkout System
-- Payment Integration
-- Order History
-- Admin Dashboard
-- Favorites (Wishlist)
-- Search Functionality
-- Dark Mode
 
 
 ## 🤝 Contributing
