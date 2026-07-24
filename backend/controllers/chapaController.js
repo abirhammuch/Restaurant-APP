@@ -1,0 +1,254 @@
+// controllers/chapaController.js
+import axios from "axios";
+import orderModel from "../models/orderModel.js";
+
+const CHAPA_API_URL = "https://api.chapa.co/v1";
+const CHAPA_SECRET_KEY = process.env.CHAPA_SECRET_KEY;
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+
+// ✅ Initialize Chapa Payment
+const initiateChapaPayment = async (req, res) => {
+  try {
+    const { orderId } = req.body;
+    const userId = req.userId;
+
+    // Find the order
+    const order = await orderModel.findById(orderId);
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    // Verify order belongs to user
+    if (order.userId.toString() !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    // Prepare Chapa payment payload
+    const chapaPayload = {
+      amount: order.total,
+      currency: "ETB", // Ethiopian Birr
+      email: order.deliveryAddress.email,
+      first_name: order.deliveryAddress.name.split(" ")[0] || "Customer",
+      last_name: order.deliveryAddress.name.split(" ")[1] || "",
+      phone_number: order.deliveryAddress.phone,
+      tx_ref: `order_${orderId}_${Date.now()}`, // Unique transaction reference
+      callback_url: `${process.env.BACKEND_URL || "http://localhost:3000"}/api/chapa/webhook`,
+      return_url: `${FRONTEND_URL}/orders?paymentStatus=completed&orderId=${orderId}`,
+      "customization[title]": "Digital Menu Order Payment",
+      "customization[description]": `Payment for Order #${orderId}`,
+      meta: {
+        orderId: orderId.toString(),
+        userId: userId.toString(),
+      },
+    };
+
+    // Call Chapa API
+    const chapaResponse = await axios.post(
+      `${CHAPA_API_URL}/transaction/initialize`,
+      chapaPayload,
+      {
+        headers: {
+          Authorization: `Bearer ${CHAPA_SECRET_KEY}`,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    if (chapaResponse.data.status === "success") {
+      // Update order with Chapa transaction reference
+      order.paymentGateway = "chapa";
+      order.transactionId = chapaResponse.data.data.tx_ref;
+      await order.save();
+
+      res.json({
+        success: true,
+        message: "Payment initialization successful",
+        data: {
+          checkout_url: chapaResponse.data.data.checkout_url,
+          tx_ref: chapaResponse.data.data.tx_ref,
+        },
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: chapaResponse.data.message || "Failed to initialize payment",
+      });
+    }
+  } catch (error) {
+    console.error("Chapa initialization error:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// ✅ Verify Chapa Payment
+const verifyChapaPayment = async (req, res) => {
+  try {
+    const { tx_ref } = req.query;
+
+    if (!tx_ref) {
+      return res.status(400).json({
+        success: false,
+        message: "Transaction reference is required",
+      });
+    }
+
+    // Verify with Chapa API
+    const verifyResponse = await axios.get(
+      `${CHAPA_API_URL}/transaction/verify/${tx_ref}`,
+      {
+        headers: {
+          Authorization: `Bearer ${CHAPA_SECRET_KEY}`,
+        },
+      },
+    );
+
+    if (verifyResponse.data.status === "success") {
+      const transactionData = verifyResponse.data.data;
+
+      if (transactionData.status === "success") {
+        // Extract orderId from tx_ref (format: order_ORDERID_TIMESTAMP)
+        const orderIdMatch = transactionData.tx_ref.match(/order_([^_]+)_/);
+        const orderId = orderIdMatch ? orderIdMatch[1] : null;
+
+        if (orderId) {
+          // Update order status
+          const order = await orderModel.findById(orderId);
+          if (order) {
+            order.paymentStatus = "paid";
+            order.paymentGateway = "chapa";
+            order.transactionId = transactionData.tx_ref;
+            order.transactionDetails = {
+              amount: transactionData.amount,
+              currency: transactionData.currency,
+              status: transactionData.status,
+              verifiedAt: new Date(),
+            };
+            await order.save();
+          }
+        }
+
+        res.json({
+          success: true,
+          message: "Payment verified successfully",
+          data: {
+            status: transactionData.status,
+            amount: transactionData.amount,
+            currency: transactionData.currency,
+            reference: transactionData.reference,
+          },
+        });
+      } else {
+        res.status(400).json({
+          success: false,
+          message: "Payment was not successful",
+          data: transactionData,
+        });
+      }
+    } else {
+      res.status(400).json({
+        success: false,
+        message: "Failed to verify payment",
+      });
+    }
+  } catch (error) {
+    console.error("Chapa verification error:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// ✅ Webhook Handler for Chapa
+const chapaWebhook = async (req, res) => {
+  try {
+    const { tx_ref, status } = req.body;
+
+    console.log("=== CHAPA WEBHOOK ===");
+    console.log("TX Ref:", tx_ref);
+    console.log("Status:", status);
+
+    if (status === "success") {
+      // Extract orderId from tx_ref
+      const orderIdMatch = tx_ref.match(/order_([^_]+)_/);
+      const orderId = orderIdMatch ? orderIdMatch[1] : null;
+
+      if (orderId) {
+        const order = await orderModel.findById(orderId);
+        if (order) {
+          order.paymentStatus = "paid";
+          order.paymentGateway = "chapa";
+          order.transactionId = tx_ref;
+          await order.save();
+
+          console.log("Order updated:", orderId);
+        }
+      }
+    }
+
+    // Always return success to Chapa (they don't care about our response)
+    res.json({
+      success: true,
+      message: "Webhook processed",
+    });
+  } catch (error) {
+    console.error("Webhook error:", error);
+    // Still return success to Chapa
+    res.json({
+      success: true,
+      message: "Webhook processed with error",
+    });
+  }
+};
+
+// ✅ Get Payment Status
+const getPaymentStatus = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const userId = req.userId;
+
+    const order = await orderModel.findById(orderId);
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found",
+      });
+    }
+
+    if (order.userId.toString() !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    res.json({
+      success: true,
+      paymentStatus: order.paymentStatus,
+      paymentGateway: order.paymentGateway,
+      transactionId: order.transactionId,
+    });
+  } catch (error) {
+    console.error("Get payment status error:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export {
+  initiateChapaPayment,
+  verifyChapaPayment,
+  chapaWebhook,
+  getPaymentStatus,
+};

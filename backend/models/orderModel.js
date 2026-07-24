@@ -90,13 +90,12 @@ const orderSchema = new mongoose.Schema(
         type: String,
         required: true,
       },
-     
     },
 
     // Payment information
     paymentMethod: {
       type: String,
-      enum: ["cash", "telebirr", "card", "mobile_money"],
+      enum: ["cash", "telebirr", "card", "mobile_money", "chapa"],
       default: "cash",
     },
     paymentStatus: {
@@ -107,6 +106,23 @@ const orderSchema = new mongoose.Schema(
     paymentId: {
       type: String,
       default: "",
+    },
+    // Chapa payment fields
+    paymentGateway: {
+      type: String,
+      enum: ["none", "chapa", "telebirr", "stripe"],
+      default: "none",
+    },
+    transactionId: {
+      type: String,
+      default: "",
+    },
+    transactionDetails: {
+      amount: Number,
+      currency: String,
+      status: String,
+      reference: String,
+      verifiedAt: Date,
     },
 
     // Order status
@@ -160,8 +176,6 @@ const orderSchema = new mongoose.Schema(
   },
   { timestamps: true },
 );
-
-
 
 const orderModel =
   mongoose.models.menuorder || mongoose.model("menuorder", orderSchema);

@@ -41,6 +41,7 @@ const Checkout = () => {
   const [phone, setPhone] = useState("");
   const [table, setTable] = useState("");
   const [note, setNote] = useState("");
+  const [isProcessingChapa, setIsProcessingChapa] = useState(false);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
@@ -49,6 +50,41 @@ const Checkout = () => {
       setTable(qrTable);
     }
   }, [location.search]);
+
+  const getToken = () => localStorage.getItem("usertoken");
+
+  // ✅ Handle Chapa Payment
+  const handleChapaPayment = async (orderId) => {
+    try {
+      setIsProcessingChapa(true);
+      const response = await axios.post(
+        backendUrl + "/api/chapa/initiate",
+        { orderId },
+        {
+          headers: {
+            usertoken: getToken(),
+          },
+        },
+      );
+
+      if (response.data.success) {
+        // Redirect to Chapa checkout
+        window.location.href = response.data.data.checkout_url;
+      } else {
+        toast.error(
+          response.data.message || "Failed to initiate Chapa payment",
+        );
+      }
+    } catch (error) {
+      console.error("Chapa payment error:", error);
+      toast.error(
+        error.response?.data?.message ||
+          "Failed to initiate Chapa payment. Please try again.",
+      );
+    } finally {
+      setIsProcessingChapa(false);
+    }
+  };
 
   const getToken = () => localStorage.getItem("usertoken");
 
@@ -112,16 +148,25 @@ const Checkout = () => {
       );
       console.log("order response ", response.data);
       if (response.data.success) {
-        toast.success(t("orderPlaced"));
+        const orderId = response.data.order._id;
 
-        // ✅ Refresh the user orders list immediately
-        await getUserOrder();
+        // ✅ Handle Chapa Payment
+        if (method === "chapa") {
+          toast.info(t("redirectingToPayment") || "Redirecting to Chapa...");
+          await handleChapaPayment(orderId);
+        } else {
+          // For cash and other methods, show success and navigate
+          toast.success(t("orderPlaced"));
 
-        // ✅ Clear cart
-        await clearCart();
+          // ✅ Refresh the user orders list immediately
+          await getUserOrder();
 
-        // ✅ Navigate to order confirmation or orders page
-        navigate("/orders");
+          // ✅ Clear cart
+          await clearCart();
+
+          // ✅ Navigate to order confirmation or orders page
+          navigate("/orders");
+        }
       } else {
         toast.error(response.data.message || "Failed to place order.....");
       }
@@ -241,6 +286,17 @@ const Checkout = () => {
                     <div>
                       <p className="mb-2 mt-2">{t("paymentMethod")}</p>
                       <div className="sm:flex justify-center items-center gap-9">
+                        <div
+                          onClick={() => setMethod("chapa")}
+                          className={`border px-5 flex justify-center items-center gap-3 py-1 rounded-md  mb-4 sm:mb-0 cursor-pointer
+                         ${method === "chapa" ? "border-amber-600" : ""} `}
+                        >
+                          <p
+                            className={`${method === "chapa" ? "text-amber-600" : ""}`}
+                          >
+                            Chapa
+                          </p>
+                        </div>
                         <div
                           onClick={() => setMethod("telebirr")}
                           value={method}
