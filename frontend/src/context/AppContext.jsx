@@ -343,6 +343,7 @@ export const AppContextProvider = (props) => {
   };
 
   const getLatestThreads = () => {
+    if (!chatThreads || !Array.isArray(chatThreads)) return [];
     return [...chatThreads].sort((a, b) => {
       const unreadA = a.unreadCount || 0;
       const unreadB = b.unreadCount || 0;
@@ -353,7 +354,7 @@ export const AppContextProvider = (props) => {
     });
   };
 
-  const unreadChatCount = chatThreads.reduce(
+  const unreadChatCount = (chatThreads || []).reduce(
     (sum, thread) => sum + (thread.unreadCount || 0),
     0,
   );

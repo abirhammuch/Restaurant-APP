@@ -38,7 +38,7 @@ const AdminChat = () => {
     return `${days}d`;
   };
 
-  const threads = getLatestThreads();
+  const threads = getLatestThreads() || [];
   const activeThread = selectedChatUserId
     ? getChatThreadById(selectedChatUserId)
     : null;
@@ -53,15 +53,17 @@ const AdminChat = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const unreadTotal = threads.reduce(
+  const unreadTotal = (threads || []).reduce(
     (sum, thread) => sum + (thread.unreadCount || 0),
     0,
   );
 
-  const unreadThreads = threads.filter(
+  const unreadThreads = (threads || []).filter(
     (thread) => (thread.unreadCount || 0) > 0,
   );
-  const readThreads = threads.filter((thread) => !(thread.unreadCount || 0));
+  const readThreads = (threads || []).filter(
+    (thread) => !(thread.unreadCount || 0),
+  );
 
   const handleSendAdminMessage = async (e) => {
     e.preventDefault();
