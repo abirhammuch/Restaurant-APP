@@ -86,8 +86,6 @@ const Checkout = () => {
     }
   };
 
-  const getToken = () => localStorage.getItem("usertoken");
-
   const onSubmitHandler = async (event) => {
     event.preventDefault();
 
