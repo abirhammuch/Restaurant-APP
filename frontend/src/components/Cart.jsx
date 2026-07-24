@@ -220,6 +220,7 @@ const Cart = () => {
           </div>
         </div>
 
+
         <aside className="lg:sticky lg:top-6">
           <div className="rounded-[28px] border border-gray-100 bg-white p-5 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.18)] sm:p-6">
             <p className="text-2xl font-bold text-gray-900">Order Summary</p>
