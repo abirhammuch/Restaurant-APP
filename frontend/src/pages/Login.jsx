@@ -86,17 +86,12 @@ const Login = () => {
         window.google.accounts.id.initialize({
           client_id: googleClientId,
           callback: handleGoogleCredentialResponse,
-          ux_mode: "redirect",
-          redirect_uri: window.location.origin + "/login",
-          auto_select: false,
-          cancel_on_tap_outside: false,
         });
 
         window.google.accounts.id.renderButton(googleButtonRef.current, {
           theme: "outline",
           size: "large",
           width: "100%",
-          type: "standard",
         });
 
         setGoogleReady(true);
