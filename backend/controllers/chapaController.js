@@ -12,6 +12,15 @@ const initiateChapaPayment = async (req, res) => {
     const { orderId } = req.body;
     const userId = req.userId;
 
+    // Check if API key is configured
+    if (!CHAPA_SECRET_KEY) {
+      console.error("❌ CHAPA_SECRET_KEY not configured");
+      return res.status(500).json({
+        success: false,
+        message: "Payment gateway not configured. Contact support.",
+      });
+    }
+
     // Find the order
     const order = await orderModel.findById(orderId);
     if (!order) {
@@ -30,6 +39,7 @@ const initiateChapaPayment = async (req, res) => {
     }
 
     // Prepare Chapa payment payload
+    const txRef = `order_${orderId}_${Date.now()}`; // Generate once, use everywhere
     const chapaPayload = {
       amount: order.total,
       currency: "ETB", // Ethiopian Birr
@@ -37,9 +47,9 @@ const initiateChapaPayment = async (req, res) => {
       first_name: order.deliveryAddress.name.split(" ")[0] || "Customer",
       last_name: order.deliveryAddress.name.split(" ")[1] || "",
       phone_number: order.deliveryAddress.phone,
-      tx_ref: `order_${orderId}_${Date.now()}`, // Unique transaction reference
+      tx_ref: txRef, // Unique transaction reference
       callback_url: `${process.env.BACKEND_URL || "http://localhost:3000"}/api/chapa/webhook`,
-      return_url: `${FRONTEND_URL}/orders?paymentStatus=completed&orderId=${orderId}`,
+      return_url: `${FRONTEND_URL}/payment-status?tx_ref=${txRef}`,
       "customization[title]": "Digital Menu Order Payment",
       "customization[description]": `Payment for Order #${orderId}`,
       meta: {
@@ -47,6 +57,12 @@ const initiateChapaPayment = async (req, res) => {
         userId: userId.toString(),
       },
     };
+
+    console.log("📢 Initiating Chapa payment:", {
+      orderId,
+      amount: order.total,
+      tx_ref: chapaPayload.tx_ref,
+    });
 
     // Call Chapa API
     const chapaResponse = await axios.post(
@@ -66,6 +82,11 @@ const initiateChapaPayment = async (req, res) => {
       order.transactionId = chapaResponse.data.data.tx_ref;
       await order.save();
 
+      console.log(
+        "✅ Chapa payment initialized:",
+        chapaResponse.data.data.tx_ref,
+      );
+
       res.json({
         success: true,
         message: "Payment initialization successful",
@@ -75,16 +96,26 @@ const initiateChapaPayment = async (req, res) => {
         },
       });
     } else {
+      console.error(
+        "❌ Chapa returned non-success status:",
+        chapaResponse.data,
+      );
       res.status(400).json({
         success: false,
         message: chapaResponse.data.message || "Failed to initialize payment",
       });
     }
   } catch (error) {
-    console.error("Chapa initialization error:", error);
+    console.error("❌ Chapa initialization error:", {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+    });
     res.status(500).json({
       success: false,
-      message: error.message,
+      message:
+        error.response?.data?.message ||
+        "Failed to initialize payment. Please try again.",
     });
   }
 };
@@ -100,6 +131,16 @@ const verifyChapaPayment = async (req, res) => {
         message: "Transaction reference is required",
       });
     }
+
+    if (!CHAPA_SECRET_KEY) {
+      console.error("❌ CHAPA_SECRET_KEY not configured for verification");
+      return res.status(500).json({
+        success: false,
+        message: "Payment verification not available",
+      });
+    }
+
+    console.log("📢 Verifying Chapa payment:", tx_ref);
 
     // Verify with Chapa API
     const verifyResponse = await axios.get(
@@ -133,6 +174,7 @@ const verifyChapaPayment = async (req, res) => {
               verifiedAt: new Date(),
             };
             await order.save();
+            console.log("✅ Order updated to paid:", orderId);
           }
         }
 
@@ -147,6 +189,7 @@ const verifyChapaPayment = async (req, res) => {
           },
         });
       } else {
+        console.warn("⚠️ Transaction not successful:", transactionData.status);
         res.status(400).json({
           success: false,
           message: "Payment was not successful",
@@ -154,16 +197,21 @@ const verifyChapaPayment = async (req, res) => {
         });
       }
     } else {
+      console.error("❌ Verification failed:", verifyResponse.data);
       res.status(400).json({
         success: false,
         message: "Failed to verify payment",
       });
     }
   } catch (error) {
-    console.error("Chapa verification error:", error);
+    console.error("❌ Chapa verification error:", {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+    });
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: error.response?.data?.message || "Failed to verify payment",
     });
   }
 };
@@ -173,12 +221,12 @@ const chapaWebhook = async (req, res) => {
   try {
     const { tx_ref, status } = req.body;
 
-    console.log("=== CHAPA WEBHOOK ===");
-    console.log("TX Ref:", tx_ref);
-    console.log("Status:", status);
+    console.log("🔔 CHAPA WEBHOOK RECEIVED");
+    console.log("   TX Ref:", tx_ref);
+    console.log("   Status:", status);
 
     if (status === "success") {
-      // Extract orderId from tx_ref
+      // Extract orderId from tx_ref (format: order_ORDERID_TIMESTAMP)
       const orderIdMatch = tx_ref.match(/order_([^_]+)_/);
       const orderId = orderIdMatch ? orderIdMatch[1] : null;
 
@@ -190,9 +238,18 @@ const chapaWebhook = async (req, res) => {
           order.transactionId = tx_ref;
           await order.save();
 
-          console.log("Order updated:", orderId);
+          console.log("✅ Webhook: Order marked as paid:", orderId);
+        } else {
+          console.warn("⚠️ Webhook: Order not found:", orderId);
         }
+      } else {
+        console.warn(
+          "⚠️ Webhook: Could not extract orderId from tx_ref:",
+          tx_ref,
+        );
       }
+    } else {
+      console.warn("⚠️ Webhook: Payment not successful:", status);
     }
 
     // Always return success to Chapa (they don't care about our response)
@@ -201,7 +258,7 @@ const chapaWebhook = async (req, res) => {
       message: "Webhook processed",
     });
   } catch (error) {
-    console.error("Webhook error:", error);
+    console.error("❌ Webhook error:", error.message);
     // Still return success to Chapa
     res.json({
       success: true,
@@ -238,10 +295,10 @@ const getPaymentStatus = async (req, res) => {
       transactionId: order.transactionId,
     });
   } catch (error) {
-    console.error("Get payment status error:", error);
+    console.error("❌ Get payment status error:", error.message);
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: "Failed to get payment status",
     });
   }
 };

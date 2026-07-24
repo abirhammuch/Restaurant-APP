@@ -63,6 +63,28 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+// ✅ Chapa Configuration Check (for debugging)
+app.get("/api/chapa/status", (req, res) => {
+  const hasChapaKey = !!process.env.CHAPA_SECRET_KEY;
+  const hasBackendUrl = !!process.env.BACKEND_URL;
+  const hasFrontendUrl = !!process.env.FRONTEND_URL;
+
+  res.json({
+    success: true,
+    chapa: {
+      secretKeyConfigured: hasChapaKey,
+      backendUrlConfigured: hasBackendUrl,
+      frontendUrlConfigured: hasFrontendUrl,
+      backendUrl: process.env.BACKEND_URL,
+      frontendUrl: process.env.FRONTEND_URL,
+    },
+    message:
+      hasChapaKey && hasBackendUrl && hasFrontendUrl
+        ? "✅ Chapa is fully configured"
+        : "❌ Missing configuration - check environment variables",
+  });
+});
+
 // ✅ API Routes
 app.use("/api/user", userRouter);
 app.use("/api/food", foodRouter);
