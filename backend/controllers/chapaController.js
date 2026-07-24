@@ -4,13 +4,32 @@ import orderModel from "../models/orderModel.js";
 
 const CHAPA_API_URL = "https://api.chapa.co/v1";
 const CHAPA_SECRET_KEY = process.env.CHAPA_SECRET_KEY;
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+
+const getBackendBaseUrl = (req) => {
+  if (process.env.BACKEND_URL)
+    return process.env.BACKEND_URL.replace(/\/+$/, "");
+  const forwardedProto = req.headers["x-forwarded-proto"];
+  const host = req.headers["x-forwarded-host"] || req.headers.host;
+  if (forwardedProto && host) return `${forwardedProto}://${host}`;
+  if (req.protocol && host) return `${req.protocol}://${host}`;
+  return "http://localhost:3000";
+};
+
+const getFrontendBaseUrl = (req) => {
+  if (process.env.FRONTEND_URL)
+    return process.env.FRONTEND_URL.replace(/\/+$/, "");
+  if (req.headers.origin) return req.headers.origin.replace(/\/+$/, "");
+  return "http://localhost:5173";
+};
 
 // ✅ Initialize Chapa Payment
 const initiateChapaPayment = async (req, res) => {
   try {
     const { orderId } = req.body;
     const userId = req.userId;
+
+    const backendBaseUrl = getBackendBaseUrl(req);
+    const frontendBaseUrl = getFrontendBaseUrl(req);
 
     // Check if API key is configured
     if (!CHAPA_SECRET_KEY) {
@@ -48,8 +67,8 @@ const initiateChapaPayment = async (req, res) => {
       last_name: order.deliveryAddress.name.split(" ")[1] || "",
       phone_number: order.deliveryAddress.phone,
       tx_ref: txRef, // Unique transaction reference
-      callback_url: `${process.env.BACKEND_URL || "http://localhost:3000"}/api/chapa/webhook`,
-      return_url: `${FRONTEND_URL}/payment-status?tx_ref=${txRef}`,
+      callback_url: `${backendBaseUrl}/api/chapa/webhook`,
+      return_url: `${frontendBaseUrl}/payment-status?tx_ref=${txRef}`,
       "customization[title]": "Digital Menu Order Payment",
       "customization[description]": `Payment for Order #${orderId}`,
       meta: {

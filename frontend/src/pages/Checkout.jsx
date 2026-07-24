@@ -67,12 +67,15 @@ const Checkout = () => {
         },
       );
 
-      if (response.data.success) {
+      console.log("Chapa initiate response:", response.data);
+
+      if (response.data.success && response.data.data?.checkout_url) {
         // Redirect to Chapa checkout
         window.location.href = response.data.data.checkout_url;
       } else {
         toast.error(
-          response.data.message || "Failed to initiate Chapa payment",
+          response.data.message ||
+            "Failed to initiate Chapa payment. Missing checkout URL.",
         );
       }
     } catch (error) {
