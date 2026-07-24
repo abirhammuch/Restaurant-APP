@@ -1,4 +1,5 @@
 // controllers/userController.js
+import axios from "axios";
 import userModel from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import validator from "validator";
@@ -105,6 +106,82 @@ const userRegister = async (req, res) => {
   }
 };
 
+// ✅ Google Login / Register
+const googleAuth = async (req, res) => {
+  try {
+    const { idToken } = req.body;
+
+    if (!idToken) {
+      return res.status(400).json({
+        success: false,
+        message: "Google ID token is required",
+      });
+    }
+
+    const googleVerifyUrl = `https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`;
+    const verifyResponse = await axios.get(googleVerifyUrl);
+    const googleData = verifyResponse.data;
+
+    if (!googleData || googleData.email_verified !== "true") {
+      return res.status(400).json({
+        success: false,
+        message: "Google account verification failed",
+      });
+    }
+
+    const { email, name, sub: googleId } = googleData;
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Google account email is required",
+      });
+    }
+
+    let user = await userModel.findOne({ email });
+
+    if (user) {
+      if (!user.googleId) {
+        user.googleId = googleId;
+        user.provider = "google";
+      }
+      user.name = name || user.name;
+      await user.save();
+    } else {
+      user = await userModel.create({
+        name,
+        email,
+        googleId,
+        provider: "google",
+      });
+    }
+
+    const usertoken = createToken(user._id);
+    res.json({
+      success: true,
+      usertoken,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    console.error(
+      "Google auth error:",
+      error.response?.data || error.message || error,
+    );
+    res.status(500).json({
+      success: false,
+      message:
+        error.response?.data?.error_description ||
+        error.response?.data?.error ||
+        error.message ||
+        "Google authentication failed",
+    });
+  }
+};
+
 // ✅ Admin Login
 const adminLogin = async (req, res) => {
   try {
@@ -205,6 +282,7 @@ const getUser = async (req, res) => {
 export {
   userLogin,
   userRegister,
+  googleAuth,
   adminLogin,
   getUserCount,
   getAllUsers,

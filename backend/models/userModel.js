@@ -5,6 +5,8 @@ const userSchema = new mongoose.Schema(
     name: { type: String },
     email: { type: String, unique: true },
     password: { type: String },
+    googleId: { type: String, unique: true, sparse: true },
+    provider: { type: String, enum: ["local", "google"], default: "local" },
     cartData: { type: Object, default: {} },
     isSubscribe: { type: Boolean, default: false },
     role: { type: String, enum: ["user", "admin"], default: "user" },

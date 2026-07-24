@@ -1,13 +1,10 @@
-import React from "react";
-import { FaUser } from "react-icons/fa6";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { FaUser, FaGoogle } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 import { FaLock } from "react-icons/fa6";
-import { useContext } from "react";
 import { AppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
-import { useEffect } from "react";
 import axios from "axios";
-import { useState } from "react";
 
 const Login = () => {
   const {
@@ -22,6 +19,8 @@ const Login = () => {
     setAdmintoken,
   } = useContext(AppContext);
 
+  const googleButtonRef = useRef(null);
+  const [googleReady, setGoogleReady] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -72,6 +71,83 @@ const Login = () => {
       navigate("/");
     }
   }, [usertoken]);
+
+  useEffect(() => {
+    const loadGoogleScript = () => {
+      const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+      if (!googleClientId) {
+        console.warn("VITE_GOOGLE_CLIENT_ID is not configured.");
+        return;
+      }
+
+      const initializeGoogle = () => {
+        if (!window.google?.accounts?.id || !googleButtonRef.current) return;
+
+        window.google.accounts.id.initialize({
+          client_id: googleClientId,
+          callback: handleGoogleCredentialResponse,
+        });
+
+        window.google.accounts.id.renderButton(googleButtonRef.current, {
+          theme: "outline",
+          size: "large",
+          width: "100%",
+        });
+
+        setGoogleReady(true);
+      };
+
+      if (window.google?.accounts?.id) {
+        initializeGoogle();
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      script.onload = initializeGoogle;
+      document.body.appendChild(script);
+
+      return () => {
+        document.body.removeChild(script);
+      };
+    };
+
+    loadGoogleScript();
+  }, [backendUrl]);
+
+  const handleGoogleCredentialResponse = async (response) => {
+    const idToken = response?.credential;
+    if (!idToken) {
+      toast.error("Google authentication failed. Please try again.");
+      return;
+    }
+
+    try {
+      const googleResponse = await axios.post(
+        backendUrl + "/api/user/google-auth",
+        {
+          idToken,
+        },
+      );
+
+      if (googleResponse.data.success) {
+        setUsertoken(googleResponse.data.usertoken);
+        setCurrentUser(googleResponse.data.user);
+        setUserLogin(true);
+        localStorage.setItem("usertoken", googleResponse.data.usertoken);
+      } else {
+        toast.error(googleResponse.data.message || "Google login failed");
+      }
+    } catch (error) {
+      console.error("Google login error:", error);
+      toast.error(
+        error.response?.data?.message ||
+          "Google login failed. Please try again.",
+      );
+    }
+  };
 
   return (
     <div className="flex justify-center items-center mt-12 ">
@@ -144,6 +220,25 @@ const Login = () => {
               <FaLock className="absolute bottom-3 left-2 text-gray-600" />
             </div>
           )}
+
+          <div className="mb-4">
+            <div ref={googleButtonRef} />
+            {!googleReady && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.google?.accounts?.id) {
+                    window.google.accounts.id.prompt();
+                  } else {
+                    toast.info("Loading Google sign-in...");
+                  }
+                }}
+                className="w-full border border-gray-300 rounded-2xl py-2 flex items-center justify-center gap-2 hover:bg-gray-100 transition"
+              >
+                <FaGoogle /> Continue with Google
+              </button>
+            )}
+          </div>
 
           <button
             type="submit"
