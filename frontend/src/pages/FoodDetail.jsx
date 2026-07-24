@@ -49,6 +49,7 @@ const FoodDetail = () => {
   const [hover, setHover] = useState(0);
   const [commentText, setCommentText] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [shareLoading, setShareLoading] = useState(false);
 
   const getToken = () => localStorage.getItem("usertoken");
 
@@ -153,6 +154,47 @@ const FoodDetail = () => {
     const result = await addToCart(foodId, updatequantity);
     if (result?.success) {
       setUpdatequantity(1);
+    }
+  };
+
+  // ✅ Handle share link
+  const handleShareFood = async () => {
+    if (!currentFood) return;
+
+    const foodCategory = category || currentFood.category || "";
+    const encodedCategory = encodeURIComponent(
+      foodCategory.toString().trim().replace(/\s+/g, "-").toLowerCase(),
+    );
+    const shareUrl = `${window.location.origin}/menu/${encodedCategory}/${encodeURIComponent(
+      currentFood._id,
+    )}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: getLocalizedFoodName(currentFood),
+          text: getLocalizedFoodDescription(currentFood),
+          url: shareUrl,
+        });
+        toast.success(t("shareSuccess") || "Link shared successfully");
+        return;
+      } catch (error) {
+        console.error("Share failed", error);
+      }
+    }
+
+    try {
+      setShareLoading(true);
+      if (!navigator.clipboard?.writeText) {
+        throw new Error("Clipboard API unavailable");
+      }
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success(t("shareCopied") || "Link copied to clipboard");
+    } catch (error) {
+      console.error("Copy failed", error);
+      toast.error(t("shareFailed") || "Unable to copy share link");
+    } finally {
+      setShareLoading(false);
     }
   };
 
@@ -454,9 +496,13 @@ const FoodDetail = () => {
               >
                 {t("addToOrder")}
               </button>
-              <p className="flex justify-center border px-2 py-1 rounded-2xl border-gray-400 items-center cursor-pointer hover:bg-gray-200 transition-colors">
-                {t("share")}
-              </p>
+              <button
+                onClick={handleShareFood}
+                disabled={shareLoading}
+                className="flex justify-center border px-2 py-1 rounded-2xl border-gray-400 items-center cursor-pointer hover:bg-gray-200 transition-colors"
+              >
+                {shareLoading ? t("sharing") || "Sharing..." : t("share")}
+              </button>
             </div>
           </div>
         </div>
