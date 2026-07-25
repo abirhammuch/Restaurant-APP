@@ -64,11 +64,11 @@ const Hero = () => {
 
               {/* Search */}
 
-              <div className="mt-10">
+              {/* <div className="mt-10">
                 <div>
                   <Search />
                 </div>
-              </div>
+              </div> */}
 
               {/* Buttons */}
 
@@ -83,7 +83,7 @@ const Hero = () => {
 
               {/* Statistics */}
 
-              <div className="grid grid-cols-3 gap-8 mt-24 ">
+              <div className="grid grid-cols-3 gap-8 mt-19 ">
                 <div>
                   <h2 className="text-3xl font-bold text-amber-500">4.9★</h2>
 
