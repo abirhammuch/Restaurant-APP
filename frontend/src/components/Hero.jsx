@@ -62,7 +62,7 @@ const Hero = () => {
               {/* Search */}
 
               <div className="mt-10">
-                <div className="bg-white/10 backdrop-blur-xl rounded-full p-2 border border-white/20">
+                <div >
                   <Search />
                 </div>
               </div>
@@ -82,7 +82,7 @@ const Hero = () => {
 
               {/* Statistics */}
 
-              <div className="grid grid-cols-3 gap-8 mt-14">
+              <div className="grid grid-cols-3 gap-8 mt-24 mb-24">
                 <div>
                   <h2 className="text-3xl font-bold text-amber-500">4.9★</h2>
 
@@ -110,47 +110,17 @@ const Hero = () => {
 
             
 
-              {/* Coffee */}
+              {/* Coffee /}
 
             
 
               {/* Floating Cards */}
 
-              <div className="absolute top-8 left-0 bg-white/10 backdrop-blur-xl rounded-2xl px-6 py-4 border border-white/20">
-                <div className="flex items-center gap-3">
-                  <FaStar className="text-amber-500 text-xl" />
+              
 
-                  <div>
-                    <h3 className="text-white font-bold">4.9 Rating</h3>
+              
 
-                    <p className="text-gray-300 text-sm">12,000+ Reviews</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="absolute bottom-14 left-4 bg-white/10 backdrop-blur-xl rounded-2xl px-6 py-4 border border-white/20">
-                <div className="flex items-center gap-3">
-                  <TbTruckDelivery className="text-amber-500 text-2xl" />
-
-                  <div>
-                    <h3 className="text-white font-bold">Fast Delivery</h3>
-
-                    <p className="text-gray-300 text-sm">15 Minutes</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="absolute top-1/2 -right-4 bg-white/10 backdrop-blur-xl rounded-2xl px-6 py-4 border border-white/20">
-                <div className="flex items-center gap-3">
-                  <MdRestaurantMenu className="text-amber-500 text-2xl" />
-
-                  <div>
-                    <h3 className="text-white font-bold">80+</h3>
-
-                    <p className="text-gray-300 text-sm">Delicious Meals</p>
-                  </div>
-                </div>
-              </div>
+              
             </div>
           </div>
         </div>
