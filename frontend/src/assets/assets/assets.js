@@ -76,6 +76,8 @@ import barley_image from "./barley_image.png";
 
 import main_dish from "./main_dish.png";
 import fast_food from "./fast_food.png";
+import burger from "./burger.png";
+import coffee from "./coffee.png";
 
 export const assets = {
   logo,
@@ -108,6 +110,8 @@ export const assets = {
   box_icon,
   mobile_banner,
   desktop_banner,
+  burger,
+  coffee,
 };
 
 export const categories = [
