@@ -54,7 +54,7 @@ const Hero = () => {
                 <span className="text-amber-500"> Coffee,</span>
                 <br />
                 ግሩም
-                <span className="text-amber-500"> ቴስት</span>
+                <span className="text-amber-500"> ጣዕም</span>
               </h1>
 
               <p className="mt-6 text-gray-300 text-lg max-w-xl leading-8">
@@ -78,6 +78,13 @@ const Hero = () => {
                   className="bg-amber-600 hover:bg-amber-700 duration-300 px-8 py-4 rounded-full font-semibold shadow-xl"
                 >
                   Explore Menu
+                </button>
+
+                <button
+                  onClick={() => navigate("/cart")}
+                  className="bg-amber-600 hover:bg-amber-700 duration-300 px-8 py-4 rounded-full font-semibold shadow-xl"
+                >
+                  Order Now
                 </button>
               </div>
 
