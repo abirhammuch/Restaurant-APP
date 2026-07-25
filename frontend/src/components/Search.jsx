@@ -1,7 +1,6 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect } from "react";
 import { assets } from "../assets/assets/assets";
 import { AppContext } from "../context/AppContext";
-import Food from "./FoodCard";
 
 const Search = () => {
   const {
@@ -29,16 +28,16 @@ const Search = () => {
   }, [foods, searchedQuery, getLocalizedFoodName, setSearchedFood]);
 
   return (
-    <div className=" hidden  sm:flex gap-4 justify-center my-12">
-      <div className="relative ">
+    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 justify-center my-8 sm:my-12 w-full max-w-2xl mx-auto">
+      <div className="relative flex-1">
         <input
           onChange={(e) => setSearchedQuery(e.target.value)}
           type="text"
-          className=" px-9 py-2 bg-white rounded-[6px] w- md:w-90"
+          className="w-full px-9 py-3 bg-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500"
           placeholder={t("searchFoodPlaceholder")}
         />
         <img
-          className="absolute top-3 left-2"
+          className="absolute top-3.5 left-3 h-4 w-4"
           src={assets.search_icon}
           alt=""
         />
@@ -46,7 +45,7 @@ const Search = () => {
 
       <button
         onClick={() => navigate("/menu/search")}
-        className="bg-amber-600 text-white text-sm py-2 rounded-sm px-3 cursor-pointer"
+        className="bg-amber-600 hover:bg-amber-700 text-white text-sm py-3 rounded-md px-4 cursor-pointer transition-colors duration-300"
       >
         Find Food
       </button>
