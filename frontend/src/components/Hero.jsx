@@ -108,19 +108,11 @@ const Hero = () => {
             <div className="relative hidden lg:flex justify-center items-center min-h-[520px]">
               {/* Burger */}
 
-              <img
-                src={assets.burger}
-                alt="Premium burger with fresh toppings"
-                className="w-[28rem] max-w-full animate-float drop-shadow-[0_20px_40px_rgba(0,0,0,.5)] z-10"
-              />
+            
 
               {/* Coffee */}
 
-              <img
-                src={assets.coffee}
-                alt="Freshly brewed coffee cup"
-                className="absolute bottom-6 right-4 w-48 max-w-[45%] animate-float-slow drop-shadow-[0_20px_40px_rgba(0,0,0,.5)] z-20"
-              />
+            
 
               {/* Floating Cards */}
 
