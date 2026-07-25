@@ -51,6 +51,9 @@ const Hero = () => {
                 Fresh Burgers.
                 <br />
                 Premium
+                <span className="text-amber-500"> Coffee,</span>
+                <br />
+                ግሩም ቴስት
                 <span className="text-amber-500"> Coffee</span>
               </h1>
 
@@ -62,7 +65,7 @@ const Hero = () => {
               {/* Search */}
 
               <div className="mt-10">
-                <div >
+                <div>
                   <Search />
                 </div>
               </div>
@@ -76,13 +79,11 @@ const Hero = () => {
                 >
                   Explore Menu
                 </button>
-
-                
               </div>
 
               {/* Statistics */}
 
-              <div className="grid grid-cols-3 gap-8 mt-24 mb-24">
+              <div className="grid grid-cols-3 gap-8 mt-24 ">
                 <div>
                   <h2 className="text-3xl font-bold text-amber-500">4.9★</h2>
 
@@ -108,19 +109,11 @@ const Hero = () => {
             <div className="relative hidden lg:flex justify-center items-center min-h-[520px]">
               {/* Burger */}
 
-            
-
               {/* Coffee /}
 
             
 
               {/* Floating Cards */}
-
-              
-
-              
-
-              
             </div>
           </div>
         </div>
