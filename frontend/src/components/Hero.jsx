@@ -77,12 +77,7 @@ const Hero = () => {
                   Explore Menu
                 </button>
 
-                <button
-                  onClick={() => navigate("/contact")}
-                  className="border border-white hover:bg-white hover:text-black duration-300 px-8 py-4 rounded-full font-semibold"
-                >
-                  Reserve Table
-                </button>
+                
               </div>
 
               {/* Statistics */}
