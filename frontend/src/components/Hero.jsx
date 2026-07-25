@@ -53,8 +53,8 @@ const Hero = () => {
                 Premium
                 <span className="text-amber-500"> Coffee,</span>
                 <br />
-                ግሩም ቴስት
-                <span className="text-amber-500"> Coffee</span>
+                ግሩም
+                <span className="text-amber-500"> ቴስት</span>
               </h1>
 
               <p className="mt-6 text-gray-300 text-lg max-w-xl leading-8">
@@ -83,7 +83,7 @@ const Hero = () => {
 
               {/* Statistics */}
 
-              <div className="grid grid-cols-3 gap-8 mt-19 ">
+              <div className="grid grid-cols-3 gap-8 mt-30 ">
                 <div>
                   <h2 className="text-3xl font-bold text-amber-500">4.9★</h2>
 
