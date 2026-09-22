@@ -99,10 +99,10 @@ app.use(async (req, res, next) => {
     await connectDB();
     next();
   } catch (error) {
+    console.error("Database unavailable for request:", error.message);
     res.status(503).json({
       success: false,
       message: "Database unavailable",
-      error: error.message,
     });
   }
 });
