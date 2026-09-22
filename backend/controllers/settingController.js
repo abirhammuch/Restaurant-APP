@@ -16,9 +16,11 @@ const getSettings = async () => {
 
   return {
     currency: "ETB",
-    deliveryFee: Number(settings.deliveryFee),
-    taxRate: Number(settings.taxRate),
-    freeDeliveryThreshold: Number(settings.freeDeliveryThreshold),
+    deliveryFee: Number(settings.deliveryFee ?? defaultSettings.deliveryFee),
+    taxRate: Number(settings.taxRate ?? defaultSettings.taxRate),
+    freeDeliveryThreshold: Number(
+      settings.freeDeliveryThreshold ?? defaultSettings.freeDeliveryThreshold,
+    ),
   };
 };
 

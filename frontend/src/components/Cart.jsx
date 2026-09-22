@@ -10,6 +10,7 @@ import Less from "./Less";
 const Cart = () => {
   const {
     tax,
+    restaurantSettings,
     cartCount,
     cart,
     currency,
@@ -38,16 +39,17 @@ const Cart = () => {
   }, [foods, more, popularFood]);
 
   const subtotal = cart.subtotal || 0;
-  const deliveryUsd = subtotal < 50 ? 0 : 10;
-  const serviceTaxUsd = Number(((subtotal * tax) / 100).toFixed(2));
-  const discountUsd =
+  const deliveryFee =
+    subtotal >= restaurantSettings.freeDeliveryThreshold
+      ? 0
+      : restaurantSettings.deliveryFee;
+  const serviceTax = Number(((subtotal * tax) / 100).toFixed(2));
+  const discount =
     couponType === "fixed"
       ? couponDiscount
       : Number((subtotal * couponRate).toFixed(2));
-  const totalAmountUsd = Number(
-    Math.max(0, subtotal + deliveryUsd + serviceTaxUsd - discountUsd).toFixed(
-      2,
-    ),
+  const totalAmount = Number(
+    Math.max(0, subtotal + deliveryFee + serviceTax - discount).toFixed(2),
   );
 
   const handleQuantityUpdate = async (foodId, currentQuantity, change) => {
@@ -220,7 +222,6 @@ const Cart = () => {
           </div>
         </div>
 
-
         <aside className="lg:sticky lg:top-6">
           <div className="rounded-[28px] border border-gray-100 bg-white p-5 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.18)] sm:p-6">
             <p className="text-2xl font-bold text-gray-900">Order Summary</p>
@@ -234,20 +235,20 @@ const Cart = () => {
               <div className="flex items-center justify-between text-sm text-gray-600">
                 <p>Delivery Fee</p>
                 <p className="font-semibold text-green-600">
-                  {formatPrice(deliveryUsd)}
+                  {formatPrice(deliveryFee)}
                 </p>
               </div>
               <div className="flex items-center justify-between text-sm text-gray-600">
                 <p>Service Tax (8%)</p>
                 <p className="font-semibold text-gray-900">
-                  {formatPrice(serviceTaxUsd)}
+                  {formatPrice(serviceTax)}
                 </p>
               </div>
-              {discountUsd > 0 && (
+              {discount > 0 && (
                 <div className="flex items-center justify-between text-sm text-gray-600">
                   <p>Discount</p>
                   <p className="font-semibold text-red-600">
-                    -{formatPrice(discountUsd)}
+                    -{formatPrice(discount)}
                   </p>
                 </div>
               )}
@@ -260,7 +261,7 @@ const Cart = () => {
                 <p className="mt-1 text-sm text-gray-500">VAT INCLUDED</p>
               </div>
               <p className="text-xl font-bold text-amber-600">
-                {formatPrice(totalAmountUsd)}
+                {formatPrice(totalAmount)}
               </p>
             </div>
 
