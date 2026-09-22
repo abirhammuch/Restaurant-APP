@@ -362,6 +362,85 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
+const submitTelebirrPayment = async (req, res) => {
+  try {
+    const transactionId = req.body.transactionId?.toString().trim();
+    const order = await orderModel.findOne({
+      _id: req.params.orderId,
+      userId: req.userId,
+    });
+
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
+    }
+    if (order.paymentMethod !== "telebirr") {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "This order is not a Telebirr order",
+        });
+    }
+    if (!transactionId) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Transaction ID is required" });
+    }
+
+    order.transactionId = transactionId;
+    order.paymentGateway = "telebirr";
+    order.paymentStatus = "pending";
+    await order.save();
+
+    res.json({
+      success: true,
+      message: "Payment submitted for verification",
+      order,
+    });
+  } catch (error) {
+    console.error("Submit Telebirr payment error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const approveTelebirrPayment = async (req, res) => {
+  try {
+    const order = await orderModel.findById(req.params.orderId);
+    if (!order) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Order not found" });
+    }
+    if (order.paymentMethod !== "telebirr" || !order.transactionId) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "A Telebirr transaction ID is required before approval",
+        });
+    }
+
+    order.paymentStatus = "paid";
+    order.paymentGateway = "telebirr";
+    order.transactionDetails = {
+      ...(order.transactionDetails?.toObject?.() ||
+        order.transactionDetails ||
+        {}),
+      status: "paid",
+      reference: order.transactionId,
+      verifiedAt: new Date(),
+    };
+    await order.save();
+
+    res.json({ success: true, message: "Telebirr payment approved", order });
+  } catch (error) {
+    console.error("Approve Telebirr payment error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // ✅ Admin: Get All Orders
 const getAllOrders = async (req, res) => {
   try {
@@ -582,6 +661,8 @@ export {
   getOrderDetails,
   cancelOrder,
   updateOrderStatus,
+  submitTelebirrPayment,
+  approveTelebirrPayment,
   getAllOrders,
   getOrderStats,
   deleteOrder,

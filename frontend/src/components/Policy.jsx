@@ -7,7 +7,7 @@ const Policy = () => {
     <div className='pb-9 bg-gray-100'>
       
       <div className='sm:flex justify-between items-center px-9 border-t mx-6 border-gray-300  pt-4 '>
-        <p className='mb-5'>2026 Green cart, All right reserved</p>
+        <p className='mb-5'>2026 Tanna Cafe, All right reserved</p>
 
         <hr className='mt-2 mb-4 text-gray-300 sm:hidden'/>
         <div className='flex justify-between items-center px-9 gap-9'>

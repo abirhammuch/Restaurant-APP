@@ -19,6 +19,7 @@ import CartPage from "./pages/CartPage";
 import Checkout from "./pages/Checkout";
 import OrderDetail from "./pages/OrderDetail";
 import PaymentStatus from "./pages/PaymentStatus";
+import TelebirrPayment from "./pages/TelebirrPayment";
 import Login from "./pages/Login";
 import { AppContext } from "./context/AppContext";
 import AdminLogin from "./pages/adminpage/AdminLogin";
@@ -76,6 +77,10 @@ const App = () => {
           <Route path="/orders" element={<Order />} />
           <Route path="/orders/:orderId" element={<OrderDetail />} />
           <Route path="/payment-status" element={<PaymentStatus />} />
+          <Route
+            path="/telebirr-payment/:orderId"
+            element={<TelebirrPayment />}
+          />
           <Route path="/menu" element={<MenuPage />} />
           <Route path="/menu/:category" element={<CategoryPage />} />
           <Route path="/menu/search" element={<SearchFood />} />

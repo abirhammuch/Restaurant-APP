@@ -156,6 +156,9 @@ const Checkout = () => {
         if (method === "chapa") {
           toast.info(t("redirectingToPayment") || "Redirecting to Chapa...");
           await handleChapaPayment(orderId);
+        } else if (method === "telebirr") {
+          await clearCart();
+          navigate(`/telebirr-payment/${orderId}`);
         } else {
           // For cash and other methods, show success and navigate
           toast.success(t("orderPlaced"));

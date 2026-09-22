@@ -5,6 +5,8 @@ const defaultSettings = {
   deliveryFee: 10,
   taxRate: 8,
   freeDeliveryThreshold: 500,
+  telebirrAccountName: "Tanna Cafe",
+  telebirrAccountNumber: "",
 };
 
 const getSettings = async () => {
@@ -21,6 +23,9 @@ const getSettings = async () => {
     freeDeliveryThreshold: Number(
       settings.freeDeliveryThreshold ?? defaultSettings.freeDeliveryThreshold,
     ),
+    telebirrAccountName:
+      settings.telebirrAccountName || defaultSettings.telebirrAccountName,
+    telebirrAccountNumber: settings.telebirrAccountNumber || "",
   };
 };
 
@@ -42,13 +47,18 @@ export const updateSettings = async (req, res) => {
     const deliveryFee = Number(req.body.deliveryFee);
     const taxRate = Number(req.body.taxRate);
     const freeDeliveryThreshold = Number(req.body.freeDeliveryThreshold);
+    const telebirrAccountName = req.body.telebirrAccountName?.toString().trim();
+    const telebirrAccountNumber = req.body.telebirrAccountNumber
+      ?.toString()
+      .trim();
 
     if (
       ![deliveryFee, taxRate, freeDeliveryThreshold].every(Number.isFinite) ||
       deliveryFee < 0 ||
       taxRate < 0 ||
       taxRate > 100 ||
-      freeDeliveryThreshold < 0
+      freeDeliveryThreshold < 0 ||
+      !telebirrAccountName
     ) {
       return res.status(400).json({
         success: false,
@@ -64,6 +74,8 @@ export const updateSettings = async (req, res) => {
           deliveryFee,
           taxRate,
           freeDeliveryThreshold,
+          telebirrAccountName,
+          telebirrAccountNumber,
         },
       },
       { upsert: true, new: true, setDefaultsOnInsert: true },

@@ -9,6 +9,8 @@ const Settings = () => {
     deliveryFee: 10,
     taxRate: 8,
     freeDeliveryThreshold: 500,
+    telebirrAccountName: "Tanna Cafe",
+    telebirrAccountNumber: "",
   });
   const [saving, setSaving] = useState(false);
 
@@ -102,6 +104,26 @@ const Settings = () => {
               value={settings.freeDeliveryThreshold}
               onChange={updateField("freeDeliveryThreshold")}
               className="rounded-md border border-gray-300 px-3 py-2"
+            />
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="text-sm font-medium">Telebirr account name</span>
+            <input
+              type="text"
+              value={settings.telebirrAccountName || ""}
+              onChange={updateField("telebirrAccountName")}
+              className="rounded-md border border-gray-300 px-3 py-2"
+              required
+            />
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="text-sm font-medium">Telebirr account number</span>
+            <input
+              type="text"
+              value={settings.telebirrAccountNumber || ""}
+              onChange={updateField("telebirrAccountNumber")}
+              className="rounded-md border border-gray-300 px-3 py-2"
+              placeholder="09XXXXXXXX"
             />
           </label>
         </div>

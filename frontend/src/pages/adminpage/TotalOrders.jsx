@@ -90,6 +90,27 @@ const Orders = () => {
     }
   };
 
+  const handleApprovePayment = async (orderId) => {
+    try {
+      setLoading(true);
+      const response = await axios.put(
+        `${backendUrl}/api/order/admin/payment/approve/${orderId}`,
+        {},
+        { headers: { admintoken: getToken() } },
+      );
+      if (response.data.success) {
+        toast.success("Telebirr payment approved");
+        await fetchOrders();
+      } else {
+        toast.error(response.data.message || "Failed to approve payment");
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // ✅ Handle Delete Order
   const handleDeleteOrder = async (orderId) => {
     if (!window.confirm("Are you sure you want to delete this order?")) return;
@@ -334,7 +355,7 @@ const Orders = () => {
 
       {/* Orders Table */}
       <div className="border rounded-2xl border-gray-300 overflow-hidden">
-        <div className="grid grid-cols-[0.8fr_1.5fr_0.8fr_1fr_1.2fr_1.5fr_1fr_1fr] px-4 py-4 bg-gray-100 font-bold text-sm">
+        <div className="grid grid-cols-[0.8fr_1.5fr_0.8fr_1fr_1.2fr_1.5fr_1fr_1.3fr_1fr] px-4 py-4 bg-gray-100 font-bold text-sm">
           <p>Order ID</p>
           <p>Customer</p>
           <p>Table</p>
@@ -342,6 +363,7 @@ const Orders = () => {
           <p>Time</p>
           <p>Order Status</p>
           <p>Payment</p>
+          <p>Transaction</p>
           <p>Actions</p>
         </div>
 
@@ -349,7 +371,7 @@ const Orders = () => {
           filteredOrders.map((order) => (
             <div
               key={order._id}
-              className="grid grid-cols-1 gap-3 xl:grid-cols-[0.8fr_1.5fr_0.8fr_1fr_1.2fr_1.5fr_1fr_1fr] px-4 py-4 border-t border-gray-100 items-start xl:items-center hover:bg-gray-50 transition-colors"
+              className="grid grid-cols-1 gap-3 xl:grid-cols-[0.8fr_1.5fr_0.8fr_1fr_1.2fr_1.5fr_1fr_1.3fr_1fr] px-4 py-4 border-t border-gray-100 items-start xl:items-center hover:bg-gray-50 transition-colors"
             >
               <p className="text-xs font-mono truncate">
                 {order._id.slice(-6)}
@@ -391,6 +413,28 @@ const Orders = () => {
               >
                 {order.paymentStatus || "pending"}
               </p>
+
+              <div className="flex flex-col gap-2">
+                {order.paymentMethod === "telebirr" && order.transactionId && (
+                  <>
+                    <p
+                      className="max-w-28 truncate text-xs text-gray-500"
+                      title={order.transactionId}
+                    >
+                      {order.transactionId}
+                    </p>
+                    {order.paymentStatus !== "paid" && (
+                      <button
+                        type="button"
+                        onClick={() => handleApprovePayment(order._id)}
+                        className="rounded bg-emerald-600 px-2 py-1 text-xs font-semibold text-white hover:bg-emerald-700"
+                      >
+                        Approve payment
+                      </button>
+                    )}
+                  </>
+                )}
+              </div>
 
               <div className="flex gap-3">
                 <FaPencil
