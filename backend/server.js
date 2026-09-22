@@ -30,14 +30,20 @@ try {
 const app = express();
 
 // CORS
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "https://restaurant-app-marshal-nine.vercel.app",
+  "https://restaurant-app-zq6o.vercel.app",
+  "https://restaurant-app-gold-sigma.vercel.app",
+  ...(process.env.FRONTEND_URL || "").split(","),
+]
+  .map((origin) => origin.trim().replace(/\/+$/, ""))
+  .filter(Boolean);
+
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "http://localhost:5174",
-      "https://restaurant-app-marshal-nine.vercel.app",
-      "https://restaurant-app-gold-sigma.vercel.app",
-    ],
+    origin: allowedOrigins,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: [
