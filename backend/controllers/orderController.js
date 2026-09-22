@@ -3,6 +3,7 @@ import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
 import foodModel from "../models/foodModel.js";
 import promoModel from "../models/promoModel.js";
+import { getSettings } from "./settingController.js";
 
 // ✅ Create Order - Matches your model
 const createOrder = async (req, res) => {
@@ -62,10 +63,11 @@ const createOrder = async (req, res) => {
       });
     }
 
-    // Calculate delivery fee, tax, and total
-    const deliveryFee = subtotal > 500 ? 0 : 10;
-    const taxRate = 8;
-    const tax = (subtotal * taxRate) / 100;
+    // Calculate totals from the admin-controlled ETB settings.
+    const settings = await getSettings();
+    const deliveryFee =
+      subtotal >= settings.freeDeliveryThreshold ? 0 : settings.deliveryFee;
+    const tax = Number(((subtotal * settings.taxRate) / 100).toFixed(2));
 
     let discount = 0;
     let appliedPromo = null;

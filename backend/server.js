@@ -13,6 +13,7 @@ import promoRouter from "./routes/promoRoute.js";
 import ratingRouter from "./routes/ratingRouter.js";
 import chatRouter from "./routes/chatRoute.js";
 import chapaRouter from "./routes/chapaRoute.js";
+import settingRouter from "./routes/settingRoute.js";
 
 import mongoose from "mongoose";
 
@@ -119,6 +120,7 @@ app.use("/api/promo", promoRouter);
 app.use("/api/rating", ratingRouter);
 app.use("/api/chat", chatRouter);
 app.use("/api/chapa", chapaRouter);
+app.use("/api/settings", settingRouter);
 
 // ✅ Root Route
 app.get("/", (req, res) => {

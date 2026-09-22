@@ -246,19 +246,6 @@ const Navbar = () => {
                             <input
                               type="radio"
                               name="currency"
-                              value="USD"
-                              checked={currencyType === "USD"}
-                              onChange={() => changeCurrency("USD")}
-                              className="w-4 h-4 text-amber-600"
-                            />
-                            <span className="text-sm text-gray-700">
-                              {t("usd")}
-                            </span>
-                          </label>
-                          <label className="flex items-center gap-2 cursor-pointer hover:bg-gray-100 p-2 rounded">
-                            <input
-                              type="radio"
-                              name="currency"
                               value="ETB"
                               checked={currencyType === "ETB"}
                               onChange={() => changeCurrency("ETB")}
@@ -418,17 +405,6 @@ const Navbar = () => {
                     {t("currency")}
                   </p>
                   <div className="space-y-2">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="currency"
-                        value="USD"
-                        checked={currencyType === "USD"}
-                        onChange={() => changeCurrency("USD")}
-                        className="w-4 h-4 text-amber-600"
-                      />
-                      <span className="text-sm text-gray-700">{t("usd")}</span>
-                    </label>
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="radio"

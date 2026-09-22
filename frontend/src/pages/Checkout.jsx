@@ -22,6 +22,7 @@ const Checkout = () => {
     cartCount,
     delivery_fee,
     tax,
+    restaurantSettings,
     setLoading,
     backendUrl,
     clearCart,
@@ -185,7 +186,8 @@ const Checkout = () => {
   // ✅ Calculate totals
   const subtotal = cart.subtotal || 0;
   const taxAmount = (subtotal * (tax || 8)) / 100;
-  const deliveryFee = (cart.subtotal < 50 ? 0 : delivery_fee) || 0;
+  const deliveryFee =
+    subtotal >= restaurantSettings.freeDeliveryThreshold ? 0 : delivery_fee;
   const discountAmount =
     couponType === "fixed"
       ? couponDiscount

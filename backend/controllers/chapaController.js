@@ -3,7 +3,7 @@ import axios from "axios";
 import orderModel from "../models/orderModel.js";
 
 const CHAPA_API_URL = "https://api.chapa.co/v1";
-const CHAPA_SECRET_KEY = process.env.CHAPA_SECRET_KEY;
+const getChapaSecretKey = () => process.env.CHAPA_SECRET_KEY?.trim();
 
 const getBackendBaseUrl = (req) => {
   if (process.env.BACKEND_URL)
@@ -32,7 +32,8 @@ const initiateChapaPayment = async (req, res) => {
     const frontendBaseUrl = getFrontendBaseUrl(req);
 
     // Check if API key is configured
-    if (!CHAPA_SECRET_KEY) {
+    const chapaSecretKey = getChapaSecretKey();
+    if (!chapaSecretKey) {
       console.error("❌ CHAPA_SECRET_KEY not configured");
       return res.status(500).json({
         success: false,
@@ -89,7 +90,7 @@ const initiateChapaPayment = async (req, res) => {
       chapaPayload,
       {
         headers: {
-          Authorization: `Bearer ${CHAPA_SECRET_KEY}`,
+          Authorization: `Bearer ${chapaSecretKey}`,
           "Content-Type": "application/json",
         },
       },
@@ -151,7 +152,8 @@ const verifyChapaPayment = async (req, res) => {
       });
     }
 
-    if (!CHAPA_SECRET_KEY) {
+    const chapaSecretKey = getChapaSecretKey();
+    if (!chapaSecretKey) {
       console.error("❌ CHAPA_SECRET_KEY not configured for verification");
       return res.status(500).json({
         success: false,
@@ -166,7 +168,7 @@ const verifyChapaPayment = async (req, res) => {
       `${CHAPA_API_URL}/transaction/verify/${tx_ref}`,
       {
         headers: {
-          Authorization: `Bearer ${CHAPA_SECRET_KEY}`,
+          Authorization: `Bearer ${chapaSecretKey}`,
         },
       },
     );

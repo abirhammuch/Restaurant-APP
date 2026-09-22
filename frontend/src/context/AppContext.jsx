@@ -7,9 +7,6 @@ import { translations } from "../assets/translations";
 
 export const AppContext = createContext();
 
-// Exchange rate: 1 USD = 130 ETB (approximate)
-const ETH_TO_USD_RATE = 130;
-
 export const AppContextProvider = (props) => {
   const backendUrl =
     import.meta.env.VITE_BACKEND_URL?.replace(/\/+$/, "") || "";
@@ -22,7 +19,7 @@ export const AppContextProvider = (props) => {
   });
 
   const [currencyType, setCurrencyType] = useState(() => {
-    return localStorage.getItem("currencyType") || "USD";
+    return "ETB";
   });
 
   // Currency symbol based on type
@@ -34,10 +31,7 @@ export const AppContextProvider = (props) => {
 
   // Convert price based on currency
   const convertPrice = (priceInUSD) => {
-    if (currencyType === "ETB") {
-      return Math.round(priceInUSD * ETH_TO_USD_RATE);
-    }
-    return priceInUSD;
+    return Number(priceInUSD) || 0;
   };
 
   const formatPrice = (priceInUSD) => {
@@ -55,8 +49,15 @@ export const AppContextProvider = (props) => {
     return `$${amountString}`;
   };
 
-  const delivery_fee = convertPrice(10);
-  const tax = 8; // Tax percentage
+  const [restaurantSettings, setRestaurantSettings] = useState({
+    currency: "ETB",
+    deliveryFee: 10,
+    taxRate: 8,
+    freeDeliveryThreshold: 500,
+  });
+
+  const delivery_fee = restaurantSettings.deliveryFee;
+  const tax = restaurantSettings.taxRate;
 
   // Translation helper function
   const t = (key) => {
@@ -85,8 +86,8 @@ export const AppContextProvider = (props) => {
 
   // Change currency function
   const changeCurrency = (curr) => {
-    setCurrencyType(curr);
-    localStorage.setItem("currencyType", curr);
+    setCurrencyType("ETB");
+    localStorage.setItem("currencyType", "ETB");
   };
 
   const [fullCategory, setFullCategory] = useState(categories);
@@ -477,11 +478,26 @@ export const AppContextProvider = (props) => {
     }
   };
 
+  const getRestaurantSettings = async () => {
+    try {
+      const response = await axios.get(backendUrl + "/api/settings/public");
+      if (response.data.success) {
+        setRestaurantSettings(response.data.settings);
+      }
+    } catch (error) {
+      console.error("Failed to load restaurant settings:", error);
+    }
+  };
+
   // ✅ Load all data
   const loadAllData = async () => {
     setDataLoading(true);
     try {
-      await Promise.all([getFoodList(), getCategoryList()]);
+      await Promise.all([
+        getFoodList(),
+        getCategoryList(),
+        getRestaurantSettings(),
+      ]);
       console.log("✅ All data loaded successfully");
     } catch (error) {
       console.error("❌ Error loading data:", error);
@@ -925,6 +941,7 @@ export const AppContextProvider = (props) => {
     changeCurrency,
     delivery_fee,
     tax,
+    restaurantSettings,
     language,
     adminLanguage,
     changeAdminLanguage,
