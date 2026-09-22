@@ -1,6 +1,8 @@
 // backend/config/mongodb.js
 import mongoose from "mongoose";
 
+let connectionPromise;
+
 const connectDB = async () => {
   try {
     if (!process.env.MONGODB_URI) {
@@ -13,23 +15,30 @@ const connectDB = async () => {
       return mongoose.connection;
     }
 
+    if (connectionPromise) {
+      return await connectionPromise;
+    }
+
     console.log("🔗 Connecting to MongoDB Atlas...");
     console.log(
       "📡 URI:",
       process.env.MONGODB_URI.replace(/\/\/.*@/, "//***:***@"),
     );
 
-    const conn = await mongoose.connect(process.env.MONGODB_URI, {
+    connectionPromise = mongoose.connect(process.env.MONGODB_URI, {
       serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 45000,
       connectTimeoutMS: 10000,
     });
+    const conn = await connectionPromise;
+    connectionPromise = undefined;
 
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     console.log(`📊 Database Name: ${conn.connection.name}`);
 
     return conn;
   } catch (error) {
+    connectionPromise = undefined;
     console.error(`❌ MongoDB Connection Error: ${error.message}`);
     console.log(
       "\n💡 Fix: verify the MongoDB username/password in the URI and make sure your IP is allowed in Atlas Network Access.",

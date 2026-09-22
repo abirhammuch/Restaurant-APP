@@ -91,6 +91,22 @@ app.get("/api/chapa/status", (req, res) => {
   });
 });
 
+// Establish a connection for serverless requests after a cold start or disconnect.
+app.use(async (req, res, next) => {
+  if (mongoose.connection.readyState === 1) return next();
+
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    res.status(503).json({
+      success: false,
+      message: "Database unavailable",
+      error: error.message,
+    });
+  }
+});
+
 // ✅ API Routes
 app.use("/api/user", userRouter);
 app.use("/api/food", foodRouter);
