@@ -5,7 +5,13 @@ let connectionPromise;
 
 const connectDB = async () => {
   try {
-    if (!process.env.MONGODB_URI) {
+    const rawMongoUri = process.env.MONGODB_URI?.trim();
+    const mongoUri = rawMongoUri
+      ?.replace(/^MONGODB_URI\s*=\s*/i, "")
+      .replace(/^(["'])|(["'])$/g, "")
+      .trim();
+
+    if (!mongoUri) {
       throw new Error("MONGODB_URI is not defined");
     }
 
@@ -20,12 +26,9 @@ const connectDB = async () => {
     }
 
     console.log("🔗 Connecting to MongoDB Atlas...");
-    console.log(
-      "📡 URI:",
-      process.env.MONGODB_URI.replace(/\/\/.*@/, "//***:***@"),
-    );
+    console.log("📡 URI:", mongoUri.replace(/\/\/.*@/, "//***:***@"));
 
-    connectionPromise = mongoose.connect(process.env.MONGODB_URI, {
+    connectionPromise = mongoose.connect(mongoUri, {
       serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 45000,
       connectTimeoutMS: 10000,
