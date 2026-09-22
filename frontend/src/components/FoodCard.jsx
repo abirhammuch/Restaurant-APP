@@ -24,6 +24,17 @@ const cardVariants = {
   exit: { opacity: 0, y: -18, transition: { duration: 0.2 } },
 };
 
+const getFoodImage = (food) => {
+  if (food?.images?.[0] || food?.image?.[0]) {
+    return food.images?.[0] || food.image?.[0];
+  }
+
+  const category = food?.category?.toString().toLowerCase();
+  if (category === "breakfast") return assets.maggi_image;
+  if (category === "vegetarian") return assets.fresh_fruits_image;
+  return assets.main_dish || assets.burger;
+};
+
 const FoodCard = ({ food, animateCards = false }) => {
   const [ratings, setRatings] = useState({});
   const {
@@ -142,9 +153,7 @@ const FoodCard = ({ food, animateCards = false }) => {
               {/* Image */}
               <div className="relative h-48 overflow-hidden bg-gray-100 sm:h-52">
                 <img
-                  src={
-                    item.images?.[0] || item.image?.[0] || assets.upload_area
-                  }
+                  src={getFoodImage(item)}
                   alt={getLocalizedFoodName(item) || "Food"}
                   className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                   onError={(e) => {

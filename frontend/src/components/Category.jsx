@@ -1,5 +1,6 @@
 ﻿import { motion } from "framer-motion";
 import { AppContext } from "../context/AppContext";
+import { assets } from "../assets/assets/assets";
 import Less from "./Less";
 import More from "./More";
 import Title from "./Title";
@@ -43,8 +44,21 @@ const Category = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const getCategoryImage = (category) =>
-    category?.image || category?.images?.[0] || "";
+  const getCategoryImage = (category) => {
+    if (category?.image || category?.images?.[0]) {
+      return category.image || category.images[0];
+    }
+
+    const name = (
+      category?.name_en ||
+      category?.name ||
+      category?.name_am ||
+      ""
+    ).toLowerCase();
+    if (name.includes("breakfast")) return assets.maggi_image;
+    if (name.includes("vegetarian")) return assets.fresh_fruits_image;
+    return assets.main_dish;
+  };
   const visibleCategories = more ? allCategory : allCategory.slice(0, 6);
 
   return (

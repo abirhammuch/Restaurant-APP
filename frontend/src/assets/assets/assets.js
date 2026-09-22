@@ -110,6 +110,9 @@ export const assets = {
   box_icon,
   mobile_banner,
   desktop_banner,
+  main_dish,
+  fresh_fruits_image,
+  maggi_image,
   burger,
   coffee,
 };
