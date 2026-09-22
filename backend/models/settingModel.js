@@ -7,8 +7,8 @@ const settingSchema = new mongoose.Schema(
     deliveryFee: { type: Number, min: 0, default: 10 },
     taxRate: { type: Number, min: 0, max: 100, default: 8 },
     freeDeliveryThreshold: { type: Number, min: 0, default: 500 },
-    telebirrAccountName: { type: String, default: "Tanna Cafe" },
-    telebirrAccountNumber: { type: String, default: "" },
+    telebirrAccountName: { type: String, default: "marshal" },
+    telebirrAccountNumber: { type: String, default: "0973769266" },
   },
   { timestamps: true },
 );

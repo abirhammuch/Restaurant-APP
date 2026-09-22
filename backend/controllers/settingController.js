@@ -5,8 +5,8 @@ const defaultSettings = {
   deliveryFee: 10,
   taxRate: 8,
   freeDeliveryThreshold: 500,
-  telebirrAccountName: "Tanna Cafe",
-  telebirrAccountNumber: "",
+  telebirrAccountName: "marshal",
+  telebirrAccountNumber: "0973769266",
 };
 
 const getSettings = async () => {
@@ -25,7 +25,8 @@ const getSettings = async () => {
     ),
     telebirrAccountName:
       settings.telebirrAccountName || defaultSettings.telebirrAccountName,
-    telebirrAccountNumber: settings.telebirrAccountNumber || "",
+    telebirrAccountNumber:
+      settings.telebirrAccountNumber || defaultSettings.telebirrAccountNumber,
   };
 };
 

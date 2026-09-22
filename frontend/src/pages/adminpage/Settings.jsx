@@ -9,8 +9,8 @@ const Settings = () => {
     deliveryFee: 10,
     taxRate: 8,
     freeDeliveryThreshold: 500,
-    telebirrAccountName: "Tanna Cafe",
-    telebirrAccountNumber: "",
+    telebirrAccountName: "marshal",
+    telebirrAccountNumber: "0973769266",
   });
   const [saving, setSaving] = useState(false);
 

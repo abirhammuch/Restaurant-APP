@@ -54,6 +54,8 @@ export const AppContextProvider = (props) => {
     deliveryFee: 10,
     taxRate: 8,
     freeDeliveryThreshold: 500,
+    telebirrAccountName: "marshal",
+    telebirrAccountNumber: "0973769266",
   });
 
   const delivery_fee = restaurantSettings.deliveryFee;
