@@ -307,7 +307,7 @@ const Login = () => {
           </div>
 
           <div className="relative w-full">
-            <span className="absolute left-5 top-0 z-10 -translate-y-1/2 bg-white px-2 text-xs font-semibold text-[#ed5e13]">
+            <span className="absolute right-5 top-0 z-10 -translate-y-1/2 bg-white px-2 text-xs font-semibold text-[#ed5e13]">
               Recommended
             </span>
             <div
