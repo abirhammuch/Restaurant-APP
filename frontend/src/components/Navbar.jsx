@@ -201,6 +201,16 @@ const Navbar = () => {
                   {/* Settings Tab */}
                   {activeTab === "settings" && (
                     <div className="space-y-4">
+                      <button
+                        onClick={() => {
+                          handleNavigate("/change-password");
+                          setProfileDropdownOpen(false);
+                        }}
+                        className="w-full rounded bg-amber-50 px-4 py-2 text-left text-sm font-medium text-amber-700 transition hover:bg-amber-100"
+                      >
+                        Change password
+                      </button>
+
                       {/* Language Setting */}
                       <div>
                         <p className="text-xs font-semibold text-gray-600 mb-2">

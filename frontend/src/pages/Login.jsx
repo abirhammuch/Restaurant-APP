@@ -282,9 +282,7 @@ const Login = () => {
               </label>
               <button
                 type="button"
-                onClick={() =>
-                  toast.info("Password reset is not available yet.")
-                }
+                onClick={() => navigate("/forgot-password")}
                 className="font-medium text-[#ed5e13] hover:underline"
               >
                 Forgot password?

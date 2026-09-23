@@ -10,6 +10,8 @@ const userSchema = new mongoose.Schema(
     cartData: { type: Object, default: {} },
     isSubscribe: { type: Boolean, default: false },
     role: { type: String, enum: ["user", "admin"], default: "user" },
+    passwordResetOtpHash: { type: String, default: null },
+    passwordResetOtpExpiresAt: { type: Date, default: null },
   },
   { timestamps: true },
 );

@@ -34,6 +34,8 @@ import PromoManagement from "./pages/adminpage/PromoManagement";
 import Order from "./pages/Order";
 import AdminRatings from "./pages/adminpage/AdminRatings";
 import AdminChat from "./pages/adminpage/AdminChat";
+import ForgotPassword from "./pages/ForgotPassword";
+import ChangePassword from "./pages/ChangePassword";
 
 const App = () => {
   const location = useLocation();
@@ -71,6 +73,8 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/change-password" element={<ChangePassword />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<Checkout />} />

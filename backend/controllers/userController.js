@@ -4,9 +4,30 @@ import userModel from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import validator from "validator";
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
+import nodemailer from "nodemailer";
 
 const createToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+};
+
+const hashOtp = (otp) => crypto.createHash("sha256").update(otp).digest("hex");
+
+const createMailer = () => {
+  if (
+    !process.env.SMTP_HOST ||
+    !process.env.SMTP_USER ||
+    !process.env.SMTP_PASS
+  ) {
+    return null;
+  }
+
+  return nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT || 587),
+    secure: process.env.SMTP_SECURE === "true",
+    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+  });
 };
 
 // ✅ User Login
@@ -211,6 +232,146 @@ const adminLogin = async (req, res) => {
   }
 };
 
+const requestPasswordReset = async (req, res) => {
+  try {
+    const email = req.body.email?.toString().trim().toLowerCase();
+    if (!email || !validator.isEmail(email)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Enter a valid email" });
+    }
+
+    const user = await userModel.findOne({ email });
+    if (!user) {
+      return res.json({
+        success: true,
+        message: "If the account exists, an OTP has been sent",
+      });
+    }
+
+    const mailer = createMailer();
+    if (!mailer) {
+      return res
+        .status(503)
+        .json({ success: false, message: "Email service is not configured" });
+    }
+
+    const otp = crypto.randomInt(100000, 1000000).toString();
+    user.passwordResetOtpHash = hashOtp(otp);
+    user.passwordResetOtpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
+    await user.save();
+
+    await mailer.sendMail({
+      from: process.env.SMTP_FROM || process.env.SMTP_USER,
+      to: user.email,
+      subject: "Your Digital Menu password reset OTP",
+      text: `Your password reset OTP is ${otp}. It expires in 10 minutes. If you did not request this, ignore this email.`,
+      html: `<p>Your password reset OTP is:</p><h2>${otp}</h2><p>This code expires in 10 minutes.</p>`,
+    });
+
+    res.json({
+      success: true,
+      message: "If the account exists, an OTP has been sent",
+    });
+  } catch (error) {
+    console.error("Request password reset error:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Unable to send reset email" });
+  }
+};
+
+const resetPasswordWithOtp = async (req, res) => {
+  try {
+    const email = req.body.email?.toString().trim().toLowerCase();
+    const otp = req.body.otp?.toString().trim();
+    const newPassword = req.body.newPassword?.toString();
+
+    if (!email || !otp || !newPassword) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "Email, OTP, and new password are required",
+        });
+    }
+    if (newPassword.length < 8) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "Password must be at least 8 characters",
+        });
+    }
+
+    const user = await userModel.findOne({ email });
+    const validOtp =
+      user &&
+      user.passwordResetOtpExpiresAt > new Date() &&
+      user.passwordResetOtpHash === hashOtp(otp);
+    if (!validOtp) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid or expired OTP" });
+    }
+
+    user.password = await bcrypt.hash(newPassword, await bcrypt.genSalt(10));
+    user.provider = "local";
+    user.passwordResetOtpHash = null;
+    user.passwordResetOtpExpiresAt = null;
+    await user.save();
+
+    res.json({ success: true, message: "Password reset successfully" });
+  } catch (error) {
+    console.error("Reset password error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "Current and new passwords are required",
+        });
+    }
+    if (newPassword.length < 8) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "Password must be at least 8 characters",
+        });
+    }
+
+    const user = await userModel.findById(req.userId);
+    if (!user || !user.password) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "Use forgot password to set a password for this account",
+        });
+    }
+    if (!(await bcrypt.compare(currentPassword, user.password))) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Current password is incorrect" });
+    }
+
+    user.password = await bcrypt.hash(newPassword, await bcrypt.genSalt(10));
+    await user.save();
+    res.json({ success: true, message: "Password changed successfully" });
+  } catch (error) {
+    console.error("Change password error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // ✅ Get User Count (For Dashboard)
 const getUserCount = async (req, res) => {
   try {
@@ -284,6 +445,9 @@ export {
   userRegister,
   googleAuth,
   adminLogin,
+  requestPasswordReset,
+  resetPasswordWithOtp,
+  changePassword,
   getUserCount,
   getAllUsers,
   getUser,
