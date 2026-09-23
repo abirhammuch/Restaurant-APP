@@ -1,10 +1,35 @@
-import React from "react";
+import React, { useState } from "react";
 import { assets, footerLinks } from "../assets/assets/assets";
 import { FaStar } from "react-icons/fa";
 import { FaLocationDot } from "react-icons/fa6";
 import { FaClock } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const FooterLink = () => {
+  const navigate = useNavigate();
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+
+  const handleFooterLink = (event, url) => {
+    if (!url || url === "#") {
+      event.preventDefault();
+      navigate("/contact");
+      return;
+    }
+
+    if (url.startsWith("/")) {
+      event.preventDefault();
+      navigate(url);
+    }
+  };
+
+  const handleNewsletterSubmit = (event) => {
+    event.preventDefault();
+    if (!newsletterEmail.trim()) return;
+    toast.success("Thanks for subscribing to our updates!");
+    setNewsletterEmail("");
+  };
+
   return (
     <footer className="bg-slate-950 text-white">
       <div className="mx-auto max-w-7xl space-y-10 px-4 py-16 sm:px-6 lg:px-8">
@@ -25,6 +50,10 @@ const FooterLink = () => {
               {["Facebook", "Instagram", "Twitter"].map((network) => (
                 <button
                   key={network}
+                  type="button"
+                  onClick={() =>
+                    toast.info(`${network} updates are coming soon.`)
+                  }
                   className="rounded-full border border-slate-700 px-3 py-2 transition hover:border-amber-500 hover:text-amber-400"
                 >
                   {network}
@@ -43,6 +72,7 @@ const FooterLink = () => {
                   <a
                     key={link.text}
                     href={link.url}
+                    onClick={(event) => handleFooterLink(event, link.url)}
                     className="block transition hover:text-amber-400"
                   >
                     {link.text}
@@ -94,13 +124,16 @@ const FooterLink = () => {
             <p className="text-sm leading-7 text-slate-300">
               Subscribe for exclusive offers and updates.
             </p>
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleNewsletterSubmit}>
               <label className="sr-only" htmlFor="footer-email">
                 Email address
               </label>
               <input
                 id="footer-email"
                 type="email"
+                value={newsletterEmail}
+                onChange={(event) => setNewsletterEmail(event.target.value)}
+                required
                 placeholder="Email address"
                 className="w-full rounded-2xl border border-slate-700 bg-slate-900/90 px-4 py-3 text-sm text-white placeholder:text-slate-500 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400/20"
               />
