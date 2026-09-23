@@ -115,7 +115,7 @@ const FooterLink = () => {
         </div>
 
         <div className="border-t border-slate-800 pt-6 text-sm text-slate-500 sm:flex sm:items-center sm:justify-between">
-          <p>© 2026 Digital Menu. All rights reserved.</p>
+          <p>© 2026 Tanna Cafe. All rights reserved.</p>
           <p>Built for fast orders and tasty moments.</p>
         </div>
       </div>
