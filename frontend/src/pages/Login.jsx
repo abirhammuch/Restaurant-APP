@@ -94,9 +94,10 @@ const Login = () => {
         window.google.accounts.id.renderButton(googleButtonRef.current, {
           theme: "outline",
           size: "large",
-          width: "100%",
+          width: "400",
           text: "signin_with",
           shape: "rectangular",
+          logo_alignment: "center",
         });
 
         setGoogleReady(true);
@@ -307,7 +308,7 @@ const Login = () => {
 
           <div
             ref={googleButtonRef}
-            className="flex min-h-13 w-full items-center justify-center overflow-hidden rounded-xl [&>div]:!w-full"
+            className="flex min-h-13 w-full items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:bg-slate-50 [&>div]:!h-13 [&>div]:!w-full"
           />
           {!googleReady && (
             <button
