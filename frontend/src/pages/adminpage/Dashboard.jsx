@@ -52,9 +52,9 @@ const Dashboard = () => {
 
   const getToken = () => localStorage.getItem("admintoken");
 
-  // ✅ Format currency
+  // ✅ Format restaurant currency
   const formatCurrency = (amount) => {
-    return `$${amount?.toFixed(2) || "0.00"}`;
+    return `ETB ${Number(amount || 0).toFixed(2)}`;
   };
 
   // ✅ Get status color
@@ -464,7 +464,7 @@ const Dashboard = () => {
                       {order.items?.length || 0} items
                     </td>
                     <td className="px-4 py-2 text-sm font-semibold">
-                      ${order.total?.toFixed(2) || "0.00"}
+                      ETB {Number(order.total || 0).toFixed(2)}
                     </td>
                     <td className="px-4 py-2">
                       <span
