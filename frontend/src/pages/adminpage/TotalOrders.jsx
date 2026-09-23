@@ -60,6 +60,8 @@ const Orders = () => {
     });
   };
 
+  const formatETB = (amount) => `ETB ${Number(amount || 0).toFixed(2)}`;
+
   // ✅ Handle Order Status Update
   const handleOrderStatus = async (orderId, newStatus) => {
     try {
@@ -161,7 +163,7 @@ const Orders = () => {
       order.deliveryAddress?.name || "N/A",
       order.deliveryAddress?.phone || "N/A",
       order.table || "N/A",
-      order.total?.toFixed(2) || "0.00",
+      formatETB(order.total),
       getFormattedDate(order.createdAt),
       getFormattedTime(order.createdAt),
       order.orderStatus || "N/A",
@@ -381,7 +383,7 @@ const Orders = () => {
               </p>
               <p className="text-sm">{order.table || "N/A"}</p>
               <p className="font-bold text-amber-600">
-                ${order.total?.toFixed(2)}
+                {formatETB(order.total)}
               </p>
               <p className="text-xs">
                 {getFormattedTime(order.createdAt)}
