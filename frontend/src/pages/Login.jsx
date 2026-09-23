@@ -1,7 +1,8 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import { FaUser, FaGoogle } from "react-icons/fa";
+import { FaGoogle, FaEye, FaEyeSlash } from "react-icons/fa";
 import { MdEmail } from "react-icons/md";
 import { FaLock } from "react-icons/fa6";
+import { FiLogIn } from "react-icons/fi";
 import { AppContext } from "../context/AppContext";
 import { toast } from "react-toastify";
 import axios from "axios";
@@ -25,6 +26,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const submitHandler = async (event) => {
     event.preventDefault();
@@ -150,126 +152,187 @@ const Login = () => {
   };
 
   return (
-    <div className="flex justify-center items-center mt-12 ">
-      <div className="shadow px-29 py-9 rounded-2xl">
-        <p className="text-2xl font-bold">
-          User{" "}
-          <span className="text-orange-500">
-            {userLogin ? " Sign In " : "Sign Up"}
-          </span>
-        </p>
+    <main className="relative flex min-h-[calc(100vh-80px)] items-center justify-center overflow-hidden bg-[#fffaf2] px-4 py-10 sm:px-8">
+      <div className="pointer-events-none absolute -left-16 -top-16 h-48 w-48 rounded-full bg-[#f3e8ce] opacity-70" />
+      <div className="pointer-events-none absolute -bottom-20 -right-12 h-60 w-60 rounded-full bg-[#f9c47c] opacity-60" />
+      <div className="pointer-events-none absolute left-5 top-1/2 hidden text-5xl text-[#b7ca8c] opacity-70 sm:block">
+        ⌁
+      </div>
+      <div className="pointer-events-none absolute bottom-20 right-6 hidden text-6xl text-[#b7ca8c] opacity-70 sm:block">
+        ⌁
+      </div>
 
-        <form onSubmit={submitHandler} className="mt-6 flex flex-col">
-          {userLogin ? (
-            ""
-          ) : (
-            <div className="relative mb-3">
-              <p className="text-md mb-2 ">Name</p>
-              <input
-                onChange={(e) => setName(e.target.value)}
-                value={name}
-                type="text"
-                placeholder="Enter your name"
-                required
-                className="px-9 py-2"
-              />
-              <FaUser className="absolute bottom-3 left-2 text-gray-600" />
-            </div>
+      <section className="relative z-10 w-full max-w-[540px] rounded-[22px] border border-white/80 bg-white/90 px-6 py-8 shadow-[0_24px_70px_-28px_rgba(92,57,32,0.35)] backdrop-blur sm:px-12 sm:py-10">
+        <div className="text-center">
+          <img
+            src="/logo2.png"
+            alt="Tana Cafe"
+            className="mx-auto h-24 w-24 object-contain sm:h-28 sm:w-28"
+          />
+          <p className="mt-1 font-serif text-3xl font-bold tracking-tight text-[#733313] sm:text-4xl">
+            Tana Cafe
+          </p>
+          <p className="mt-1 text-xs font-medium tracking-[0.2em] text-[#8b5b45]">
+            GOOD FOOD <span className="px-2 text-[#ed6b16]">•</span> BETTER MOOD
+          </p>
+          <h1 className="mt-9 text-4xl font-bold tracking-tight text-[#2b1210] sm:text-5xl">
+            {userLogin ? (
+              <>
+                Welcome <span className="text-[#f36b18]">Back!</span>
+              </>
+            ) : (
+              <>
+                Create <span className="text-[#f36b18]">Account</span>
+              </>
+            )}
+          </h1>
+          <p className="mt-3 text-base text-slate-500 sm:text-lg">
+            {userLogin
+              ? "Sign in to your account to continue"
+              : "Join us for a better dining experience"}
+          </p>
+        </div>
+
+        <form onSubmit={submitHandler} className="mt-8 space-y-5">
+          {!userLogin && (
+            <label className="block">
+              <span className="mb-2 block text-sm font-semibold text-[#321818]">
+                Name
+              </span>
+              <div className="relative">
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  type="text"
+                  placeholder="Enter your name"
+                  required
+                  className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-[#2b1210] shadow-sm focus:border-[#f36b18] focus:outline-none focus:ring-2 focus:ring-orange-100"
+                />
+              </div>
+            </label>
           )}
 
-          <div className="relative mb-3">
-            <p className="text-md mb-2 ">Email</p>
-            <MdEmail className="absolute bottom-3 left-2 text-gray-600" />
-
-            <input
-              onChange={(e) => setEmail(e.target.value)}
-              value={email}
-              type="email"
-              placeholder="Enter your name"
-              required
-              className="px-9 py-2"
-            />
-          </div>
-
-          <div className="relative mb-3">
-            <p className="text-md mb-2 ">Password</p>
-            <input
-              onChange={(e) => setPassword(e.target.value)}
-              value={password}
-              type="password"
-              placeholder="Enter your password"
-              required
-              className="px-9 py-2"
-            />
-            <FaLock className="absolute bottom-3 left-2 text-gray-600" />
-          </div>
-
-          {userLogin ? (
-            ""
-          ) : (
-            <div className="relative mb-3">
-              <p className="text-md mb-2 "> Confirm Password</p>
+          <label className="block">
+            <span className="mb-2 flex items-center gap-2 text-sm font-semibold text-[#321818]">
+              <MdEmail className="text-lg text-[#ff6b16]" />
+              Email
+            </span>
+            <div className="relative">
               <input
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                value={confirmPassword}
-                type="password"
-                placeholder="Enter your name"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                type="email"
+                placeholder="Enter your email"
                 required
-                className="px-9 py-2"
+                className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-[#2b1210] shadow-sm focus:border-[#f36b18] focus:outline-none focus:ring-2 focus:ring-orange-100"
               />
-              <FaLock className="absolute bottom-3 left-2 text-gray-600" />
             </div>
-          )}
+          </label>
 
-          <div className="mb-4">
-            <div ref={googleButtonRef} />
-            {!googleReady && (
+          <label className="block">
+            <span className="mb-2 flex items-center gap-2 text-sm font-semibold text-[#321818]">
+              <FaLock className="text-base text-[#ff6b16]" />
+              Password
+            </span>
+            <div className="relative">
+              <input
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter your password"
+                required
+                className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 pr-12 text-[#2b1210] shadow-sm focus:border-[#f36b18] focus:outline-none focus:ring-2 focus:ring-orange-100"
+              />
               <button
                 type="button"
-                onClick={() => {
-                  if (window.google?.accounts?.id) {
-                    window.google.accounts.id.prompt();
-                  } else {
-                    toast.info("Loading Google sign-in...");
-                  }
-                }}
-                className="w-full border border-gray-300 rounded-2xl py-2 flex items-center justify-center gap-2 hover:bg-gray-100 transition"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#f36b18]"
               >
-                <FaGoogle /> Continue with Google
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
-            )}
-          </div>
+            </div>
+          </label>
+
+          {!userLogin && (
+            <label className="block">
+              <span className="mb-2 flex items-center gap-2 text-sm font-semibold text-[#321818]">
+                <FaLock className="text-base text-[#ff6b16]" />
+                Confirm Password
+              </span>
+              <input
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                type={showPassword ? "text" : "password"}
+                placeholder="Confirm your password"
+                required
+                className="h-12 w-full rounded-xl border border-slate-200 bg-white px-4 text-[#2b1210] shadow-sm focus:border-[#f36b18] focus:outline-none focus:ring-2 focus:ring-orange-100"
+              />
+            </label>
+          )}
+
+          {userLogin && (
+            <div className="flex items-center justify-between text-sm">
+              <label className="flex items-center gap-2 text-slate-500">
+                <input type="checkbox" className="h-4 w-4 accent-[#f36b18]" />
+                Remember me
+              </label>
+              <button
+                type="button"
+                onClick={() =>
+                  toast.info("Password reset is not available yet.")
+                }
+                className="font-medium text-[#ed5e13] hover:underline"
+              >
+                Forgot password?
+              </button>
+            </div>
+          )}
 
           <button
             type="submit"
-            className="bg-orange-600 text-white py-2 rounded-2xl cursor-pointer hover:bg-orange-700 text-2xl mt-5 mb-3"
+            className="flex h-13 w-full items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-[#ff7817] to-[#f45f0c] text-lg font-bold text-white shadow-[0_10px_24px_-10px_rgba(245,95,12,0.8)] transition hover:-translate-y-0.5 hover:shadow-lg"
           >
-            {userLogin ? "Sign In " : "Sign Up"}
+            <FiLogIn className="text-xl" />
+            {userLogin ? "Sign In" : "Create Account"}
           </button>
-          {userLogin ? (
-            <p className="text-sm text-gray-700 text-center">
-              Don't have account?{" "}
-              <span
-                className="cursor-pointer"
-                onClick={() => setUserLogin((prev) => !prev)}
-              >
-                Create account
-              </span>{" "}
-            </p>
-          ) : (
-            <p className="text-sm text-gray-700 text-center">
-              Allready have an account?{" "}
-              <span
-                className="cursor-pointer"
-                onClick={() => setUserLogin((prev) => !prev)}
-              >
-                Sign In
-              </span>{" "}
-            </p>
-          )}
+
+          <div className="flex items-center gap-4 text-sm text-slate-400">
+            <span className="h-px flex-1 bg-slate-200" />
+            or
+            <span className="h-px flex-1 bg-slate-200" />
+          </div>
+
+          <div
+            ref={googleButtonRef}
+            className="pointer-events-none absolute h-0 w-0 overflow-hidden opacity-0"
+          />
+          <button
+            type="button"
+            onClick={() => {
+              if (window.google?.accounts?.id)
+                window.google.accounts.id.prompt();
+              else toast.info("Loading Google sign-in...");
+            }}
+            className="flex h-13 w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white text-base font-semibold text-slate-700 transition hover:bg-slate-50"
+          >
+            <FaGoogle className="text-lg text-[#4285f4]" />
+            Sign in with Google
+          </button>
+
+          <p className="pt-2 text-center text-sm text-slate-500">
+            {userLogin ? "Don't have an account?" : "Already have an account?"}{" "}
+            <button
+              type="button"
+              onClick={() => setUserLogin((prev) => !prev)}
+              className="font-semibold text-[#ed5e13] hover:underline"
+            >
+              {userLogin ? "Create account" : "Sign in"}
+            </button>
+          </p>
         </form>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };
 
