@@ -312,7 +312,7 @@ const Login = () => {
             </span>
             <div
               ref={googleButtonRef}
-              className="flex min-h-13 w-full items-center justify-center overflow-hidden rounded-xl bg-white shadow-sm transition hover:bg-slate-50 [&>div]:!h-13 [&>div]:!w-full"
+              className="flex min-h-13 w-full items-center justify-center overflow-hidden rounded-xl bg-white px-3 shadow-sm transition hover:bg-slate-50 [&>div]:!h-13 [&>div]:!w-full"
             />
           </div>
           {!googleReady && (
