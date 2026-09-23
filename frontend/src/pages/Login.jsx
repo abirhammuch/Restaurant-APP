@@ -306,10 +306,15 @@ const Login = () => {
             <span className="h-px flex-1 bg-slate-200" />
           </div>
 
-          <div
-            ref={googleButtonRef}
-            className="flex min-h-13 w-full items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition hover:bg-slate-50 [&>div]:!h-13 [&>div]:!w-full"
-          />
+          <div className="relative w-full">
+            <span className="absolute left-5 top-0 z-10 -translate-y-1/2 bg-white px-2 text-xs font-semibold text-[#ed5e13]">
+              Recommended
+            </span>
+            <div
+              ref={googleButtonRef}
+              className="flex min-h-13 w-full items-center justify-center overflow-hidden rounded-xl bg-white shadow-sm transition hover:bg-slate-50 [&>div]:!h-13 [&>div]:!w-full"
+            />
+          </div>
           {!googleReady && (
             <button
               type="button"
