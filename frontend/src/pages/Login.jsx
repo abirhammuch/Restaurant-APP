@@ -88,12 +88,15 @@ const Login = () => {
         window.google.accounts.id.initialize({
           client_id: googleClientId,
           callback: handleGoogleCredentialResponse,
+          use_fedcm_for_prompt: false,
         });
 
         window.google.accounts.id.renderButton(googleButtonRef.current, {
           theme: "outline",
           size: "large",
           width: "100%",
+          text: "signin_with",
+          shape: "rectangular",
         });
 
         setGoogleReady(true);
@@ -161,7 +164,6 @@ const Login = () => {
       <div className="pointer-events-none absolute bottom-20 right-6 hidden text-6xl text-[#b7ca8c] opacity-70 sm:block">
         ⌁
       </div>
-
       <section className="relative z-10 w-full max-w-[540px] rounded-[22px] border border-white/80 bg-white/90 px-6 py-8 shadow-[0_24px_70px_-28px_rgba(92,57,32,0.35)] backdrop-blur sm:px-12 sm:py-10">
         <div className="text-center">
           <img
@@ -305,20 +307,20 @@ const Login = () => {
 
           <div
             ref={googleButtonRef}
-            className="pointer-events-none absolute h-0 w-0 overflow-hidden opacity-0"
+            className="flex min-h-13 w-full items-center justify-center overflow-hidden rounded-xl [&>div]:!w-full"
           />
-          <button
-            type="button"
-            onClick={() => {
-              if (window.google?.accounts?.id)
-                window.google.accounts.id.prompt();
-              else toast.info("Loading Google sign-in...");
-            }}
-            className="flex h-13 w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white text-base font-semibold text-slate-700 transition hover:bg-slate-50"
-          >
-            <FaGoogle className="text-lg text-[#4285f4]" />
-            Sign in with Google
-          </button>
+          {!googleReady && (
+            <button
+              type="button"
+              onClick={() =>
+                toast.info("Google sign-in is still loading. Please try again.")
+              }
+              className="flex h-13 w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white text-base font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              <FaGoogle className="text-lg text-[#4285f4]" />
+              Sign in with Google
+            </button>
+          )}
 
           <p className="pt-2 text-center text-sm text-slate-500">
             {userLogin ? "Don't have an account?" : "Already have an account?"}{" "}
