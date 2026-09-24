@@ -43,7 +43,7 @@ const Kitchen = () => {
     try {
       setLoading(true);
       const response = await axios.get(`${backendUrl}/api/order/admin/all`, {
-        headers: { admintoken: localStorage.getItem("admintoken") },
+        headers: { kitchentoken: localStorage.getItem("kitchentoken") },
       });
       if (response.data.success) setOrders(response.data.orders || []);
       else toast.error(response.data.message || "Unable to load orders");
@@ -76,7 +76,7 @@ const Kitchen = () => {
       await axios.put(
         `${backendUrl}/api/order/admin/status/${orderId}`,
         { status },
-        { headers: { admintoken: localStorage.getItem("admintoken") } },
+        { headers: { kitchentoken: localStorage.getItem("kitchentoken") } },
       );
       await fetchOrders();
       toast.success(`Order marked ${status}`);

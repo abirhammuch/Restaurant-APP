@@ -52,6 +52,7 @@ app.use(
       "Authorization",
       "usertoken",
       "admintoken",
+      "kitchentoken",
       "guestId",
       "guestid",
     ],

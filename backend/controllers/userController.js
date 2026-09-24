@@ -232,6 +232,34 @@ const adminLogin = async (req, res) => {
   }
 };
 
+const kitchenLogin = async (req, res) => {
+  try {
+    const email = req.body.email?.trim().toLowerCase();
+    const password = req.body.password;
+
+    if (
+      email === process.env.KITCHEN_EMAIL?.trim().toLowerCase() &&
+      password === process.env.KITCHEN_PASSWORD
+    ) {
+      const kitchentoken = jwt.sign(
+        { id: "kitchen", email },
+        process.env.JWT_SECRET,
+        { expiresIn: "7d" },
+      );
+      return res.json({
+        success: true,
+        kitchentoken,
+        message: "Kitchen login successful",
+      });
+    }
+
+    return res.json({ success: false, message: "Invalid kitchen credentials" });
+  } catch (error) {
+    console.log(error);
+    return res.json({ success: false, message: error.message });
+  }
+};
+
 const requestPasswordReset = async (req, res) => {
   try {
     const email = req.body.email?.toString().trim().toLowerCase();
@@ -288,20 +316,16 @@ const resetPasswordWithOtp = async (req, res) => {
     const newPassword = req.body.newPassword?.toString();
 
     if (!email || !otp || !newPassword) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Email, OTP, and new password are required",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Email, OTP, and new password are required",
+      });
     }
     if (newPassword.length < 8) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Password must be at least 8 characters",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 8 characters",
+      });
     }
 
     const user = await userModel.findOne({ email });
@@ -332,30 +356,24 @@ const changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
     if (!currentPassword || !newPassword) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Current and new passwords are required",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Current and new passwords are required",
+      });
     }
     if (newPassword.length < 8) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Password must be at least 8 characters",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 8 characters",
+      });
     }
 
     const user = await userModel.findById(req.userId);
     if (!user || !user.password) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Use forgot password to set a password for this account",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Use forgot password to set a password for this account",
+      });
     }
     if (!(await bcrypt.compare(currentPassword, user.password))) {
       return res
@@ -445,6 +463,7 @@ export {
   userRegister,
   googleAuth,
   adminLogin,
+  kitchenLogin,
   requestPasswordReset,
   resetPasswordWithOtp,
   changePassword,

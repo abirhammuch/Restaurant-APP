@@ -10,7 +10,6 @@ import {
   MdSettings,
   MdQrCode,
   MdLocalOffer,
-  MdRestaurant,
 } from "react-icons/md";
 import { AppContext } from "../../context/AppContext";
 
@@ -146,18 +145,6 @@ const AdminLayout = () => {
                       {tAdmin("category") || "Categories"}
                     </p>
                   )}
-                </NavLink>
-              </div>
-
-              {/* Orders */}
-              <div className="admin cursor-pointer">
-                <NavLink
-                  to="/admin/kitchen"
-                  onClick={handleNavClick}
-                  className={getNavClass}
-                >
-                  <MdRestaurant />
-                  {menuOpen && <p className="text-lg">Kitchen</p>}
                 </NavLink>
               </div>
 

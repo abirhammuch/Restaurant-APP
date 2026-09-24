@@ -37,12 +37,13 @@ import AdminChat from "./pages/adminpage/AdminChat";
 import ForgotPassword from "./pages/ForgotPassword";
 import ChangePassword from "./pages/ChangePassword";
 import Kitchen from "./pages/adminpage/Kitchen";
+import KitchenLogin from "./pages/adminpage/KitchenLogin";
 
 const App = () => {
   const location = useLocation();
   const isAdminPath = location.pathname.includes("admin");
-  const { userLogin, isAdmin, appLoading, dataLoading } =
-    useContext(AppContext);
+  const isKitchenPath = location.pathname.startsWith("/kitchen");
+  const { isAdmin, appLoading, dataLoading } = useContext(AppContext);
 
   useEffect(() => {
     if (location.hash) {
@@ -66,7 +67,7 @@ const App = () => {
       <ToastContainer />
 
       {/* Show Navbar only on non-admin routes */}
-      {!isAdminPath && <Navbar />}
+      {!isAdminPath && !isKitchenPath && <Navbar />}
 
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
@@ -93,6 +94,18 @@ const App = () => {
 
           {/* Admin Login - Separate Route */}
           <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/kitchen/login" element={<KitchenLogin />} />
+
+          <Route
+            path="/kitchen"
+            element={
+              localStorage.getItem("kitchentoken") ? (
+                <Kitchen />
+              ) : (
+                <Navigate to="/kitchen/login" replace />
+              )
+            }
+          />
 
           {/* ✅ Admin Routes - Protected with Navigate */}
           <Route
@@ -103,7 +116,6 @@ const App = () => {
           >
             <Route index element={<Dashboard />} />
             <Route path="dashboard" element={<Dashboard />} />
-            <Route path="kitchen" element={<Kitchen />} />
             <Route path="products" element={<Products />} />
             <Route path="categories" element={<Category />} />
             <Route path="promotions" element={<PromoManagement />} />

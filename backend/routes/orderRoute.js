@@ -15,6 +15,7 @@ import {
 } from "../controllers/orderController.js";
 import userAuth from "../middleware/userAuth.js";
 import adminAuth from "../middleware/adminAuth.js";
+import orderStaffAuth from "../middleware/orderStaffAuth.js";
 
 const orderRouter = express.Router();
 
@@ -26,10 +27,10 @@ orderRouter.put("/cancel/:orderId", userAuth, cancelOrder);
 orderRouter.put("/telebirr/:orderId", userAuth, submitTelebirrPayment);
 
 // ✅ Admin routes (require admin authentication)
-orderRouter.get("/admin/all", adminAuth, getAllOrders);
+orderRouter.get("/admin/all", orderStaffAuth, getAllOrders);
 orderRouter.get("/admin/stats", adminAuth, getOrderStats);
 orderRouter.get("/admin/analytics", adminAuth, getOrderAnalytics);
-orderRouter.put("/admin/status/:orderId", adminAuth, updateOrderStatus);
+orderRouter.put("/admin/status/:orderId", orderStaffAuth, updateOrderStatus);
 orderRouter.put(
   "/admin/payment/approve/:orderId",
   adminAuth,
