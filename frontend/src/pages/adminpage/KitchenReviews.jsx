@@ -77,11 +77,28 @@ const KitchenReviews = () => {
                     ))}
                   </div>
                 </div>
+                <div className="mb-4 flex items-center gap-3 rounded-lg bg-orange-50 px-3 py-2">
+                  {rating.foodId?.images?.[0] ? (
+                    <img
+                      src={rating.foodId.images[0]}
+                      alt={rating.foodId.name || "Reviewed food"}
+                      className="h-12 w-12 rounded-md object-cover"
+                    />
+                  ) : null}
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-wide text-orange-600">
+                      Reviewed food
+                    </p>
+                    <p className="font-semibold text-[#10233f]">
+                      {rating.foodId?.name || "Menu item"}
+                    </p>
+                  </div>
+                </div>
                 <p className="text-sm leading-6 text-gray-600">
                   {rating.comment || "No written comment."}
                 </p>
                 <p className="mt-4 text-xs text-gray-400">
-                  {rating.foodId?.name || "Menu item"} ·{" "}
+                  Reviewed on{" "}
                   {rating.createdAt
                     ? new Date(rating.createdAt).toLocaleDateString()
                     : ""}
