@@ -2,29 +2,49 @@ import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import {
+  FaBell,
   FaCheck,
   FaClock,
-  FaInfoCircle,
-  FaMugHot,
+  FaHome,
+  FaSearch,
+  FaSignOutAlt,
+  FaStore,
   FaUtensils,
 } from "react-icons/fa";
-import { MdOutlineRestaurant, MdRefresh } from "react-icons/md";
+import {
+  MdDashboard,
+  MdRestaurantMenu,
+  MdTableRestaurant,
+} from "react-icons/md";
 import { AppContext } from "../../context/AppContext";
+import kitchenBanner from "../../assets/assets/desktop_banner.png";
 
-const statusColumns = [
-  { key: "active", label: "Active Orders", color: "bg-orange-500" },
-  { key: "preparing", label: "Preparing", color: "bg-amber-500" },
-  { key: "ready", label: "Ready for Pickup", color: "bg-emerald-500" },
-  { key: "completed", label: "Completed", color: "bg-slate-500" },
+const columns = [
+  {
+    key: "active",
+    label: "Active Orders",
+    dot: "bg-orange-500",
+    icon: <FaUtensils />,
+  },
+  {
+    key: "preparing",
+    label: "Preparing",
+    dot: "bg-amber-400",
+    icon: <FaClock />,
+  },
+  {
+    key: "ready",
+    label: "Ready for Pickup",
+    dot: "bg-green-500",
+    icon: <FaCheck />,
+  },
+  {
+    key: "completed",
+    label: "Completed",
+    dot: "bg-slate-400",
+    icon: <FaCheck />,
+  },
 ];
-
-const formatTime = (date) =>
-  date
-    ? new Date(date).toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      })
-    : "--:--";
 
 const getColumn = (status) => {
   if (["delivered", "cancelled"].includes(status)) return "completed";
@@ -33,11 +53,20 @@ const getColumn = (status) => {
   return "active";
 };
 
+const time = (date) =>
+  date
+    ? new Date(date).toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "--:--";
+
 const Kitchen = () => {
-  const { backendUrl } = useContext(AppContext);
+  const { backendUrl, navigate } = useContext(AppContext);
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
+  const [query, setQuery] = useState("");
 
   const fetchOrders = useCallback(async () => {
     try {
@@ -59,15 +88,25 @@ const Kitchen = () => {
     return () => clearTimeout(initialFetch);
   }, [fetchOrders]);
 
-  const groupedOrders = useMemo(
+  const visibleOrders = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    if (!normalized) return orders;
+    return orders.filter((order) =>
+      [order._id, order.table, order.deliveryAddress?.name]
+        .filter(Boolean)
+        .some((value) => value.toString().toLowerCase().includes(normalized)),
+    );
+  }, [orders, query]);
+
+  const grouped = useMemo(
     () =>
-      statusColumns.reduce((groups, column) => {
-        groups[column.key] = orders.filter(
+      columns.reduce((result, column) => {
+        result[column.key] = visibleOrders.filter(
           (order) => getColumn(order.orderStatus) === column.key,
         );
-        return groups;
+        return result;
       }, {}),
-    [orders],
+    [visibleOrders],
   );
 
   const updateStatus = async (orderId, status) => {
@@ -76,7 +115,9 @@ const Kitchen = () => {
       await axios.put(
         `${backendUrl}/api/order/admin/status/${orderId}`,
         { status },
-        { headers: { kitchentoken: localStorage.getItem("kitchentoken") } },
+        {
+          headers: { kitchentoken: localStorage.getItem("kitchentoken") },
+        },
       );
       await fetchOrders();
       toast.success(`Order marked ${status}`);
@@ -87,113 +128,182 @@ const Kitchen = () => {
     }
   };
 
-  const getNextAction = (order) => {
-    if (["pending", "confirmed"].includes(order.orderStatus)) {
-      return { label: "Start Preparing", status: "preparing" };
-    }
-    if (order.orderStatus === "preparing") {
-      return { label: "Mark as Ready", status: "ready" };
-    }
-    if (order.orderStatus === "ready") {
-      return { label: "Complete Order", status: "delivered" };
-    }
+  const nextAction = (order) => {
+    if (["pending", "confirmed"].includes(order.orderStatus))
+      return ["Start Preparing", "preparing"];
+    if (order.orderStatus === "preparing") return ["Mark as Ready", "ready"];
+    if (order.orderStatus === "ready") return ["Complete Order", "delivered"];
     return null;
   };
 
+  const logout = () => {
+    localStorage.removeItem("kitchentoken");
+    navigate("/kitchen/login", { replace: true });
+  };
+
   return (
-    <div className="min-h-[calc(100vh-150px)] bg-[#f8f6f2] -m-4 p-4 sm:-m-6 sm:p-6 lg:-m-9 lg:p-8">
-      <div className="mx-auto max-w-375">
-        <div className="mb-6 flex flex-col gap-4 rounded-2xl bg-[#3d2418] px-5 py-6 text-white shadow-lg sm:flex-row sm:items-center sm:justify-between sm:px-8">
-          <div className="flex items-center gap-4">
-            <div className="rounded-2xl bg-orange-500/20 p-3 text-orange-200">
-              <FaUtensils className="text-3xl" />
+    <div className="flex min-h-screen bg-[#f7f5f2] text-[#27221f]">
+      <aside className="hidden w-[195px] shrink-0 flex-col justify-between bg-[#17130f] px-4 py-7 text-white lg:flex">
+        <div>
+          <div className="mb-12 flex items-center gap-2 px-2">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e87a22] text-xl">
+              <FaStore />
             </div>
             <div>
-              <p className="text-3xl font-bold tracking-tight">Kitchen</p>
-              <p className="text-sm text-orange-100">
-                Keep every order moving.
+              <p className="font-bold tracking-wide">Tana Cafe</p>
+              <p className="text-[9px] text-gray-400">
+                Good Food · Better Mood
               </p>
             </div>
           </div>
-          <div className="flex items-center justify-between gap-5 rounded-xl border border-white/15 bg-white/10 px-4 py-3 sm:justify-start">
-            <div>
-              <p className="text-xs uppercase tracking-widest text-orange-200">
-                Kitchen status
-              </p>
-              <p className="mt-1 flex items-center gap-2 font-semibold">
-                <span className="h-2 w-2 rounded-full bg-emerald-400" /> Open
-              </p>
+          <nav className="space-y-3 text-sm text-gray-300">
+            <div className="flex items-center gap-3 rounded-lg px-3 py-3">
+              <FaHome /> Dashboard
+            </div>
+            <div className="flex items-center gap-3 rounded-lg px-3 py-3">
+              <MdDashboard /> Orders
+            </div>
+            <div className="flex items-center gap-3 rounded-lg bg-[#9d4e1e] px-3 py-3 font-semibold text-white">
+              <FaUtensils /> Kitchen
+            </div>
+            <div className="flex items-center gap-3 rounded-lg px-3 py-3">
+              <MdRestaurantMenu /> Menu
+            </div>
+            <div className="flex items-center gap-3 rounded-lg px-3 py-3">
+              <MdTableRestaurant /> Tables
+            </div>
+          </nav>
+        </div>
+        <div className="px-3 text-center font-serif italic text-[#c87839]">
+          Great Food
+          <br />
+          Great Vibes
+        </div>
+      </aside>
+
+      <main className="min-w-0 flex-1">
+        <header className="flex min-h-[58px] items-center justify-between gap-4 border-b border-gray-200 bg-white px-4 py-3 sm:px-7">
+          <label className="relative max-w-[355px] flex-1">
+            <FaSearch className="absolute left-3 top-3 text-gray-400" />
+            <input
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search orders, customer name or table..."
+              className="w-full rounded-lg border border-gray-200 bg-white py-2 pl-9 pr-3 text-xs outline-none focus:border-orange-400"
+            />
+          </label>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              className="relative rounded-full p-2 text-gray-600 hover:bg-orange-50"
+              aria-label="Notifications"
+            >
+              <FaBell />
+              <span className="absolute right-0 top-0 h-3 w-3 rounded-full border-2 border-white bg-red-500" />
+            </button>
+            <div className="hidden items-center gap-2 sm:flex">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#a35b2a] text-white">
+                <FaUtensils />
+              </div>
+              <div className="text-xs">
+                <p className="font-bold">Kitchen Staff</p>
+                <p className="text-gray-400">Kitchen</p>
+              </div>
             </div>
             <button
               type="button"
-              onClick={fetchOrders}
-              className="rounded-lg p-2 text-orange-100 transition hover:bg-white/10 disabled:opacity-50"
-              aria-label="Refresh kitchen orders"
-              disabled={loading}
+              onClick={logout}
+              className="rounded-lg p-2 text-gray-500 hover:bg-red-50 hover:text-red-600"
+              aria-label="Sign out"
             >
-              <MdRefresh
-                className={loading ? "animate-spin text-xl" : "text-xl"}
-              />
+              <FaSignOutAlt />
             </button>
           </div>
-        </div>
+        </header>
 
-        <div className="mb-5 flex gap-2 overflow-x-auto pb-1">
-          {statusColumns.map((column) => (
-            <div
-              key={column.key}
-              className="flex min-w-max items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm"
-            >
-              <span className={`h-2.5 w-2.5 rounded-full ${column.color}`} />
-              {column.label}
-              <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs">
-                {groupedOrders[column.key]?.length || 0}
-              </span>
+        <div
+          className="relative h-[116px] overflow-hidden bg-[#49210c] bg-cover bg-center px-5 py-5 text-white sm:px-8"
+          style={{
+            backgroundImage: `linear-gradient(90deg, rgba(48,22,10,.92), rgba(48,22,10,.35)), url(${kitchenBanner})`,
+          }}
+        >
+          <div className="relative z-10 flex h-full items-center gap-4">
+            <FaUtensils className="text-4xl text-[#f2cfaa]" />
+            <div>
+              <h1 className="font-serif text-3xl font-bold">Kitchen</h1>
+              <p className="text-sm text-orange-100">
+                Prepare great food, keep the orders moving!
+              </p>
             </div>
-          ))}
+          </div>
+          <div className="absolute right-5 top-4 hidden rounded-lg border border-white/20 bg-black/20 px-5 py-3 text-xs sm:block">
+            <p className="mb-1 text-orange-100">Kitchen status</p>
+            <p className="font-semibold text-white">
+              <span className="mr-2 inline-block h-2 w-2 rounded-full bg-green-400" />
+              Kitchen Open
+            </p>
+          </div>
         </div>
 
-        {loading && !orders.length ? (
-          <div className="flex min-h-64 items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-white text-gray-500">
-            Loading kitchen orders...
+        <div className="p-4 sm:p-6 lg:p-7">
+          <div className="mb-5 flex gap-2 overflow-x-auto pb-1">
+            {columns.map((column) => (
+              <div
+                key={column.key}
+                className={`flex min-w-max items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold ${column.key === "active" ? "border-orange-500 bg-orange-500 text-white" : "border-gray-200 bg-white text-gray-700"}`}
+              >
+                <span className="text-xs">{column.icon}</span>
+                {column.label}
+                <span
+                  className={`rounded-full px-2 py-0.5 text-xs ${column.key === "active" ? "bg-white/20" : "bg-gray-100"}`}
+                >
+                  {grouped[column.key]?.length || 0}
+                </span>
+              </div>
+            ))}
           </div>
-        ) : (
-          <div className="grid gap-4 xl:grid-cols-4">
-            {statusColumns.map((column) => (
-              <section key={column.key} className="min-w-0">
-                <div className="mb-3 flex items-center justify-between px-1">
-                  <h2 className="font-bold text-gray-800">{column.label}</h2>
-                  <span className="text-sm text-gray-500">
-                    {groupedOrders[column.key]?.length || 0}
-                  </span>
-                </div>
-                <div className="space-y-4">
-                  {groupedOrders[column.key]?.map((order) => {
-                    const action = getNextAction(order);
-                    return (
-                      <article
-                        key={order._id}
-                        className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-                      >
-                        <div className={`h-1 ${column.color}`} />
-                        <div className="p-4">
-                          <div className="flex items-start justify-between gap-2">
+
+          {loading && !orders.length ? (
+            <div className="flex h-64 items-center justify-center rounded-xl bg-white text-sm text-gray-500">
+              Loading kitchen orders...
+            </div>
+          ) : (
+            <div className="grid gap-5 xl:grid-cols-3 2xl:grid-cols-4">
+              {columns.map((column) => (
+                <section key={column.key} className="min-w-0">
+                  <div className="mb-3 flex items-center gap-2">
+                    <span
+                      className={`h-2.5 w-2.5 rounded-full ${column.dot}`}
+                    />
+                    <h2 className="text-sm font-bold">{column.label}</h2>
+                    <span className="text-xs text-gray-400">
+                      {grouped[column.key]?.length || 0}
+                    </span>
+                  </div>
+                  <div className="space-y-4">
+                    {grouped[column.key]?.map((order) => {
+                      const action = nextAction(order);
+                      return (
+                        <article
+                          key={order._id}
+                          className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
+                        >
+                          <div className="flex items-center justify-between border-b border-gray-100 pb-3">
                             <div>
-                              <p className="font-bold text-gray-900">
+                              <p className="text-sm font-bold">
                                 Order #{order._id?.slice(-4).toUpperCase()}
                               </p>
-                              <p className="mt-1 flex items-center gap-1 text-xs text-gray-500">
-                                <FaClock /> {formatTime(order.createdAt)}
+                              <p className="mt-1 flex items-center gap-1 text-[11px] text-gray-500">
+                                <FaClock /> {time(order.createdAt)}
                               </p>
                             </div>
-                            <span className="rounded-md bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-700">
+                            <span className="rounded bg-[#edf3ee] px-2 py-1 text-[11px] font-semibold text-gray-600">
                               {order.table
                                 ? `Table ${order.table}`
                                 : "Take Away"}
                             </span>
                           </div>
-
-                          <div className="my-4 space-y-3">
+                          <div className="space-y-3 py-3">
                             {order.items?.map((item) => (
                               <div
                                 key={`${order._id}-${item.foodId || item.name}`}
@@ -203,62 +313,51 @@ const Kitchen = () => {
                                   <img
                                     src={item.image}
                                     alt=""
-                                    className="h-10 w-10 rounded-lg object-cover"
+                                    className="h-9 w-9 rounded-md object-cover"
                                   />
                                 ) : (
-                                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-50 text-orange-500">
-                                    <MdOutlineRestaurant />
+                                  <div className="flex h-9 w-9 items-center justify-center rounded-md bg-orange-50 text-orange-500">
+                                    <FaUtensils />
                                   </div>
                                 )}
-                                <p className="min-w-0 flex-1 truncate text-sm text-gray-700">
+                                <span className="min-w-0 flex-1 truncate text-xs">
                                   {item.name}
-                                </p>
-                                <span className="text-sm font-bold text-gray-800">
-                                  x {item.quantity}
                                 </span>
+                                <b className="text-xs">× {item.quantity}</b>
                               </div>
                             ))}
                           </div>
-
-                          <div className="mb-3 flex items-start gap-2 rounded-lg bg-blue-50 px-3 py-2 text-xs text-blue-700">
-                            <FaInfoCircle className="mt-0.5 shrink-0" />
-                            <span>{order.note || "No special requests"}</span>
+                          <div className="mb-3 rounded bg-[#f2f8fd] px-3 py-2 text-[11px] text-blue-600">
+                            ⓘ {order.note || "No special requests"}
                           </div>
-
                           {action && (
                             <button
                               type="button"
-                              onClick={() =>
-                                updateStatus(order._id, action.status)
-                              }
                               disabled={updatingId === order._id}
-                              className="flex w-full items-center justify-center gap-2 rounded-lg bg-orange-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-orange-700 disabled:cursor-wait disabled:opacity-60"
+                              onClick={() => updateStatus(order._id, action[1])}
+                              className="flex w-full items-center justify-center gap-2 rounded-md bg-[#f4510b] py-2 text-xs font-bold text-white transition hover:bg-[#d94100] disabled:opacity-60"
                             >
-                              {action.status === "delivered" ? (
-                                <FaCheck />
-                              ) : (
-                                <FaMugHot />
-                              )}
+                              <FaCheck />{" "}
                               {updatingId === order._id
                                 ? "Updating..."
-                                : action.label}
+                                : action[0]}
                             </button>
                           )}
-                        </div>
-                      </article>
-                    );
-                  })}
-                  {!groupedOrders[column.key]?.length && (
-                    <div className="rounded-xl border border-dashed border-gray-300 px-4 py-8 text-center text-sm text-gray-400">
-                      No orders here
-                    </div>
-                  )}
-                </div>
-              </section>
-            ))}
-          </div>
-        )}
-      </div>
+                        </article>
+                      );
+                    })}
+                    {!grouped[column.key]?.length && (
+                      <div className="rounded-lg border border-dashed border-gray-300 bg-white/60 px-3 py-8 text-center text-xs text-gray-400">
+                        No orders here
+                      </div>
+                    )}
+                  </div>
+                </section>
+              ))}
+            </div>
+          )}
+        </div>
+      </main>
     </div>
   );
 };
