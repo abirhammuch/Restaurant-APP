@@ -252,7 +252,8 @@ const Kitchen = () => {
                   <th className="px-4 py-4">Order ID</th>
                   <th className="px-4 py-4">Customer</th>
                   <th className="px-4 py-4">Table</th>
-                  <th className="px-4 py-4">Total</th>
+                  <th className="px-4 py-4">Food</th>
+                  <th className="px-4 py-4">Quantity</th>
                   <th className="px-4 py-4">Time</th>
                   <th className="px-4 py-4">Order Status</th>
                   <th className="px-4 py-4">Payment</th>
@@ -272,8 +273,33 @@ const Kitchen = () => {
                       {order.deliveryAddress?.name || "N/A"}
                     </td>
                     <td className="px-4 py-4">{order.table || "Take Away"}</td>
-                    <td className="px-4 py-4 font-bold text-orange-600">
-                      {formatAmount(order.total)}
+                    <td className="px-4 py-4 text-sm">
+                      <div className="space-y-1">
+                        {order.items?.length ? (
+                          order.items.map((item) => (
+                            <p key={`${order._id}-${item.foodId || item.name}`}>
+                              {item.name}
+                            </p>
+                          ))
+                        ) : (
+                          <span className="text-gray-400">No items</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 text-sm font-semibold">
+                      <div className="space-y-1">
+                        {order.items?.length ? (
+                          order.items.map((item) => (
+                            <p
+                              key={`${order._id}-quantity-${item.foodId || item.name}`}
+                            >
+                              × {item.quantity}
+                            </p>
+                          ))
+                        ) : (
+                          <span className="text-gray-400">--</span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-4">
                       <p>{formatTime(order.createdAt)}</p>
