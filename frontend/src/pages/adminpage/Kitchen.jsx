@@ -1,23 +1,9 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { NavLink } from "react-router-dom";
-import {
-  FaDownload,
-  FaHome,
-  FaSearch,
-  FaSignOutAlt,
-  FaStar,
-  FaStore,
-  FaSyncAlt,
-  FaUtensils,
-} from "react-icons/fa";
-import {
-  MdDashboard,
-  MdRestaurantMenu,
-  MdTableRestaurant,
-} from "react-icons/md";
+import { FaDownload, FaSearch, FaSyncAlt } from "react-icons/fa";
 import { AppContext } from "../../context/AppContext";
+import KitchenSidebar from "./KitchenSidebar";
 
 const statusFilters = [
   "all",
@@ -60,27 +46,48 @@ const formatTime = (date) =>
 const formatAmount = (amount) => `ETB ${Number(amount || 0).toFixed(2)}`;
 
 const Kitchen = () => {
-  const { backendUrl, navigate } = useContext(AppContext);
+  const { backendUrl } = useContext(AppContext);
   const [orders, setOrders] = useState([]);
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({
+    total: 0,
+    page: 1,
+    limit: 10,
+    totalPages: 1,
+  });
+  const pageSize = 10;
 
   const fetchOrders = useCallback(async () => {
     try {
       setLoading(true);
+      const params = { page, limit: pageSize };
+      if (filterStatus !== "all") params.status = filterStatus;
+      if (searchQuery.trim()) params.search = searchQuery.trim();
       const response = await axios.get(`${backendUrl}/api/order/admin/all`, {
         headers: { kitchentoken: localStorage.getItem("kitchentoken") },
+        params,
       });
-      if (response.data.success) setOrders(response.data.orders || []);
-      else toast.error(response.data.message || "Unable to load orders");
+      if (response.data.success) {
+        setOrders(response.data.orders || []);
+        setPagination(
+          response.data.pagination || {
+            total: 0,
+            page: 1,
+            limit: pageSize,
+            totalPages: 1,
+          },
+        );
+      } else toast.error(response.data.message || "Unable to load orders");
     } catch (error) {
       toast.error(error.response?.data?.message || "Unable to load orders");
     } finally {
       setLoading(false);
     }
-  }, [backendUrl]);
+  }, [backendUrl, filterStatus, page, searchQuery]);
 
   useEffect(() => {
     const initialFetch = setTimeout(fetchOrders, 0);
@@ -109,16 +116,8 @@ const Kitchen = () => {
   };
 
   const filteredOrders = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
-    return orders.filter((order) => {
-      if (filterStatus !== "all" && order.orderStatus !== filterStatus)
-        return false;
-      if (!query) return true;
-      return [order._id, order.table, order.deliveryAddress?.name]
-        .filter(Boolean)
-        .some((value) => value.toString().toLowerCase().includes(query));
-    });
-  }, [orders, filterStatus, searchQuery]);
+    return orders;
+  }, [orders]);
 
   const stats = useMemo(
     () => ({
@@ -153,74 +152,19 @@ const Kitchen = () => {
     URL.revokeObjectURL(link.href);
   };
 
-  const logout = () => {
-    localStorage.removeItem("kitchentoken");
-    navigate("/kitchen/login", { replace: true });
+  const changeFilter = (status) => {
+    setFilterStatus(status);
+    setPage(1);
+  };
+
+  const changeSearch = (value) => {
+    setSearchQuery(value);
+    setPage(1);
   };
 
   return (
     <div className="flex min-h-screen bg-[#f8f9fa] text-[#10233f]">
-      <aside className="hidden w-52.5 shrink-0 flex-col justify-between bg-[#17130f] px-4 py-7 text-white lg:flex">
-        <div>
-          <div className="mb-12 flex items-center gap-2 px-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e87a22] text-xl">
-              <FaStore />
-            </div>
-            <div>
-              <p className="font-bold tracking-wide">Tana Cafe</p>
-              <p className="text-[9px] text-gray-400">
-                Good Food · Better Mood
-              </p>
-            </div>
-          </div>
-          <nav className="space-y-3 text-sm text-gray-300">
-            <div className="flex items-center gap-3 rounded-lg px-3 py-3">
-              <NavLink
-                to="/kitchen/dashboard"
-                className="flex w-full items-center gap-3"
-              >
-                <FaHome /> Dashboard
-              </NavLink>
-            </div>
-            <div className="flex items-center gap-3 rounded-lg px-3 py-3">
-              <NavLink to="/kitchen" className="flex w-full items-center gap-3">
-                <MdDashboard /> Orders
-              </NavLink>
-            </div>
-            <div className="flex items-center gap-3 rounded-lg bg-[#9d4e1e] px-3 py-3 font-semibold text-white">
-              <FaUtensils /> Kitchen
-            </div>
-            <div className="flex items-center gap-3 rounded-lg px-3 py-3">
-              <MdRestaurantMenu /> Menu
-            </div>
-            <div className="flex items-center gap-3 rounded-lg px-3 py-3">
-              <MdTableRestaurant /> Tables
-            </div>
-            <div className="flex items-center gap-3 rounded-lg px-3 py-3">
-              <NavLink
-                to="/kitchen/reviews"
-                className="flex w-full items-center gap-3"
-              >
-                <FaStar /> Reviews
-              </NavLink>
-            </div>
-          </nav>
-        </div>
-        <div>
-          <div className="mb-5 px-3 text-center font-serif italic text-[#c87839]">
-            Great Food
-            <br />
-            Great Vibes
-          </div>
-          <button
-            type="button"
-            onClick={logout}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-sm text-gray-300 transition hover:bg-red-900/40 hover:text-white"
-          >
-            <FaSignOutAlt /> Sign Out
-          </button>
-        </div>
-      </aside>
+      <KitchenSidebar />
 
       <main className="min-w-0 flex-1 px-4 py-5 sm:px-6 lg:px-8 lg:py-7">
         <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -282,7 +226,7 @@ const Kitchen = () => {
               <FaSearch className="absolute left-3 top-3 text-gray-400" />
               <input
                 value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
+                onChange={(event) => changeSearch(event.target.value)}
                 placeholder="Search by Order ID or Customer Name..."
                 className="w-full rounded-md border border-gray-300 py-2.5 pl-10 pr-3 text-sm outline-none focus:border-orange-500"
               />
@@ -292,7 +236,7 @@ const Kitchen = () => {
                 <button
                   key={status}
                   type="button"
-                  onClick={() => setFilterStatus(status)}
+                  onClick={() => changeFilter(status)}
                   className={`rounded-full px-3.5 py-2 text-xs font-medium capitalize transition ${filterStatus === status ? "bg-orange-500 text-white" : "bg-[#f2f4f7] text-[#304665] hover:bg-orange-100"}`}
                 >
                   {status}
@@ -375,6 +319,32 @@ const Kitchen = () => {
             {loading && (
               <div className="px-5 py-14 text-center text-sm text-gray-500">
                 Loading orders...
+              </div>
+            )}
+            {!loading && pagination.totalPages > 1 && (
+              <div className="flex items-center justify-between border-t border-gray-200 px-5 py-4">
+                <p className="text-sm text-gray-500">
+                  Showing page {pagination.page} of {pagination.totalPages} (
+                  {pagination.total} paid orders)
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    disabled={page === 1}
+                    onClick={() => setPage((currentPage) => currentPage - 1)}
+                    className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    type="button"
+                    disabled={page >= pagination.totalPages}
+                    onClick={() => setPage((currentPage) => currentPage + 1)}
+                    className="rounded-md bg-orange-500 px-3 py-1.5 text-sm text-white disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    Next
+                  </button>
+                </div>
               </div>
             )}
           </div>

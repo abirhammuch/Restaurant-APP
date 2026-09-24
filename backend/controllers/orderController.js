@@ -376,12 +376,10 @@ const submitTelebirrPayment = async (req, res) => {
         .json({ success: false, message: "Order not found" });
     }
     if (order.paymentMethod !== "telebirr") {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "This order is not a Telebirr order",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "This order is not a Telebirr order",
+      });
     }
     if (!transactionId) {
       return res
@@ -414,12 +412,10 @@ const approveTelebirrPayment = async (req, res) => {
         .json({ success: false, message: "Order not found" });
     }
     if (order.paymentMethod !== "telebirr" || !order.transactionId) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "A Telebirr transaction ID is required before approval",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "A Telebirr transaction ID is required before approval",
+      });
     }
 
     order.paymentStatus = "paid";
@@ -447,6 +443,7 @@ const getAllOrders = async (req, res) => {
     const { status, page = 1, limit = 20, search } = req.query;
 
     const query = {};
+    if (req.kitchen) query.paymentStatus = "paid";
     if (status) query.orderStatus = status;
     if (search) {
       query.$or = [
