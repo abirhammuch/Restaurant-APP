@@ -236,11 +236,17 @@ const kitchenLogin = async (req, res) => {
   try {
     const email = req.body.email?.trim().toLowerCase();
     const password = req.body.password;
+    const kitchenEmail = process.env.KITCHEN_EMAIL?.trim().toLowerCase();
+    const kitchenPassword = process.env.KITCHEN_PASSWORD;
 
-    if (
-      email === process.env.KITCHEN_EMAIL?.trim().toLowerCase() &&
-      password === process.env.KITCHEN_PASSWORD
-    ) {
+    if (!kitchenEmail || !kitchenPassword) {
+      return res.status(500).json({
+        success: false,
+        message: "Kitchen login is not configured on the server",
+      });
+    }
+
+    if (email === kitchenEmail && password === kitchenPassword) {
       const kitchentoken = jwt.sign(
         { id: "kitchen", email },
         process.env.JWT_SECRET,
