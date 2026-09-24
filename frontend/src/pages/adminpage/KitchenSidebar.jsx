@@ -54,9 +54,9 @@ const KitchenSidebar = () => {
           <div className="flex items-center gap-3 rounded-lg px-3 py-3 text-gray-300">
             <FaUtensils /> Kitchen
           </div>
-          <div className="flex items-center gap-3 rounded-lg px-3 py-3 text-gray-300">
+          <NavLink to="/kitchen/menu" className={linkClass}>
             <MdRestaurantMenu /> Menu
-          </div>
+          </NavLink>
           <div className="flex items-center gap-3 rounded-lg px-3 py-3 text-gray-300">
             <MdTableRestaurant /> Tables
           </div>

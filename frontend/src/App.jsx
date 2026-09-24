@@ -40,6 +40,7 @@ import Kitchen from "./pages/adminpage/Kitchen";
 import KitchenLogin from "./pages/adminpage/KitchenLogin";
 import KitchenReviews from "./pages/adminpage/KitchenReviews";
 import KitchenDashboard from "./pages/adminpage/KitchenDashboard";
+import KitchenMenu from "./pages/adminpage/KitchenMenu";
 
 const App = () => {
   const location = useLocation();
@@ -123,6 +124,16 @@ const App = () => {
             element={
               localStorage.getItem("kitchentoken") ? (
                 <KitchenReviews />
+              ) : (
+                <Navigate to="/kitchen/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/kitchen/menu"
+            element={
+              localStorage.getItem("kitchentoken") ? (
+                <KitchenMenu />
               ) : (
                 <Navigate to="/kitchen/login" replace />
               )
