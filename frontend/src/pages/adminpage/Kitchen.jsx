@@ -1,11 +1,13 @@
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { NavLink } from "react-router-dom";
 import {
   FaDownload,
   FaHome,
   FaSearch,
   FaSignOutAlt,
+  FaStar,
   FaStore,
   FaSyncAlt,
   FaUtensils,
@@ -158,7 +160,7 @@ const Kitchen = () => {
 
   return (
     <div className="flex min-h-screen bg-[#f8f9fa] text-[#10233f]">
-      <aside className="hidden w-[210px] shrink-0 flex-col justify-between bg-[#17130f] px-4 py-7 text-white lg:flex">
+      <aside className="hidden w-52.5 shrink-0 flex-col justify-between bg-[#17130f] px-4 py-7 text-white lg:flex">
         <div>
           <div className="mb-12 flex items-center gap-2 px-2">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e87a22] text-xl">
@@ -173,10 +175,17 @@ const Kitchen = () => {
           </div>
           <nav className="space-y-3 text-sm text-gray-300">
             <div className="flex items-center gap-3 rounded-lg px-3 py-3">
-              <FaHome /> Dashboard
+              <NavLink
+                to="/kitchen/dashboard"
+                className="flex w-full items-center gap-3"
+              >
+                <FaHome /> Dashboard
+              </NavLink>
             </div>
             <div className="flex items-center gap-3 rounded-lg px-3 py-3">
-              <MdDashboard /> Orders
+              <NavLink to="/kitchen" className="flex w-full items-center gap-3">
+                <MdDashboard /> Orders
+              </NavLink>
             </div>
             <div className="flex items-center gap-3 rounded-lg bg-[#9d4e1e] px-3 py-3 font-semibold text-white">
               <FaUtensils /> Kitchen
@@ -186,6 +195,14 @@ const Kitchen = () => {
             </div>
             <div className="flex items-center gap-3 rounded-lg px-3 py-3">
               <MdTableRestaurant /> Tables
+            </div>
+            <div className="flex items-center gap-3 rounded-lg px-3 py-3">
+              <NavLink
+                to="/kitchen/reviews"
+                className="flex w-full items-center gap-3"
+              >
+                <FaStar /> Reviews
+              </NavLink>
             </div>
           </nav>
         </div>

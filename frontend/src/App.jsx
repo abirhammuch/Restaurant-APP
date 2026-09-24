@@ -38,6 +38,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ChangePassword from "./pages/ChangePassword";
 import Kitchen from "./pages/adminpage/Kitchen";
 import KitchenLogin from "./pages/adminpage/KitchenLogin";
+import KitchenReviews from "./pages/adminpage/KitchenReviews";
 
 const App = () => {
   const location = useLocation();
@@ -101,6 +102,26 @@ const App = () => {
             element={
               localStorage.getItem("kitchentoken") ? (
                 <Kitchen />
+              ) : (
+                <Navigate to="/kitchen/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/kitchen/dashboard"
+            element={
+              localStorage.getItem("kitchentoken") ? (
+                <Kitchen />
+              ) : (
+                <Navigate to="/kitchen/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/kitchen/reviews"
+            element={
+              localStorage.getItem("kitchentoken") ? (
+                <KitchenReviews />
               ) : (
                 <Navigate to="/kitchen/login" replace />
               )
