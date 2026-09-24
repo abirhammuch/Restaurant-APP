@@ -520,7 +520,7 @@ export const AppContextProvider = (props) => {
       setCart({ items: [], subtotal: 0, total: 0, count: 0 });
       setCartCount(0);
     }
-  }, []);
+  }, [usertoken]);
 
   // ✅ Load cart function
   const loadCart = async () => {
