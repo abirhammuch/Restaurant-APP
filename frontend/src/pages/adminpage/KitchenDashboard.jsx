@@ -6,12 +6,21 @@ import { AppContext } from "../../context/AppContext";
 import KitchenSidebar from "./KitchenSidebar";
 
 const formatTime = (date) =>
-  date
+  date && !Number.isNaN(new Date(date).getTime())
     ? new Date(date).toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
       })
     : "--:--";
+
+const formatDate = (date) =>
+  date && !Number.isNaN(new Date(date).getTime())
+    ? new Date(date).toLocaleDateString([], {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
+    : "Unknown date";
 
 const statusClass = {
   pending: "bg-amber-100 text-amber-800",
@@ -172,6 +181,7 @@ const KitchenDashboard = () => {
                       </p>
                       <p className="mt-1 flex items-center gap-1 text-xs text-gray-500">
                         <FaClock /> {formatTime(order.createdAt)} ·{" "}
+                        {formatDate(order.createdAt)} ·{" "}
                         {order.items?.length || 0} food item(s)
                       </p>
                     </div>
