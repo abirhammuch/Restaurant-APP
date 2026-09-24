@@ -256,7 +256,6 @@ const Kitchen = () => {
                   <th className="px-4 py-4">Quantity</th>
                   <th className="px-4 py-4">Time</th>
                   <th className="px-4 py-4">Order Status</th>
-                  <th className="px-4 py-4">Payment</th>
                   <th className="px-4 py-4">Special Request</th>
                 </tr>
               </thead>
@@ -322,13 +321,6 @@ const Kitchen = () => {
                           </option>
                         ))}
                       </select>
-                    </td>
-                    <td className="px-4 py-4">
-                      <span
-                        className={`inline-flex min-w-26.25 justify-center rounded-full px-3 py-1.5 text-xs font-medium ${order.paymentStatus === "paid" ? "bg-emerald-100 text-emerald-700" : "bg-yellow-100 text-yellow-700"}`}
-                      >
-                        {order.paymentStatus || "pending"}
-                      </span>
                     </td>
                     <td className="max-w-56 px-4 py-4 text-xs text-gray-500">
                       {order.note || "No order notes"}
