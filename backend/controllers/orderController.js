@@ -28,6 +28,13 @@ const createOrder = async (req, res) => {
       });
     }
 
+    if (!["chapa", "telebirr"].includes(paymentMethod)) {
+      return res.status(400).json({
+        success: false,
+        message: "Please select Chapa or Telebirr as the payment method",
+      });
+    }
+
     // Get user
     const user = await userModel.findById(userId);
     if (!user) {
@@ -168,7 +175,7 @@ const createOrder = async (req, res) => {
         country: deliveryAddress?.country || "Ethiopia",
         phone: deliveryAddress?.phone || user.phone || "",
       },
-      paymentMethod: paymentMethod || "cash",
+      paymentMethod,
       paymentStatus,
       orderStatus: "pending",
       note: note || "",

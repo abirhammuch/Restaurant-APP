@@ -36,7 +36,7 @@ const Checkout = () => {
     t,
   } = useContext(AppContext);
   const location = useLocation();
-  const [method, setMethod] = useState("cash");
+  const [method, setMethod] = useState("chapa");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -313,18 +313,6 @@ const Checkout = () => {
                             className={`${method === "telebirr" ? "text-amber-600" : ""}`}
                           >
                             {t("telebirr")}
-                          </p>
-                        </div>
-                        <div
-                          onClick={() => setMethod("cash")}
-                          value={method}
-                          className={`border px-5 flex justify-center items-center gap-3 py-1 rounded-md  mb-4 sm:mb-0 cursor-pointer
-                         ${method === "cash" ? "border-amber-600" : ""} `}
-                        >
-                          <p
-                            className={`${method === "cash" ? "text-amber-600" : ""}`}
-                          >
-                            {t("cash")}
                           </p>
                         </div>
                       </div>

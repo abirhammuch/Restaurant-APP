@@ -95,8 +95,7 @@ const orderSchema = new mongoose.Schema(
     // Payment information
     paymentMethod: {
       type: String,
-      enum: ["cash", "telebirr", "card", "mobile_money", "chapa"],
-      default: "cash",
+      enum: ["telebirr", "card", "mobile_money", "chapa"],
     },
     paymentStatus: {
       type: String,

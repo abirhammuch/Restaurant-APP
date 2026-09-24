@@ -561,7 +561,7 @@ const OrderDetail = () => {
           <div className="mt-4 text-sm text-gray-600">
             <p>
               <span className="font-semibold">Payment Method:</span>{" "}
-              {orderDetail.paymentMethod || "Cash"}
+              {orderDetail.paymentMethod || "Online payment"}
             </p>
             <p>
               <span className="font-semibold">Table Number:</span>{" "}
