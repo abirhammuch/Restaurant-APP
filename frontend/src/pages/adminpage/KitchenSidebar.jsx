@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { FaHome, FaSignOutAlt, FaStar, FaStore } from "react-icons/fa";
+import { FaHome, FaSignOutAlt, FaStar } from "react-icons/fa";
 import { MdDashboard, MdRestaurantMenu } from "react-icons/md";
 import { useContext } from "react";
 import { AppContext } from "../../context/AppContext";
@@ -22,14 +22,12 @@ const KitchenSidebar = () => {
   return (
     <aside className="hidden w-52.5 shrink-0 flex-col justify-between bg-[#17130f] px-4 py-7 text-white lg:flex">
       <div>
-        <div className="mb-12 flex items-center gap-2 px-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e87a22] text-xl">
-            <FaStore />
-          </div>
-          <div>
-            <p className="font-bold tracking-wide">Tana Cafe</p>
-            <p className="text-[9px] text-gray-400">Good Food · Better Mood</p>
-          </div>
+        <div className="mb-12 px-2">
+          <img
+            src="/logo2.png"
+            alt="Tana Cafe"
+            className="h-auto w-36 object-contain"
+          />
         </div>
         <nav className="space-y-3 text-sm">
           <NavLink to="/kitchen/dashboard" className={linkClass}>
