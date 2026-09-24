@@ -36,6 +36,7 @@ import AdminRatings from "./pages/adminpage/AdminRatings";
 import AdminChat from "./pages/adminpage/AdminChat";
 import ForgotPassword from "./pages/ForgotPassword";
 import ChangePassword from "./pages/ChangePassword";
+import Kitchen from "./pages/adminpage/Kitchen";
 
 const App = () => {
   const location = useLocation();
@@ -102,6 +103,7 @@ const App = () => {
           >
             <Route index element={<Dashboard />} />
             <Route path="dashboard" element={<Dashboard />} />
+            <Route path="kitchen" element={<Kitchen />} />
             <Route path="products" element={<Products />} />
             <Route path="categories" element={<Category />} />
             <Route path="promotions" element={<PromoManagement />} />
