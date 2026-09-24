@@ -1,16 +1,6 @@
 import { NavLink } from "react-router-dom";
-import {
-  FaHome,
-  FaSignOutAlt,
-  FaStar,
-  FaStore,
-  FaUtensils,
-} from "react-icons/fa";
-import {
-  MdDashboard,
-  MdRestaurantMenu,
-  MdTableRestaurant,
-} from "react-icons/md";
+import { FaHome, FaSignOutAlt, FaStar, FaStore } from "react-icons/fa";
+import { MdDashboard, MdRestaurantMenu } from "react-icons/md";
 import { useContext } from "react";
 import { AppContext } from "../../context/AppContext";
 
@@ -51,15 +41,9 @@ const KitchenSidebar = () => {
           <NavLink to="/kitchen/reviews" className={linkClass}>
             <FaStar /> Reviews
           </NavLink>
-          <div className="flex items-center gap-3 rounded-lg px-3 py-3 text-gray-300">
-            <FaUtensils /> Kitchen
-          </div>
           <NavLink to="/kitchen/menu" className={linkClass}>
             <MdRestaurantMenu /> Menu
           </NavLink>
-          <div className="flex items-center gap-3 rounded-lg px-3 py-3 text-gray-300">
-            <MdTableRestaurant /> Tables
-          </div>
         </nav>
       </div>
       <div>
