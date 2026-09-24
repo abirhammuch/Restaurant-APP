@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import { useContext, useState } from "react";
 import { NavLink, Link } from "react-router-dom";
 
 import { assets } from "../assets/assets/assets";
@@ -127,21 +127,23 @@ const Navbar = () => {
             <img className="w-5 sm:w-6" src={assets.search_icon} alt="search" />
           </button>
 
-          <button
-            type="button"
-            onClick={() => handleNavigate("/cart")}
-            className="relative flex items-center justify-center rounded-full p-2 transition hover:bg-amber-100"
-            aria-label="Cart"
-          >
-            <img
-              className="w-6 sm:w-7"
-              src={assets.nav_cart_icon || assets.cart_icon}
-              alt="cart"
-            />
-            <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-amber-600 px-1 text-[10px] font-semibold text-white">
-              {cartCount || 0}
-            </span>
-          </button>
+          {usertoken && (
+            <button
+              type="button"
+              onClick={() => handleNavigate("/cart")}
+              className="relative flex items-center justify-center rounded-full p-2 transition hover:bg-amber-100"
+              aria-label="Cart"
+            >
+              <img
+                className="w-6 sm:w-7"
+                src={assets.nav_cart_icon || assets.cart_icon}
+                alt="cart"
+              />
+              <span className="absolute -right-1 -top-1 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-amber-600 px-1 text-[10px] font-semibold text-white">
+                {cartCount || 0}
+              </span>
+            </button>
+          )}
 
           <div className="group relative hidden sm:block">
             <img
