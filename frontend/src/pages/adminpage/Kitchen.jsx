@@ -256,7 +256,7 @@ const Kitchen = () => {
                   <th className="px-4 py-4">Time</th>
                   <th className="px-4 py-4">Order Status</th>
                   <th className="px-4 py-4">Payment</th>
-                  <th className="px-4 py-4">Transaction</th>
+                  <th className="px-4 py-4">Special Request</th>
                 </tr>
               </thead>
               <tbody>
@@ -304,8 +304,8 @@ const Kitchen = () => {
                         {order.paymentStatus || "pending"}
                       </span>
                     </td>
-                    <td className="px-4 py-4 text-xs text-gray-500">
-                      {order.transactionId || order.paymentId || "--"}
+                    <td className="max-w-56 px-4 py-4 text-xs text-gray-500">
+                      {order.note || "No order notes"}
                     </td>
                   </tr>
                 ))}
