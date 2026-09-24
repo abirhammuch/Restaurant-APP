@@ -1,5 +1,5 @@
 // App.jsx
-import React, { useContext, useState, useEffect } from "react";
+import { useContext, useEffect } from "react";
 import Home from "./pages/Home";
 import Navbar from "./components/Navbar";
 import SkeletonLoader from "./components/SkeletonLoader";
@@ -39,6 +39,7 @@ import ChangePassword from "./pages/ChangePassword";
 import Kitchen from "./pages/adminpage/Kitchen";
 import KitchenLogin from "./pages/adminpage/KitchenLogin";
 import KitchenReviews from "./pages/adminpage/KitchenReviews";
+import KitchenDashboard from "./pages/adminpage/KitchenDashboard";
 
 const App = () => {
   const location = useLocation();
@@ -111,7 +112,7 @@ const App = () => {
             path="/kitchen/dashboard"
             element={
               localStorage.getItem("kitchentoken") ? (
-                <Kitchen />
+                <KitchenDashboard />
               ) : (
                 <Navigate to="/kitchen/login" replace />
               )
