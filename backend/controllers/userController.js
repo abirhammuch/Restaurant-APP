@@ -266,6 +266,46 @@ const kitchenLogin = async (req, res) => {
   }
 };
 
+const deliveryLogin = async (req, res) => {
+  try {
+    const email = req.body.email?.toString().trim().toLowerCase();
+    const password = req.body.password;
+    const deliveryEmail = process.env.DELIVERY_EMAIL?.trim().toLowerCase();
+    const deliveryPassword = process.env.DELIVERY_PASSWORD;
+
+    if (!deliveryEmail || !deliveryPassword || !process.env.JWT_SECRET) {
+      return res.status(503).json({
+        success: false,
+        message: "Delivery login is not configured on the server",
+      });
+    }
+
+    if (email !== deliveryEmail || password !== deliveryPassword) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid delivery credentials",
+      });
+    }
+
+    const deliverytoken = jwt.sign(
+      { id: "delivery", email },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" },
+    );
+    return res.json({
+      success: true,
+      deliverytoken,
+      message: "Delivery login successful",
+    });
+  } catch (error) {
+    console.error("Delivery login error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Unable to sign in to the delivery portal",
+    });
+  }
+};
+
 const requestPasswordReset = async (req, res) => {
   try {
     const email = req.body.email?.toString().trim().toLowerCase();
@@ -470,6 +510,7 @@ export {
   googleAuth,
   adminLogin,
   kitchenLogin,
+  deliveryLogin,
   requestPasswordReset,
   resetPasswordWithOtp,
   changePassword,

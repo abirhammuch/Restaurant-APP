@@ -41,12 +41,13 @@ import KitchenLogin from "./pages/adminpage/KitchenLogin";
 import KitchenReviews from "./pages/adminpage/KitchenReviews";
 import KitchenDashboard from "./pages/adminpage/KitchenDashboard";
 import KitchenMenu from "./pages/adminpage/KitchenMenu";
-import Deliveries from "./pages/adminpage/Deliveries";
+import DeliveryPortal from "./pages/DeliveryPortal";
 
 const App = () => {
   const location = useLocation();
   const isAdminPath = location.pathname.includes("admin");
   const isKitchenPath = location.pathname.startsWith("/kitchen");
+  const isDeliveryPath = location.pathname === "/delivery";
   const { isAdmin, appLoading, dataLoading } = useContext(AppContext);
 
   useEffect(() => {
@@ -71,7 +72,7 @@ const App = () => {
       <ToastContainer />
 
       {/* Show Navbar only on non-admin routes */}
-      {!isAdminPath && !isKitchenPath && <Navbar />}
+      {!isAdminPath && !isKitchenPath && !isDeliveryPath && <Navbar />}
 
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
@@ -99,6 +100,7 @@ const App = () => {
           {/* Admin Login - Separate Route */}
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/kitchen/login" element={<KitchenLogin />} />
+          <Route path="/delivery" element={<DeliveryPortal />} />
 
           <Route
             path="/kitchen"
@@ -154,7 +156,6 @@ const App = () => {
             <Route path="categories" element={<Category />} />
             <Route path="promotions" element={<PromoManagement />} />
             <Route path="totalorders" element={<Orders />} />
-            <Route path="deliveries" element={<Deliveries />} />
             <Route path="qrcodes" element={<Qrcodes />} />
             <Route path="settings" element={<Settings />} />
             <Route path="ratings" element={<AdminRatings />} />
@@ -164,7 +165,7 @@ const App = () => {
       </AnimatePresence>
 
       {/* Show Footer only on non-admin routes */}
-      {!isAdminPath && (
+      {!isAdminPath && !isDeliveryPath && (
         <>
           <FooterLink />
           <Policy />

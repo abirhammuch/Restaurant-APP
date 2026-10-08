@@ -10,7 +10,6 @@ import {
   MdSettings,
   MdQrCode,
   MdLocalOffer,
-  MdLocalShipping,
 } from "react-icons/md";
 import { AppContext } from "../../context/AppContext";
 
@@ -160,18 +159,6 @@ const AdminLayout = () => {
                   {menuOpen && (
                     <p className="text-lg">{tAdmin("myOrders") || "Orders"}</p>
                   )}
-                </NavLink>
-              </div>
-
-              {/* Delivery management */}
-              <div className="admin cursor-pointer">
-                <NavLink
-                  to="/admin/deliveries"
-                  onClick={handleNavClick}
-                  className={getNavClass}
-                >
-                  <MdLocalShipping />
-                  {menuOpen && <p className="text-lg">Deliveries</p>}
                 </NavLink>
               </div>
 

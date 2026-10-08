@@ -6,6 +6,7 @@ import {
   googleAuth,
   adminLogin,
   kitchenLogin,
+  deliveryLogin,
   requestPasswordReset,
   resetPasswordWithOtp,
   changePassword,
@@ -24,6 +25,7 @@ userRouter.post("/register", userRegister);
 userRouter.post("/google-auth", googleAuth);
 userRouter.post("/admin/login", adminLogin);
 userRouter.post("/kitchen/login", kitchenLogin);
+userRouter.post("/delivery/login", deliveryLogin);
 userRouter.post("/forgot-password", requestPasswordReset);
 userRouter.post("/reset-password", resetPasswordWithOtp);
 

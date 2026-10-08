@@ -14,6 +14,7 @@ import ratingRouter from "./routes/ratingRouter.js";
 import chatRouter from "./routes/chatRoute.js";
 import chapaRouter from "./routes/chapaRoute.js";
 import settingRouter from "./routes/settingRoute.js";
+import deliveryRouter from "./routes/deliveryRoute.js";
 
 import mongoose from "mongoose";
 
@@ -53,6 +54,7 @@ app.use(
       "usertoken",
       "admintoken",
       "kitchentoken",
+      "deliverytoken",
       "guestId",
       "guestid",
     ],
@@ -122,6 +124,7 @@ app.use("/api/rating", ratingRouter);
 app.use("/api/chat", chatRouter);
 app.use("/api/chapa", chapaRouter);
 app.use("/api/settings", settingRouter);
+app.use("/api/delivery", deliveryRouter);
 
 // ✅ Root Route
 app.get("/", (req, res) => {
