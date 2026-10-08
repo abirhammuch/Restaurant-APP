@@ -591,16 +591,26 @@ const approveTelebirrPayment = async (req, res) => {
 // ✅ Admin: Get All Orders
 const getAllOrders = async (req, res) => {
   try {
-    const { status, page = 1, limit = 20, search } = req.query;
+    const { status, serviceType, page = 1, limit = 20, search } = req.query;
 
     const query = {};
     if (req.kitchen) query.paymentStatus = "paid";
     if (status) query.orderStatus = status;
+    if (serviceType) {
+      if (!["delivery", "dine-in"].includes(serviceType)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid order service type",
+        });
+      }
+      query.serviceType = serviceType;
+    }
     if (search) {
       query.$or = [
         { "items.name": { $regex: search, $options: "i" } },
         { "deliveryAddress.name": { $regex: search, $options: "i" } },
         { "deliveryAddress.phone": { $regex: search, $options: "i" } },
+        { "deliveryAddress.address": { $regex: search, $options: "i" } },
         { table: { $regex: search, $options: "i" } },
       ];
     }
