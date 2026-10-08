@@ -287,17 +287,17 @@ const Checkout = () => {
                 <hr className="mt-5 text-gray-300" />
                 <div className="mt-4">
                   <p className="font-medium text-lg">{t("serviceType")}</p>
-                  <div className="mt-3 flex flex-wrap gap-3">
+                  <div className="mt-3 grid grid-cols-2 gap-1 rounded-xl bg-gray-100 p-1">
                     {["delivery", "dine-in"].map((type) => (
                       <button
                         key={type}
                         type="button"
                         aria-pressed={serviceType === type}
                         onClick={() => setServiceType(type)}
-                        className={`rounded-md border px-5 py-2 ${
+                        className={`min-h-11 rounded-lg px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 ${
                           serviceType === type
-                            ? "border-amber-600 bg-amber-50 text-amber-700"
-                            : "border-gray-300"
+                            ? "bg-amber-600 text-white shadow-sm"
+                            : "text-gray-600 hover:bg-white hover:text-gray-900"
                         }`}
                       >
                         {t(type === "delivery" ? "delivery" : "dineIn")}
