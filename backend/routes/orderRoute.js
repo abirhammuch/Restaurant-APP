@@ -13,6 +13,7 @@ import {
   deleteOrder,
   getOrderAnalytics,
   estimateDeliveryFee,
+  lookupDeliveryLocation,
 } from "../controllers/orderController.js";
 import userAuth from "../middleware/userAuth.js";
 import adminAuth from "../middleware/adminAuth.js";
@@ -21,6 +22,7 @@ import orderStaffAuth from "../middleware/orderStaffAuth.js";
 const orderRouter = express.Router();
 
 // ✅ User routes
+orderRouter.post("/delivery-location/lookup", userAuth, lookupDeliveryLocation);
 orderRouter.post("/delivery-fee/estimate", userAuth, estimateDeliveryFee);
 orderRouter.post("/create", userAuth, createOrder);
 orderRouter.get("/my-orders", userAuth, getUserOrders);

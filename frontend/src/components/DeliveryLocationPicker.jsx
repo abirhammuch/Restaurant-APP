@@ -1,4 +1,11 @@
-import { useMapEvents, MapContainer, Marker, TileLayer } from "react-leaflet";
+import { useEffect } from "react";
+import {
+  useMap,
+  useMapEvents,
+  MapContainer,
+  Marker,
+  TileLayer,
+} from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
@@ -28,6 +35,18 @@ const MapClickHandler = ({ onSelect }) => {
   return null;
 };
 
+const MapViewUpdater = ({ position }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (position) {
+      map.flyTo([position.latitude, position.longitude], 16);
+    }
+  }, [map, position]);
+
+  return null;
+};
+
 const DeliveryLocationPicker = ({ position, onSelect, label }) => (
   <div className="mt-3">
     <p className="mb-2 text-sm font-medium">{label}</p>
@@ -42,6 +61,7 @@ const DeliveryLocationPicker = ({ position, onSelect, label }) => (
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         maxZoom={19}
       />
+      <MapViewUpdater position={position} />
       <MapClickHandler onSelect={onSelect} />
       {position && (
         <Marker

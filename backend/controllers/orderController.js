@@ -4,7 +4,62 @@ import userModel from "../models/userModel.js";
 import foodModel from "../models/foodModel.js";
 import promoModel from "../models/promoModel.js";
 import { getSettings } from "./settingController.js";
-import { getDistanceBasedDeliveryQuote } from "../utils/deliveryPricing.js";
+import {
+  getDistanceBasedDeliveryQuote,
+  reverseLookupDeliveryLocation,
+  searchDeliveryAddress,
+} from "../utils/deliveryPricing.js";
+
+export const lookupDeliveryLocation = async (req, res) => {
+  try {
+    const { action } = req.body;
+    if (action === "search") {
+      const address = req.body.address?.toString().trim();
+      if (!address || address.length > 500) {
+        return res.status(400).json({
+          success: false,
+          message: "Enter a valid address to search.",
+        });
+      }
+      const place = await searchDeliveryAddress(address);
+      return res.json({ success: true, ...place });
+    }
+
+    if (action === "reverse") {
+      const { latitude, longitude } = req.body;
+      if (
+        latitude === null ||
+        latitude === undefined ||
+        longitude === null ||
+        longitude === undefined ||
+        !Number.isFinite(Number(latitude)) ||
+        Number(latitude) < -90 ||
+        Number(latitude) > 90 ||
+        !Number.isFinite(Number(longitude)) ||
+        Number(longitude) < -180 ||
+        Number(longitude) > 180
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "Select a valid location.",
+        });
+      }
+      const place = await reverseLookupDeliveryLocation(latitude, longitude);
+      return res.json({ success: true, ...place });
+    }
+
+    return res.status(400).json({
+      success: false,
+      message: "Choose address search or current-location lookup.",
+    });
+  } catch (error) {
+    console.error("Failed to look up delivery location:", error.message);
+    return res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message || "Failed to find delivery location.",
+    });
+  }
+};
 
 export const estimateDeliveryFee = async (req, res) => {
   try {

@@ -76,6 +76,17 @@ export const translations = {
     distancePricingNotice:
       "Tap the map to place the pin at your delivery location. The delivery fee is based on driving distance.",
     selectDeliveryLocation: "Select your delivery location on the map",
+    searchAddressOnMap: "Find address on map",
+    searchingAddress: "Searching address...",
+    useMyLocation: "Use my location",
+    findingDeviceLocation: "Finding your location...",
+    deliveryAddressSearchFailed: "Could not find that address.",
+    deviceLocationUnavailable: "This device does not support location.",
+    deviceLocationPermissionDenied:
+      "Location permission was denied. Enable it in your browser settings.",
+    deviceLocationFailed: "Could not get your device location.",
+    deviceLocationAddressFailed:
+      "Location found, but its address could not be loaded.",
     retry: "Retry",
     paymentMethod: "Payment Method",
     specialRequest: "Special Request",
@@ -422,6 +433,16 @@ export const translations = {
     distancePricingNotice:
       "በካርታው ላይ የማድረሻ ቦታዎን ለመምረጥ ይንኩ። የማድረሻ ክፍያው በመንገድ ርቀት ላይ ይመሰረታል።",
     selectDeliveryLocation: "በካርታው ላይ የማድረሻ ቦታዎን ይምረጡ",
+    searchAddressOnMap: "አድራሻውን በካርታ ላይ ፈልግ",
+    searchingAddress: "አድራሻውን በመፈለግ ላይ...",
+    useMyLocation: "አሁን ያለሁበትን ቦታ ተጠቀም",
+    findingDeviceLocation: "ቦታዎን በመፈለግ ላይ...",
+    deliveryAddressSearchFailed: "ይህን አድራሻ ማግኘት አልተቻለም።",
+    deviceLocationUnavailable: "ይህ መሳሪያ የቦታ አገልግሎትን አይደግፍም።",
+    deviceLocationPermissionDenied:
+      "የቦታ ፈቃድ ተከልክሏል። በአሳሽዎ ቅንብሮች ውስጥ ያንቁት።",
+    deviceLocationFailed: "የመሳሪያዎን ቦታ ማግኘት አልተቻለም።",
+    deviceLocationAddressFailed: "ቦታው ተገኝቷል ግን አድራሻውን ማግኘት አልተቻለም።",
     retry: "እንደገና ሞክር",
     paymentMethod: "የክፍያ ዘዴ",
     specialRequest: "ልዩ ጥያቄ",

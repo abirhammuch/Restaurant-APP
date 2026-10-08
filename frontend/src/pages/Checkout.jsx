@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { FaArrowLeft } from "react-icons/fa";
 import { FaPhone } from "react-icons/fa";
 import { FaCreditCard } from "react-icons/fa";
@@ -47,8 +53,13 @@ const Checkout = () => {
   const [deliveryEstimateLoading, setDeliveryEstimateLoading] = useState(false);
   const [deliveryEstimateError, setDeliveryEstimateError] = useState("");
   const [deliveryEstimateAttempt, setDeliveryEstimateAttempt] = useState(0);
+  const [locationLookupLoading, setLocationLookupLoading] = useState(false);
+  const [locationLookupError, setLocationLookupError] = useState("");
+  const [locatingDevice, setLocatingDevice] = useState(false);
   const [note, setNote] = useState("");
   const [isProcessingChapa, setIsProcessingChapa] = useState(false);
+  const translateRef = useRef(t);
+  const locationRequestId = useRef(0);
 
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
@@ -60,6 +71,117 @@ const Checkout = () => {
   }, [location.search]);
 
   const getToken = () => localStorage.getItem("usertoken");
+
+  useEffect(() => {
+    translateRef.current = t;
+  }, [t]);
+
+  const lookupDeliveryLocation = useCallback(async (payload) => {
+    const response = await axios.post(
+      `${backendUrl}/api/order/delivery-location/lookup`,
+      payload,
+      { headers: { usertoken: getToken() } },
+    );
+    if (!response.data.success) {
+      throw new Error(response.data.message || "Could not find that location.");
+    }
+    return response.data;
+  }, [backendUrl]);
+
+  const searchDeliveryAddress = async () => {
+    if (!address.trim()) {
+      setLocationLookupError(t("pleaseEnterDeliveryAddress"));
+      return;
+    }
+
+    const requestId = ++locationRequestId.current;
+    setLocationLookupLoading(true);
+    setLocationLookupError("");
+    setDeliveryQuote(null);
+    try {
+      const place = await lookupDeliveryLocation({
+        action: "search",
+        address: address.trim(),
+      });
+      if (requestId !== locationRequestId.current) return;
+      setAddress(place.address || address.trim());
+      setDeliveryLocation({
+        latitude: place.latitude,
+        longitude: place.longitude,
+      });
+    } catch (error) {
+      if (requestId !== locationRequestId.current) return;
+      console.error("Delivery address search error:", error);
+      setLocationLookupError(
+        error.response?.data?.message ||
+          error.message ||
+          t("deliveryAddressSearchFailed"),
+      );
+    } finally {
+      if (requestId === locationRequestId.current) {
+          setLocationLookupLoading(false);
+      }
+    }
+  };
+
+  const useDeviceLocation = useCallback(() => {
+    if (!navigator.geolocation) {
+      setLocationLookupError(translateRef.current("deviceLocationUnavailable"));
+      return;
+    }
+
+    const requestId = ++locationRequestId.current;
+    setLocatingDevice(true);
+    setLocationLookupError("");
+    setDeliveryQuote(null);
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords }) => {
+        if (requestId !== locationRequestId.current) return;
+        const position = {
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+        };
+        setDeliveryLocation(position);
+        try {
+          const place = await lookupDeliveryLocation({
+            action: "reverse",
+            ...position,
+          });
+          if (requestId !== locationRequestId.current) return;
+          setAddress(place.address || `${position.latitude}, ${position.longitude}`);
+        } catch (error) {
+          if (requestId !== locationRequestId.current) return;
+          console.error("Current location address lookup error:", error);
+          setAddress(`${position.latitude}, ${position.longitude}`);
+          setLocationLookupError(
+            error.response?.data?.message ||
+              error.message ||
+              translateRef.current("deviceLocationAddressFailed"),
+          );
+        } finally {
+          if (requestId === locationRequestId.current) {
+            setLocatingDevice(false);
+          }
+        }
+      },
+      (error) => {
+        if (requestId !== locationRequestId.current) return;
+        console.error("Device geolocation error:", error);
+        setLocationLookupError(
+          error.code === error.PERMISSION_DENIED
+            ? translateRef.current("deviceLocationPermissionDenied")
+            : translateRef.current("deviceLocationFailed"),
+        );
+        setLocatingDevice(false);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 },
+    );
+  }, [lookupDeliveryLocation]);
+
+  useEffect(() => {
+    if (new URLSearchParams(location.search).has("table")) return;
+    useDeviceLocation();
+  }, [location.search, useDeviceLocation]);
 
   useEffect(() => {
     let active = true;
@@ -406,19 +528,55 @@ const Checkout = () => {
                           value={address}
                           maxLength={500}
                           onChange={(e) => {
+                            locationRequestId.current += 1;
+                            setLocatingDevice(false);
+                            setLocationLookupLoading(false);
                             setAddress(e.target.value);
+                            setDeliveryLocation(null);
                             setDeliveryQuote(null);
+                            setLocationLookupError("");
                           }}
                           placeholder={t("deliveryAddressPlaceholder")}
                           className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-600"
                           required
                         />
+                        <div className="flex flex-wrap gap-2">
+                          <button
+                            type="button"
+                            onClick={searchDeliveryAddress}
+                            disabled={locationLookupLoading || !address.trim()}
+                            className="rounded-md bg-amber-600 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {locationLookupLoading
+                              ? t("searchingAddress")
+                              : t("searchAddressOnMap")}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={useDeviceLocation}
+                            disabled={locatingDevice}
+                            className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {locatingDevice
+                              ? t("findingDeviceLocation")
+                              : t("useMyLocation")}
+                          </button>
+                        </div>
+                        {locationLookupError && (
+                          <p role="alert" className="text-sm text-red-600">
+                            {locationLookupError}
+                          </p>
+                        )}
                         <DeliveryLocationPicker
                           position={deliveryLocation}
                           onSelect={(position) => {
+                            locationRequestId.current += 1;
+                            setLocatingDevice(false);
+                            setLocationLookupLoading(false);
                             setDeliveryLocation(position);
                             setDeliveryQuote(null);
                             setDeliveryEstimateError("");
+                            setLocationLookupError("");
                           }}
                           label={t("selectDeliveryLocation")}
                         />
