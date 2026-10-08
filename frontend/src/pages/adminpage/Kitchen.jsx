@@ -135,13 +135,15 @@ const Kitchen = () => {
       [
         order._id,
         order.deliveryAddress?.name || "N/A",
-        order.table || "Take Away",
+        order.serviceType === "delivery"
+          ? `Delivery: ${order.deliveryAddress?.address || "Address missing"}`
+          : `Dine-in: Table ${order.table || "N/A"}`,
         formatAmount(order.total),
         order.orderStatus,
         order.paymentStatus || "pending",
       ].join(","),
     );
-    const csv = ["Order ID,Customer,Table,Total,Status,Payment", ...rows].join(
+    const csv = ["Order ID,Customer,Service / Location,Total,Status,Payment", ...rows].join(
       "\n",
     );
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -251,7 +253,7 @@ const Kitchen = () => {
                 <tr>
                   <th className="px-4 py-4">Order ID</th>
                   <th className="px-4 py-4">Customer</th>
-                  <th className="px-4 py-4">Table</th>
+                  <th className="px-4 py-4">Service / Location</th>
                   <th className="px-4 py-4">Food</th>
                   <th className="px-4 py-4">Quantity</th>
                   <th className="px-4 py-4">Time</th>
@@ -271,7 +273,11 @@ const Kitchen = () => {
                     <td className="px-4 py-4">
                       {order.deliveryAddress?.name || "N/A"}
                     </td>
-                    <td className="px-4 py-4">{order.table || "Take Away"}</td>
+                    <td className="px-4 py-4">
+                      {order.serviceType === "delivery"
+                        ? `Delivery: ${order.deliveryAddress?.address || "Address missing"}`
+                        : `Dine-in: Table ${order.table || "N/A"}`}
+                    </td>
                     <td className="px-4 py-4 text-sm">
                       <div className="space-y-1">
                         {order.items?.length ? (

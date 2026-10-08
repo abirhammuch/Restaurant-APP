@@ -564,9 +564,20 @@ const OrderDetail = () => {
               {orderDetail.paymentMethod || "Online payment"}
             </p>
             <p>
-              <span className="font-semibold">Table Number:</span>{" "}
-              {orderDetail.table || "N/A"}
+              <span className="font-semibold">Order type:</span>{" "}
+              {orderDetail.serviceType === "delivery" ? "Delivery" : "Dine-in"}
             </p>
+            {orderDetail.serviceType === "delivery" ? (
+              <p>
+                <span className="font-semibold">Delivery address:</span>{" "}
+                {orderDetail.deliveryAddress?.address || "N/A"}
+              </p>
+            ) : (
+              <p>
+                <span className="font-semibold">Table Number:</span>{" "}
+                {orderDetail.table || "N/A"}
+              </p>
+            )}
             {orderDetail.note && (
               <p>
                 <span className="font-semibold">Special Instructions:</span>{" "}

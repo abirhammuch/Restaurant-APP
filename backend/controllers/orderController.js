@@ -9,8 +9,15 @@ import { getSettings } from "./settingController.js";
 const createOrder = async (req, res) => {
   try {
     const userId = req.userId;
-    const { items, deliveryAddress, paymentMethod, note, couponCode, table } =
-      req.body;
+    const {
+      items,
+      deliveryAddress,
+      paymentMethod,
+      note,
+      couponCode,
+      table,
+      serviceType = "dine-in",
+    } = req.body;
 
     console.log("=== CREATE ORDER ===");
     console.log("User ID:", userId);
@@ -32,6 +39,34 @@ const createOrder = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Please select Chapa or Telebirr as the payment method",
+      });
+    }
+
+    if (!["delivery", "dine-in"].includes(serviceType)) {
+      return res.status(400).json({
+        success: false,
+        message: "Please select delivery or dine-in",
+      });
+    }
+
+    if (
+      serviceType === "delivery" &&
+      (typeof deliveryAddress?.address !== "string" ||
+        !deliveryAddress.address.trim())
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide a delivery address",
+      });
+    }
+
+    if (
+      serviceType === "dine-in" &&
+      !String(table || deliveryAddress?.table || "").trim()
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide a table number",
       });
     }
 
@@ -73,7 +108,10 @@ const createOrder = async (req, res) => {
     // Calculate totals from the admin-controlled ETB settings.
     const settings = await getSettings();
     const deliveryFee =
-      subtotal >= settings.freeDeliveryThreshold ? 0 : settings.deliveryFee;
+      serviceType === "delivery" &&
+      subtotal < settings.freeDeliveryThreshold
+        ? settings.deliveryFee
+        : 0;
     const tax = Number(((subtotal * settings.taxRate) / 100).toFixed(2));
 
     let discount = 0;
@@ -170,12 +208,14 @@ const createOrder = async (req, res) => {
       deliveryAddress: {
         name: deliveryAddress?.name || user.name || "",
         email: deliveryAddress?.email || user.email || "",
+        address: deliveryAddress?.address || "",
         branch: deliveryAddress?.branch || "Restaurant",
         zipCode: deliveryAddress?.zipCode || "",
         country: deliveryAddress?.country || "Ethiopia",
         phone: deliveryAddress?.phone || user.phone || "",
       },
       paymentMethod,
+      serviceType,
       paymentStatus,
       orderStatus: "pending",
       note: note || "",

@@ -41,6 +41,8 @@ const Checkout = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [table, setTable] = useState("");
+  const [serviceType, setServiceType] = useState("delivery");
+  const [address, setAddress] = useState("");
   const [note, setNote] = useState("");
   const [isProcessingChapa, setIsProcessingChapa] = useState(false);
 
@@ -49,6 +51,7 @@ const Checkout = () => {
     const qrTable = searchParams.get("table");
     if (qrTable) {
       setTable(qrTable);
+      setServiceType("dine-in");
     }
   }, [location.search]);
 
@@ -111,8 +114,12 @@ const Checkout = () => {
       toast.error(t("pleaseEnterYourPhone"));
       return;
     }
-    if (!table.trim()) {
+    if (serviceType === "dine-in" && !table.trim()) {
       toast.error(t("pleaseEnterTableNumber"));
+      return;
+    }
+    if (serviceType === "delivery" && !address.trim()) {
+      toast.error(t("pleaseEnterDeliveryAddress"));
       return;
     }
     if (!cart.items || cart.items.length === 0) {
@@ -129,11 +136,13 @@ const Checkout = () => {
           quantity: item.quantity,
         })),
         deliveryAddress: {
-          table: table,
+          address: serviceType === "delivery" ? address.trim() : "",
           phone: phone,
           name: name,
           email: email,
         },
+        serviceType,
+        table: serviceType === "dine-in" ? table.trim() : "",
         paymentMethod: method,
         note: note || "",
         couponCode: couponCode || "",
@@ -190,7 +199,10 @@ const Checkout = () => {
   const subtotal = cart.subtotal || 0;
   const taxAmount = (subtotal * (tax || 8)) / 100;
   const deliveryFee =
-    subtotal >= restaurantSettings.freeDeliveryThreshold ? 0 : delivery_fee;
+    serviceType === "delivery" &&
+    subtotal < restaurantSettings.freeDeliveryThreshold
+      ? delivery_fee
+      : 0;
   const discountAmount =
     couponType === "fixed"
       ? couponDiscount
@@ -274,21 +286,62 @@ const Checkout = () => {
 
                 <hr className="mt-5 text-gray-300" />
                 <div className="mt-4">
-                  <p className="font-medium  text-lg">{t("diningDetails")}</p>
-                  <div className="sm:flex gap-5 items-center justify-between">
-                    <div>
-                      <p className="mb-2 mt-2">{t("tableNumber")}</p>
-                      <input
-                        onChange={(e) => setTable(e.target.value)}
-                        value={table}
-                        type="text"
-                        placeholder={t("tableNumberPlaceholder")}
-                        className="px-2 py-1"
-                        required
-                      />
-                      <p className="text-sm text-gray-700">{t("tableHint")}</p>
-                    </div>
+                  <p className="font-medium text-lg">{t("serviceType")}</p>
+                  <div className="mt-3 flex flex-wrap gap-3">
+                    {["delivery", "dine-in"].map((type) => (
+                      <button
+                        key={type}
+                        type="button"
+                        aria-pressed={serviceType === type}
+                        onClick={() => setServiceType(type)}
+                        className={`rounded-md border px-5 py-2 ${
+                          serviceType === type
+                            ? "border-amber-600 bg-amber-50 text-amber-700"
+                            : "border-gray-300"
+                        }`}
+                      >
+                        {t(type === "delivery" ? "delivery" : "dineIn")}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="mt-3">
+                    {serviceType === "delivery" ? (
+                      <div className="flex flex-col gap-2">
+                        <label className="font-medium" htmlFor="delivery-address">
+                          {t("deliveryAddress")}
+                        </label>
+                        <textarea
+                          id="delivery-address"
+                          value={address}
+                          onChange={(e) => setAddress(e.target.value)}
+                          placeholder={t("deliveryAddressPlaceholder")}
+                          className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-600"
+                          required
+                        />
+                      </div>
+                    ) : (
+                      <div>
+                        <label
+                          className="mb-2 block mt-2"
+                          htmlFor="table-number"
+                        >
+                          {t("tableNumber")}
+                        </label>
+                        <input
+                          id="table-number"
+                          onChange={(e) => setTable(e.target.value)}
+                          value={table}
+                          type="text"
+                          placeholder={t("tableNumberPlaceholder")}
+                          className="rounded-md border border-gray-300 px-2 py-1"
+                          required
+                        />
+                        <p className="text-sm text-gray-700">{t("tableHint")}</p>
+                      </div>
+                    )}
+                  </div>
 
+                  <div className="mt-4">
                     <div>
                       <p className="mb-2 mt-2">{t("paymentMethod")}</p>
                       <div className="sm:flex justify-center items-center gap-9">

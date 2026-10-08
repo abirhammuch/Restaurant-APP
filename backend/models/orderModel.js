@@ -70,6 +70,10 @@ const orderSchema = new mongoose.Schema(
         type: String,
         required: true,
       },
+      address: {
+        type: String,
+        default: "",
+      },
       email: {
         type: String,
         required: true,
@@ -90,6 +94,12 @@ const orderSchema = new mongoose.Schema(
         type: String,
         required: true,
       },
+    },
+
+    serviceType: {
+      type: String,
+      enum: ["delivery", "dine-in"],
+      default: "dine-in",
     },
 
     // Payment information
