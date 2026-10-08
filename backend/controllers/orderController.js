@@ -4,6 +4,44 @@ import userModel from "../models/userModel.js";
 import foodModel from "../models/foodModel.js";
 import promoModel from "../models/promoModel.js";
 import { getSettings } from "./settingController.js";
+import { getDistanceBasedDeliveryQuote } from "../utils/deliveryPricing.js";
+
+export const estimateDeliveryFee = async (req, res) => {
+  try {
+    const { latitude, longitude } = req.body;
+    const subtotal = Number(req.body.subtotal);
+    if (
+      latitude === null ||
+      latitude === undefined ||
+      longitude === null ||
+      longitude === undefined ||
+      !Number.isFinite(Number(latitude)) ||
+      !Number.isFinite(Number(longitude)) ||
+      !Number.isFinite(subtotal) ||
+      subtotal < 0
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Select a delivery location on the map to estimate the fee.",
+      });
+    }
+
+    const settings = await getSettings();
+    const quote = await getDistanceBasedDeliveryQuote(
+      latitude,
+      longitude,
+      subtotal,
+      settings,
+    );
+    res.json({ success: true, ...quote });
+  } catch (error) {
+    console.error("Failed to estimate delivery fee:", error.message);
+    res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message || "Failed to estimate delivery fee.",
+    });
+  }
+};
 
 // ✅ Create Order - Matches your model
 const createOrder = async (req, res) => {
@@ -52,7 +90,8 @@ const createOrder = async (req, res) => {
     if (
       serviceType === "delivery" &&
       (typeof deliveryAddress?.address !== "string" ||
-        !deliveryAddress.address.trim())
+        !deliveryAddress.address.trim() ||
+        deliveryAddress.address.length > 500)
     ) {
       return res.status(400).json({
         success: false,
@@ -107,11 +146,16 @@ const createOrder = async (req, res) => {
 
     // Calculate totals from the admin-controlled ETB settings.
     const settings = await getSettings();
-    const deliveryFee =
-      serviceType === "delivery" &&
-      subtotal < settings.freeDeliveryThreshold
-        ? settings.deliveryFee
-        : 0;
+    const deliveryQuote =
+      serviceType === "delivery"
+        ? await getDistanceBasedDeliveryQuote(
+            deliveryAddress.latitude,
+            deliveryAddress.longitude,
+            subtotal,
+            settings,
+          )
+        : null;
+    const deliveryFee = deliveryQuote?.deliveryFee || 0;
     const tax = Number(((subtotal * settings.taxRate) / 100).toFixed(2));
 
     let discount = 0;
@@ -209,6 +253,10 @@ const createOrder = async (req, res) => {
         name: deliveryAddress?.name || user.name || "",
         email: deliveryAddress?.email || user.email || "",
         address: deliveryAddress?.address || "",
+        latitude:
+          serviceType === "delivery" ? Number(deliveryAddress.latitude) : null,
+        longitude:
+          serviceType === "delivery" ? Number(deliveryAddress.longitude) : null,
         branch: deliveryAddress?.branch || "Restaurant",
         zipCode: deliveryAddress?.zipCode || "",
         country: deliveryAddress?.country || "Ethiopia",
@@ -221,6 +269,7 @@ const createOrder = async (req, res) => {
       note: note || "",
       couponCode: couponCode || "",
       table: table || deliveryAddress?.table || "",
+      deliveryDistanceKm: deliveryQuote?.distanceKm || 0,
       estimatedDeliveryTime: new Date(Date.now() + 30 * 60000), // 30 minutes from now
     });
 
@@ -256,7 +305,7 @@ const createOrder = async (req, res) => {
     });
   } catch (error) {
     console.error("Create order error:", error);
-    res.status(500).json({
+    res.status(error.statusCode || 500).json({
       success: false,
       message: error.message,
     });

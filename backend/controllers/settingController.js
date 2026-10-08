@@ -3,6 +3,8 @@ import settingModel from "../models/settingModel.js";
 const defaultSettings = {
   currency: "ETB",
   deliveryFee: 10,
+  deliveryFeePerKm: 10,
+  restaurantAddress: "Tana, Bahir Dar, Ethiopia",
   taxRate: 8,
   freeDeliveryThreshold: 500,
   telebirrAccountName: "marshal",
@@ -19,6 +21,11 @@ const getSettings = async () => {
   return {
     currency: "ETB",
     deliveryFee: Number(settings.deliveryFee ?? defaultSettings.deliveryFee),
+    deliveryFeePerKm: Number(
+      settings.deliveryFeePerKm ?? defaultSettings.deliveryFeePerKm,
+    ),
+    restaurantAddress:
+      settings.restaurantAddress || defaultSettings.restaurantAddress,
     taxRate: Number(settings.taxRate ?? defaultSettings.taxRate),
     freeDeliveryThreshold: Number(
       settings.freeDeliveryThreshold ?? defaultSettings.freeDeliveryThreshold,
@@ -45,20 +52,31 @@ export const getAdminSettings = getPublicSettings;
 
 export const updateSettings = async (req, res) => {
   try {
-    const deliveryFee = Number(req.body.deliveryFee);
+    const deliveryFeePerKm = Number(
+      req.body.deliveryFeePerKm ?? req.body.deliveryFee,
+    );
+    const deliveryFee = Number(
+      req.body.deliveryFee ?? req.body.deliveryFeePerKm,
+    );
     const taxRate = Number(req.body.taxRate);
     const freeDeliveryThreshold = Number(req.body.freeDeliveryThreshold);
+    const restaurantAddress =
+      req.body.restaurantAddress?.toString().trim() ||
+      defaultSettings.restaurantAddress;
     const telebirrAccountName = req.body.telebirrAccountName?.toString().trim();
     const telebirrAccountNumber = req.body.telebirrAccountNumber
       ?.toString()
       .trim();
 
     if (
-      ![deliveryFee, taxRate, freeDeliveryThreshold].every(Number.isFinite) ||
-      deliveryFee < 0 ||
+      ![deliveryFeePerKm, taxRate, freeDeliveryThreshold].every(
+        Number.isFinite,
+      ) ||
+      deliveryFeePerKm < 0 ||
       taxRate < 0 ||
       taxRate > 100 ||
       freeDeliveryThreshold < 0 ||
+      !restaurantAddress ||
       !telebirrAccountName
     ) {
       return res.status(400).json({
@@ -73,6 +91,8 @@ export const updateSettings = async (req, res) => {
         $set: {
           currency: "ETB",
           deliveryFee,
+          deliveryFeePerKm,
+          restaurantAddress,
           taxRate,
           freeDeliveryThreshold,
           telebirrAccountName,

@@ -6,7 +6,8 @@ import { AppContext } from "../../context/AppContext";
 const Settings = () => {
   const { backendUrl, admintoken } = useContext(AppContext);
   const [settings, setSettings] = useState({
-    deliveryFee: 10,
+    deliveryFeePerKm: 10,
+    restaurantAddress: "Tana, Bahir Dar, Ethiopia",
     taxRate: 8,
     freeDeliveryThreshold: 500,
     telebirrAccountName: "marshal",
@@ -44,7 +45,7 @@ const Settings = () => {
       );
       if (response.data.success) {
         setSettings(response.data.settings);
-        toast.success("Payment settings saved");
+        toast.success("Restaurant settings saved");
       }
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to save settings");
@@ -73,15 +74,30 @@ const Settings = () => {
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <label className="flex flex-col gap-1">
-            <span className="text-sm font-medium">Delivery fee (ብር)</span>
+            <span className="text-sm font-medium">Delivery fee per km (ብር)</span>
             <input
               type="number"
               min="0"
               step="0.01"
-              value={settings.deliveryFee}
-              onChange={updateField("deliveryFee")}
+              value={settings.deliveryFeePerKm}
+              onChange={updateField("deliveryFeePerKm")}
               className="rounded-md border border-gray-300 px-3 py-2"
             />
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="text-sm font-medium">
+              Restaurant starting address
+            </span>
+            <input
+              type="text"
+              value={settings.restaurantAddress || ""}
+              onChange={updateField("restaurantAddress")}
+              className="rounded-md border border-gray-300 px-3 py-2"
+              required
+            />
+            <span className="text-xs text-gray-500">
+              Use the full address OpenStreetMap should route deliveries from.
+            </span>
           </label>
           <label className="flex flex-col gap-1">
             <span className="text-sm font-medium">Service tax (%)</span>

@@ -74,6 +74,14 @@ const orderSchema = new mongoose.Schema(
         type: String,
         default: "",
       },
+      latitude: {
+        type: Number,
+        default: null,
+      },
+      longitude: {
+        type: Number,
+        default: null,
+      },
       email: {
         type: String,
         required: true,
@@ -171,6 +179,10 @@ const orderSchema = new mongoose.Schema(
     estimatedDeliveryTime: {
       type: Date,
       default: null,
+    },
+    deliveryDistanceKm: {
+      type: Number,
+      default: 0,
     },
 
     // Timestamps

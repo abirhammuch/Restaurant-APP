@@ -5,6 +5,11 @@ const settingSchema = new mongoose.Schema(
     key: { type: String, unique: true, default: "restaurant" },
     currency: { type: String, enum: ["ETB"], default: "ETB" },
     deliveryFee: { type: Number, min: 0, default: 10 },
+    deliveryFeePerKm: { type: Number, min: 0, default: 10 },
+    restaurantAddress: {
+      type: String,
+      default: "Tana, Bahir Dar, Ethiopia",
+    },
     taxRate: { type: Number, min: 0, max: 100, default: 8 },
     freeDeliveryThreshold: { type: Number, min: 0, default: 500 },
     telebirrAccountName: { type: String, default: "marshal" },

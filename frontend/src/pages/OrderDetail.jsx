@@ -568,10 +568,18 @@ const OrderDetail = () => {
               {orderDetail.serviceType === "delivery" ? "Delivery" : "Dine-in"}
             </p>
             {orderDetail.serviceType === "delivery" ? (
-              <p>
-                <span className="font-semibold">Delivery address:</span>{" "}
-                {orderDetail.deliveryAddress?.address || "N/A"}
-              </p>
+              <>
+                <p>
+                  <span className="font-semibold">Delivery address:</span>{" "}
+                  {orderDetail.deliveryAddress?.address || "N/A"}
+                </p>
+                <p>
+                  <span className="font-semibold">Driving distance:</span>{" "}
+                  {orderDetail.deliveryDistanceKm
+                    ? `${orderDetail.deliveryDistanceKm} km`
+                    : "N/A"}
+                </p>
+              </>
             ) : (
               <p>
                 <span className="font-semibold">Table Number:</span>{" "}

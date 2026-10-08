@@ -9,6 +9,7 @@ import { FaLightbulb } from "react-icons/fa";
 
 import { FaUser } from "react-icons/fa6";
 import { AppContext } from "../context/AppContext";
+import DeliveryLocationPicker from "../components/DeliveryLocationPicker";
 import { toast } from "react-toastify";
 import axios from "axios";
 
@@ -20,9 +21,7 @@ const Checkout = () => {
     navigate,
     cart,
     cartCount,
-    delivery_fee,
     tax,
-    restaurantSettings,
     setLoading,
     backendUrl,
     clearCart,
@@ -43,6 +42,11 @@ const Checkout = () => {
   const [table, setTable] = useState("");
   const [serviceType, setServiceType] = useState("delivery");
   const [address, setAddress] = useState("");
+  const [deliveryLocation, setDeliveryLocation] = useState(null);
+  const [deliveryQuote, setDeliveryQuote] = useState(null);
+  const [deliveryEstimateLoading, setDeliveryEstimateLoading] = useState(false);
+  const [deliveryEstimateError, setDeliveryEstimateError] = useState("");
+  const [deliveryEstimateAttempt, setDeliveryEstimateAttempt] = useState(0);
   const [note, setNote] = useState("");
   const [isProcessingChapa, setIsProcessingChapa] = useState(false);
 
@@ -56,6 +60,69 @@ const Checkout = () => {
   }, [location.search]);
 
   const getToken = () => localStorage.getItem("usertoken");
+
+  useEffect(() => {
+    let active = true;
+    const subtotal = Number(cart.subtotal) || 0;
+    const timer = setTimeout(async () => {
+      if (!active) return;
+      if (serviceType !== "delivery" || !deliveryLocation) {
+        setDeliveryEstimateLoading(false);
+        setDeliveryEstimateError("");
+        return;
+      }
+
+      setDeliveryEstimateLoading(true);
+      setDeliveryEstimateError("");
+      try {
+        const response = await axios.post(
+          `${backendUrl}/api/order/delivery-fee/estimate`,
+          {
+            latitude: deliveryLocation.latitude,
+            longitude: deliveryLocation.longitude,
+            subtotal,
+          },
+          { headers: { usertoken: getToken() } },
+        );
+        if (!response.data.success) {
+          throw new Error(
+            response.data.message || "Could not estimate delivery fee.",
+          );
+        }
+        if (active) {
+          setDeliveryQuote({
+            ...response.data,
+              latitude: deliveryLocation.latitude,
+              longitude: deliveryLocation.longitude,
+              subtotal,
+            });
+        }
+      } catch (error) {
+        console.error("Delivery fee estimate error:", error);
+        if (active) {
+          setDeliveryQuote(null);
+          setDeliveryEstimateError(
+            error.response?.data?.message ||
+              error.message ||
+              "Could not estimate delivery fee.",
+          );
+        }
+      } finally {
+        if (active) setDeliveryEstimateLoading(false);
+      }
+    }, serviceType === "delivery" && deliveryLocation ? 500 : 0);
+
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [
+    backendUrl,
+    cart.subtotal,
+    deliveryEstimateAttempt,
+    deliveryLocation,
+    serviceType,
+  ]);
 
   // ✅ Handle Chapa Payment
   const handleChapaPayment = async (orderId) => {
@@ -122,6 +189,19 @@ const Checkout = () => {
       toast.error(t("pleaseEnterDeliveryAddress"));
       return;
     }
+    if (serviceType === "delivery" && !deliveryLocation) {
+      toast.error(t("pleaseSelectDeliveryLocation"));
+      return;
+    }
+    if (
+      serviceType === "delivery" &&
+      (deliveryQuote?.latitude !== deliveryLocation.latitude ||
+        deliveryQuote?.longitude !== deliveryLocation.longitude ||
+        deliveryQuote?.subtotal !== (Number(cart.subtotal) || 0))
+    ) {
+      toast.error(deliveryEstimateError || t("deliveryFeeUnavailable"));
+      return;
+    }
     if (!cart.items || cart.items.length === 0) {
       toast.error(t("cartEmpty"));
       return;
@@ -137,6 +217,10 @@ const Checkout = () => {
         })),
         deliveryAddress: {
           address: serviceType === "delivery" ? address.trim() : "",
+          latitude:
+            serviceType === "delivery" ? deliveryLocation.latitude : null,
+          longitude:
+            serviceType === "delivery" ? deliveryLocation.longitude : null,
           phone: phone,
           name: name,
           email: email,
@@ -198,10 +282,13 @@ const Checkout = () => {
   // ✅ Calculate totals
   const subtotal = cart.subtotal || 0;
   const taxAmount = (subtotal * (tax || 8)) / 100;
+  const matchingDeliveryQuote =
+    deliveryQuote?.latitude === deliveryLocation?.latitude &&
+    deliveryQuote?.longitude === deliveryLocation?.longitude &&
+    deliveryQuote?.subtotal === (Number(subtotal) || 0);
   const deliveryFee =
-    serviceType === "delivery" &&
-    subtotal < restaurantSettings.freeDeliveryThreshold
-      ? delivery_fee
+    serviceType === "delivery" && matchingDeliveryQuote
+      ? deliveryQuote.deliveryFee
       : 0;
   const discountAmount =
     couponType === "fixed"
@@ -293,7 +380,11 @@ const Checkout = () => {
                         key={type}
                         type="button"
                         aria-pressed={serviceType === type}
-                        onClick={() => setServiceType(type)}
+                        onClick={() => {
+                          setServiceType(type);
+                          setDeliveryQuote(null);
+                          setDeliveryEstimateError("");
+                        }}
                         className={`min-h-11 rounded-lg px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 ${
                           serviceType === type
                             ? "bg-amber-600 text-white shadow-sm"
@@ -313,11 +404,27 @@ const Checkout = () => {
                         <textarea
                           id="delivery-address"
                           value={address}
-                          onChange={(e) => setAddress(e.target.value)}
+                          maxLength={500}
+                          onChange={(e) => {
+                            setAddress(e.target.value);
+                            setDeliveryQuote(null);
+                          }}
                           placeholder={t("deliveryAddressPlaceholder")}
                           className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-600"
                           required
                         />
+                        <DeliveryLocationPicker
+                          position={deliveryLocation}
+                          onSelect={(position) => {
+                            setDeliveryLocation(position);
+                            setDeliveryQuote(null);
+                            setDeliveryEstimateError("");
+                          }}
+                          label={t("selectDeliveryLocation")}
+                        />
+                        <p className="text-xs text-gray-500">
+                          {t("distancePricingNotice")}
+                        </p>
                       </div>
                     ) : (
                       <div>
@@ -445,8 +552,36 @@ const Checkout = () => {
 
                   <div className="flex justify-between mb-5">
                     <p className="text-md">{t("deliveryFee")}</p>
-                    <p>{formatPrice(deliveryFee)}</p>
+                    <p>
+                      {serviceType !== "delivery"
+                        ? formatPrice(0)
+                        : deliveryEstimateLoading
+                          ? t("calculatingDeliveryFee")
+                          : matchingDeliveryQuote
+                            ? formatPrice(deliveryFee)
+                            : "—"}
+                    </p>
                   </div>
+                  {serviceType === "delivery" && matchingDeliveryQuote && (
+                    <p className="mb-3 text-right text-sm text-gray-600">
+                      {t("estimatedDrivingDistance")}:{" "}
+                      {deliveryQuote.distanceKm} km
+                    </p>
+                  )}
+                  {serviceType === "delivery" && deliveryEstimateError && (
+                    <div className="mb-3 flex items-center justify-between gap-3 text-sm text-red-600">
+                      <span>{deliveryEstimateError}</span>
+                      <button
+                        type="button"
+                        className="shrink-0 underline"
+                        onClick={() =>
+                          setDeliveryEstimateAttempt((attempt) => attempt + 1)
+                        }
+                      >
+                        {t("retry")}
+                      </button>
+                    </div>
+                  )}
                   {discountAmount > 0 && (
                     <div className="flex justify-between mb-2 text-red-600">
                       <p className="text-md">Discount</p>
